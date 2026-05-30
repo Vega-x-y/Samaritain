@@ -6,4 +6,5 @@
     <h1 class="text-2xl">Home</h1>
     <p>Nom : {{ auth()->user()->name }}</p>
     <p>Email : {{ auth()->user()->email }}</p>
+    <img src="{{ auth()->user()->profile_image }}" alt="">
 @endsection

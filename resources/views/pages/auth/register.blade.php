@@ -16,7 +16,7 @@
                 </div>
                 <div>
                     <div class="grid grid-cols-1 gap-3 sm:grid-cols-2 sm:gap-5">
-                        <x-btn style="outline">
+                        <x-btn href="{{ route('auth.redirect', 'google') }}" style="outline">
                             <svg width="20" height="20" viewBox="0 0 20 20" fill="none"
                                 xmlns="http://www.w3.org/2000/svg">
                                 <path
@@ -34,7 +34,7 @@
                             </svg>
                             Se connecter avec Google
                         </x-btn>
-                        <x-btn style="outline">
+                        <x-btn href="{{ route('auth.redirect', 'facebook') }}" style="outline">
                             <svg width="21" class="fill-current" height="20" viewBox="0 0 21 20" fill="none"
                                 xmlns="http://www.w3.org/2000/svg">
                                 <path
