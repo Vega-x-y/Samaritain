@@ -1,6 +1,6 @@
 @props([
-    'name' => 'Acme Inc',
-    'plan' => 'Enterprise',
+    'name' => 'Samaritain Immobilier',
+    'role' => 'Admin',
 ])
 
 <div class="h-14 border-b border-[var(--sidebar-border)] flex items-center px-3 gap-2 justify-between shrink-0 bg-[var(--sidebar)]"
@@ -18,7 +18,7 @@
             x-transition:enter-start="opacity-0 scale-95" x-transition:enter-end="opacity-100 scale-100"
             class="flex flex-col text-left overflow-hidden select-none cursor-pointer flex-1">
             <span class="text-xs font-semibold text-[var(--sidebar-accent-foreground)] truncate leading-tight">{{ $name }}</span>
-            <span class="text-[10px] text-[var(--sidebar-accent-foreground)] truncate leading-tight">{{ $plan }}</span>
+            <span class="text-[10px] text-[var(--sidebar-accent-foreground)] truncate leading-tight">{{ $role }}</span>
         </div>
     </div>
 

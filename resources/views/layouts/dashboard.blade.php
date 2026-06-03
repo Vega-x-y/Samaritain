@@ -9,7 +9,7 @@
     <x-slot:sidebar>
         <x-sidebar>
             <!-- Workspace / Organization Header -->
-            <x-sidebar.header name="Samaritain Immobilier" plan="Professionnel" />
+            <x-sidebar.header name="Samaritain Immobilier" role="Admin" />
             
             <!-- Platform Group -->
             <x-sidebar.group label="Gestion">
