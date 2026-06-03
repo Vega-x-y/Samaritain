@@ -33,7 +33,10 @@ import {
     Briefcase,
     TrendingUp,
     Ticket,
-    Drill
+    Drill,
+    LogOut,
+    User,
+    Settings
 } from "lucide";
 
 createIcons({
@@ -70,7 +73,10 @@ createIcons({
         Briefcase,
         TrendingUp,
         Ticket,
-        Drill
+        Drill,
+        LogOut,
+        User,
+        Settings
     },
 });
 

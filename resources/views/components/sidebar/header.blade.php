@@ -21,9 +21,4 @@
             <span class="text-[10px] text-[var(--sidebar-accent-foreground)] truncate leading-tight">{{ $role }}</span>
         </div>
     </div>
-
-    <!-- Workspace selector dropdown arrow (hidden when collapsed) -->
-    <div x-show="sidebarOpen" class="text-[var(--sidebar-accent-foreground)] shrink-0">
-        <i data-lucide="chevrons-up-down" class="w-3.5 h-3.5"></i>
-    </div>
 </div>
