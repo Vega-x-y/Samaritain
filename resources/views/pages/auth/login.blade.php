@@ -1,6 +1,6 @@
-@extends('layouts.base')
+@extends('layouts.auth')
 
-@section('title', 'Accueil')
+@section('title', 'Connexion')
 
 @section('content')
     <div class="relative z-1 p-6 sm:p-0 dark:bg-gray-900">
@@ -16,7 +16,7 @@
                 </div>
                 <div>
                     <div class="grid grid-cols-1 gap-3 sm:grid-cols-2 sm:gap-5">
-                        <x-btn href="{{ route('auth.redirect', 'google') }}" style="outline">
+                        <x-btn href="{{ route('auth.redirect', 'google') }}" style="outline" class="md:text-xs">
                             <svg width="20" height="20" viewBox="0 0 20 20" fill="none"
                                 xmlns="http://www.w3.org/2000/svg">
                                 <path
@@ -34,11 +34,11 @@
                             </svg>
                             Se connecter avec Google
                         </x-btn>
-                        <x-btn href="{{ route('auth.redirect', 'facebook') }}" style="outline">
-                            <svg width="21" class="fill-current" height="20" viewBox="0 0 21 20" fill="none"
-                                xmlns="http://www.w3.org/2000/svg">
-                                <path
-                                    d="M15.6705 1.875H18.4272L12.4047 8.75833L19.4897 18.125H13.9422L9.59717 12.4442L4.62554 18.125H1.86721L8.30887 10.7625L1.51221 1.875H7.20054L11.128 7.0675L15.6705 1.875ZM14.703 16.475H16.2305L6.37054 3.43833H4.73137L14.703 16.475Z" />
+                        <x-btn href="{{ route('auth.redirect', 'facebook') }}" style="outline" class="md:text-xs">
+                            <svg width="21" class="fill-current" height="24" xmlns="http://www.w3.org/2000/svg"
+                                viewBox="0 0 640 640"><!--!Font Awesome Free v7.2.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free Copyright 2026 Fonticons, Inc.-->
+                                <path fill="rgb(14, 136, 232)"
+                                    d="M576 320C576 178.6 461.4 64 320 64C178.6 64 64 178.6 64 320C64 440 146.7 540.8 258.2 568.5L258.2 398.2L205.4 398.2L205.4 320L258.2 320L258.2 286.3C258.2 199.2 297.6 158.8 383.2 158.8C399.4 158.8 427.4 162 438.9 165.2L438.9 236C432.9 235.4 422.4 235 409.3 235C367.3 235 351.1 250.9 351.1 292.2L351.1 320L434.7 320L420.3 398.2L351 398.2L351 574.1C477.8 558.8 576 450.9 576 320z" />
                             </svg>
 
                             Se connecter avec Facebook
