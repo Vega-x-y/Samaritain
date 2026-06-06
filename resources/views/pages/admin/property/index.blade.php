@@ -2,7 +2,15 @@
 
 @section('content')
     @if (!$properties->isEmpty())
-        <h1>Liste des biens</h1>
+        <div class="flex justify-between">
+            <h1>Liste des biens</h1>
+            <x-btn href="{{ route('admin.property.create') }}">
+                <x-slot:prefix>
+                    <i data-lucide="plus"></i>
+                </x-slot:prefix>
+                Créer un bien
+            </x-btn>
+        </div>
         <x-container-dashed>
             <div x-data="deleteModal()" @keydown.escape="closeModal()">
                 <div class="overflow-x-auto bg-sidebar rounded-lg shadow-sm">

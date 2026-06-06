@@ -20,7 +20,7 @@
         name="{{ $name }}"
         value="{{ old($name, $attributes->get('value')) }}"
         {{ $attributes->merge([
-            'class' => 'w-full h-10 rounded-lg text-sm border border-gray-300 px-4 py-2 focus:outline-hidden focus:ring-2 focus:border-primary focus:ring-primary/10'
+            'class' => 'w-full h-9 rounded-lg text-sm border border-gray-300 px-4 py-2 focus:outline-hidden focus:ring-2 focus:border-primary focus:ring-primary/10'
         ]) }}
     >
 

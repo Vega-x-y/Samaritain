@@ -17,8 +17,9 @@
         type="file"
         id="{{ $name }}"
         name="{{ $name }}"
+        multiple
         {{ $attributes->merge([
-            'class' => 'w-full rounded-lg border border-gray-300 px-4 py-2
+            'class' => 'w-full text-sm rounded-lg border border-gray-300 px-4 py-2
             file:mr-4 file:rounded-md file:border-0
             file:bg-primary file:px-4 file:py-2
             file:text-white hover:file:opacity-90'

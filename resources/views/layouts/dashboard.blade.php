@@ -51,7 +51,9 @@
     </x-slot:breadcrumbs>
 
     @if (session('success'))
-        <x-alert type="success" message="{{ session('success') }}" />
+        <x-alert style="success">
+            {{ session('success') }}
+        </x-alert>
     @endif
 
     @yield('content')

@@ -84,7 +84,7 @@ createIcons({
         Eye,
         Trash,
         Edit,
-        AlertOctagon
+        AlertOctagon,
     },
 });
 
