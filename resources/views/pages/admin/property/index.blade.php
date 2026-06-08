@@ -74,6 +74,9 @@
                         </tbody>
                     </table>
                 </div>
+                <div class="mt-2 mb-2 text-xs">
+                    {{ $properties->links() }}
+                </div>
                 
                 <!-- Modal de confirmation de suppression -->
                 <div x-show="isOpen" class="fixed inset-0 z-50 flex items-center justify-center bg-black/50" @click.self="closeModal()">
