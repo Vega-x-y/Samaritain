@@ -3,6 +3,9 @@
 use App\Http\Controllers\Socialite\ProviderCallbackController;
 use App\Http\Controllers\Socialite\ProviderRedirectController;
 use Illuminate\Support\Facades\Route;
+use App\Http\Controllers\API\ParcelleController;
+use App\Http\Controllers\ParcelleWebController;
+
 
 Route::get('/', function () {
     return view('index');
@@ -15,10 +18,13 @@ Route::get('/home', function () {
     return view('pages.home');
 })->middleware('auth')->name('home');
 
-Route::get('/art', function() {
-    return view ('pages.artisan');
-} );
 
 Route::get('/dashboard', function () {
     return view('pages.dashboard.index');
 })->middleware('auth')->name('dashboard');
+
+Route::get('/parcelles', [ParcelleWebController::class, 'index'])->name('parcelles.index');
+Route::get('/parcelles/create', [ParcelleWebController::class, 'create'])->name('parcelles.create');
+Route::post('/parcelles', [ParcelleWebController::class, 'store'])->name('parcelles.store');
+Route::get('/parcelles/{id}', [ParcelleWebController::class, 'show'])->name('parcelles.show');
+Route::get('/parcelles/{id}/edit', [ParcelleWebController::class, 'edit'])->name('parcelles.edit');
