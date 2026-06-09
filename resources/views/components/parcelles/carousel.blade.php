@@ -164,7 +164,7 @@
         {{-- Cards --}}
         <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
             <template x-for="parcelle in parcellesVisibles" :key="parcelle.id">
-                <div class="bg-white dark:bg-gray-800 rounded-2xl shadow-md overflow-hidden hover:shadow-xl transition-shadow duration-300 flex flex-col">
+                <div class=" overflow-hidden hover:shadow-xl transition-shadow duration-300 flex flex-col">
 
                     {{-- Image --}}
                     <div class="relative h-48 bg-gray-100 dark:bg-gray-700">
@@ -172,7 +172,7 @@
                             <img
                                 :src="imagePrincipale(parcelle).url"
                                 :alt="parcelle.titre"
-                                class="w-full h-full object-cover"
+                                class="w-full h-full object-cover rounded-2xl"
                             />
                         </template>
                         <template x-if="!imagePrincipale(parcelle)">

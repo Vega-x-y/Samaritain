@@ -18,7 +18,7 @@
     $superficie = number_format($parcelle['superficie'], 0, ',', ' ') . ' m²';
 @endphp
 
-<div class="bg-white dark:bg-gray-800 rounded-2xl shadow-md overflow-hidden hover:shadow-xl transition-shadow duration-300 flex flex-col">
+<div class="bg-white dark:bg-red-800 rounded-2xl shadow-md overflow-hidden hover:shadow-xl transition-shadow duration-300 flex flex-col">
 
     {{-- Image --}}
     <div class="relative h-48 bg-gray-100 dark:bg-gray-700">
@@ -89,8 +89,8 @@
         {{-- Bouton --}}
         
     <a href="#" class="mt-2 w-full bg-emerald-600 hover:bg-emerald-700 text-white text-sm font-semibold py-2 rounded-xl transition-colors duration-200 text-center block" >
-            Voir les détails
-        </a>
+         Voir
+    </a>
 
     </div>
 </div>
