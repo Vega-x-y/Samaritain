@@ -2,75 +2,6 @@
 
 @section('title', 'Accueil')
 
-@php
-    $properties = [
-        [
-            'image' => 'https://images.unsplash.com/photo-1505693416388-ac5ce068fe85?q=80&w=1200&auto=format&fit=crop',
-            'alt' => 'Appartement',
-            'title' => 'Appartement familial à Paris',
-            'location' => 'Paris 16e, France',
-            'rating' => 4.95,
-            'description' => '3 chambres • 120 m²',
-            'price' => 1200,
-            'badge' => 'Vérifier',
-            'favorite' => true,
-        ],
-        [
-            'image' => 'https://images.unsplash.com/photo-1494526585095-c41746248156?q=80&w=1200&auto=format&fit=crop',
-            'alt' => 'Maison',
-            'title' => 'Loft industriel à Montréal',
-            'location' => 'Montréal, Canada',
-            'rating' => 4.88,
-            'description' => '2 chambres • 90 m²',
-            'price' => 1850,
-            'favorite' => false,
-        ],
-        [
-            'image' => 'https://images.unsplash.com/photo-1448630360428-65456885c650?q=80&w=1200&auto=format&fit=crop',
-            'alt' => 'Maison de campagne',
-            'title' => 'Maison de campagne',
-            'location' => 'Bordeaux, France',
-            'rating' => 4.99,
-            'description' => '4 chambres • 180 m²',
-            'price' => 2400,
-            'badge' => 'Vérifier',
-            'favorite' => false,
-        ],
-        [
-            'image' => 'https://images.unsplash.com/photo-1448630360428-65456885c650?q=80&w=1200&auto=format&fit=crop',
-            'alt' => 'Maison de campagne',
-            'title' => 'Maison de campagne',
-            'location' => 'Bordeaux, France',
-            'rating' => 4.99,
-            'description' => '4 chambres • 180 m²',
-            'price' => 2400,
-            'badge' => 'Vérifier',
-            'favorite' => false,
-        ],
-        [
-            'image' => 'https://images.unsplash.com/photo-1448630360428-65456885c650?q=80&w=1200&auto=format&fit=crop',
-            'alt' => 'Maison de campagne',
-            'title' => 'Maison de campagne',
-            'location' => 'Bordeaux, France',
-            'rating' => 4.99,
-            'description' => '4 chambres • 180 m²',
-            'price' => 2400,
-            'badge' => 'Vérifier',
-            'favorite' => false,
-        ],
-        [
-            'image' => 'https://images.unsplash.com/photo-1512917774080-9991f1c4c750?q=80&w=1200&auto=format&fit=crop',
-            'alt' => 'Maison luxe',
-            'title' => 'Maison familiale avec piscine',
-            'location' => 'Nice, France',
-            'rating' => 5.0,
-            'description' => '5 chambres • 250 m²',
-            'price' => 3900,
-            'favorite' => true,
-        ],
-    ];
-@endphp
-
 @section('content')
     <x-blade-components::layout.container>
         <header class="bg-primary mt-2 mb-2 rounded-xl flex flex-col md:flex-row items-center justify-between gap-4 p-12">
@@ -138,7 +69,9 @@
                     <h2 class="text-xl font-bold text-gray-800">Nos biens à découvrir</h2>
 
                     <button class="bg-gray-200 px-1 py-1 rounded-full">
-                        <i data-lucide="arrow-right" class="w-4 h-4"></i>
+                        <a href="{{ route('property.index') }}">
+                            <i data-lucide="arrow-right" class="w-4 h-4"></i>
+                        </a>
                     </button>
                 </div>
                 <div class="md:flex items-center gap-1 hidden">
@@ -172,19 +105,19 @@
                     @foreach ($properties as $property)
                         <div class="group cursor-pointer flex-shrink-0 w-72 md:w-80 lg:w-64 snap-start">
                             <div class="relative overflow-hidden rounded-2xl">
-                                <img src="{{ $property['image'] }}" alt="{{ $property['alt'] }}"
+                                <img src="{{ $property->images->first()->image_url }}" alt="{{ $property->title }}"
                                     class="w-full h-42 object-cover transition duration-300 group-hover:scale-105" />
 
-                                <button class="absolute top-3 right-3 bg-white/80 backdrop-blur-sm p-2 rounded-full shadow">
+                                {{-- <button class="absolute top-3 right-3 bg-white/80 backdrop-blur-sm p-2 rounded-full shadow">
                                     <i data-lucide="heart"
                                         class="w-4 h-4 {{ $property['favorite'] ? 'text-red-500' : 'text-gray-400' }}"></i>
-                                </button>
+                                </button> --}}
 
-                                @if (!empty($property['badge']))
+                                @if (!empty($property->status))
                                     <span
                                         class="absolute flex gap-1 items-center bottom-3 left-3 bg-blue-200/60 text-blue-500 text-xs font-medium px-3 py-1 rounded-full shadow">
                                         <i data-lucide="badge-check" class="w-4 h-4"></i>
-                                        {{ $property['badge'] }}
+                                        {{ $property->status }}
                                     </span>
                                 @endif
                             </div>
@@ -193,26 +126,29 @@
                                 <div class="flex items-start justify-between">
                                     <div>
                                         <h3 class="font-semibold text-xs text-gray-700">
-                                            {{ $property['title'] }}
+                                            <a href="{{ route('property.show', ['property' => $property->id]) }}">
+                                                {{ $property->title }}
+                                            </a>
                                         </h3>
 
                                         <p class="text-gray-500 text-xs">
-                                            {{ $property['location'] }}
+                                            {{ $property->city->name }}
+                                            {{ $property->address }}
                                         </p>
                                     </div>
 
-                                    <div class="flex items-center gap-1 text-xs font-medium">
+                                    {{-- <div class="flex items-center gap-1 text-xs font-medium">
                                         <i data-lucide="star" class="w-4 h-4 text-yellow-400"></i>
                                         {{ $property['rating'] }}
-                                    </div>
+                                    </div> --}}
                                 </div>
 
                                 <p class="text-gray-500 text-xs">
-                                    {{ $property['description'] }}
+                                    {{ $property->description }}
                                 </p>
 
                                 <p class="text-gray-700 text-xs">
-                                    <span class="font-semibold">{{ number_format($property['price'], 0, ',', ' ') }}FCFA</span>
+                                    <span class="font-semibold">{{ number_format($property->price, 0, ',', ' ') }}FCFA</span>
                                     <span class="text-gray-500"> / mois</span>
                                 </p>
 

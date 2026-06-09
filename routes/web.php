@@ -4,16 +4,23 @@ use App\Http\Controllers\Admin\PropertyController;
 use App\Http\Controllers\Socialite\ProviderCallbackController;
 use App\Http\Controllers\Socialite\ProviderRedirectController;
 use Illuminate\Support\Facades\Route;
-use App\Http\Controllers\API\ParcelleController;
+use App\Http\Controllers\Admin\ParcelleController;
+use App\Http\Controllers\HomeController;
 use App\Http\Controllers\ParcelleWebController;
+use App\Http\Controllers\PropertyController as UsersPropertyController;
 
-
-Route::get('/', function () {
-    return view('index');
-})->name('index');
+Route::get('/', [HomeController::class, 'index'])->name('index');
+Route::get('/properties', [UsersPropertyController::class, 'index'])
+    ->name('property.index');
+Route::get('/properties/{property}', [UsersPropertyController::class, 'show'])
+    ->name('property.show');
 
 Route::prefix('/admin/dashboard')->middleware('auth')->name('admin.')->group(function () {
+    Route::get('/', function () {
+        return view('pages.admin.index');
+    })->name('index');
     Route::resource('property', PropertyController::class)->except('show');
+    Route::resource('parcelle', ParcelleController::class)->except('show');
 });
 
 Route::get('/auth/{provider}/redirect', ProviderRedirectController::class)->name('auth.redirect');

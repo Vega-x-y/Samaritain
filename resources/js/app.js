@@ -40,7 +40,9 @@ import {
     Eye,
     Trash,
     Edit,
-    AlertOctagon
+    AlertOctagon,
+    LandPlot,
+    LayoutDashboard
 } from "lucide";
 
 createIcons({
@@ -85,6 +87,8 @@ createIcons({
         Trash,
         Edit,
         AlertOctagon,
+        LandPlot,
+        LayoutDashboard
     },
 });
 
