@@ -1,5 +1,5 @@
 <x-layout.dashboard>
-    
+
     <!-- Title Slot -->
     <x-slot:title>
         Dashboard - Samaritain Immobilier
@@ -10,18 +10,25 @@
         <x-sidebar>
             <!-- Workspace / Organization Header -->
             <x-sidebar.header name="Samaritain Immobilier" role="Admin" />
-            
+
             <!-- Platform Group -->
             <x-sidebar.group label="Gestion">
                 <!-- Collapsible Properties item, expanded by default -->
-                <x-sidebar.item icon="home" label="Propriétés" :active="false" :expanded="true">
-                    <x-sidebar.sub-item label="Tous les biens" href="{{ route('admin.property.index') }}" />
-                    <x-sidebar.sub-item label="Les biens vérifiés" href="#" />
-                    <x-sidebar.sub-item label="Les biens non vérifiés" href="#" />
-                    <x-sidebar.sub-item label="Les biens en cour de vérification" href="#" />
-                    <x-sidebar.sub-item label="Nouvelles annonces" href="#" />
+                <x-sidebar.item icon="layout-dashboard" label="Tableau de bord" href="{{ route('admin.index') }}" :active="request()->routeIs('admin.index')" />
+                <x-sidebar.item icon="home" label="Propriétés" :active="request()->routeIs('admin.property.*')" :expanded="request()->routeIs('admin.property.*')">
+                    <x-sidebar.sub-item label="Tous les biens" href="{{ route('admin.property.index') }}"
+                        :active="request()->routeIs('admin.property.index')" />
+
+                    <x-sidebar.sub-item label="Les biens vérifiés" href="#" :active="request()->routeIs('admin.property.verified')" />
+
+                    <x-sidebar.sub-item label="Les biens non vérifiés" href="#" :active="request()->routeIs('admin.property.unverified')" />
+
+                    <x-sidebar.sub-item label="Les biens en cour de vérification" href="#" :active="request()->routeIs('admin.property.pending')" />
+
+                    <x-sidebar.sub-item label="Nouvelles annonces" href="#" :active="request()->routeIs('admin.property.new')" />
                 </x-sidebar.item>
-                
+
+                <x-sidebar.item icon="land-plot" label="Parcelles" href="{{ route('admin.parcelle.index') }}" :active="request()->routeIs('admin.parcelle.index')" />
                 <x-sidebar.item icon="drill" label="Artisans" href="#" />
                 <x-sidebar.item icon="users" label="Clients" href="#" />
                 <x-sidebar.item icon="ticket" label="Passe visite" href="#" />
@@ -37,8 +44,9 @@
             </x-sidebar.group>
 
             <!-- User Profile Footer -->
-            @if(auth()->user()->avatar)
-                <x-sidebar.footer name="{{ auth()->user()->name }}" email="{{ auth()->user()->email }}" avatar="{{ auth()->user()->avatar }}" />
+            @if (auth()->user()->avatar)
+                <x-sidebar.footer name="{{ auth()->user()->name }}" email="{{ auth()->user()->email }}"
+                    avatar="{{ auth()->user()->avatar }}" />
             @else
                 <x-sidebar.footer name="{{ auth()->user()->name }}" email="{{ auth()->user()->email }}" />
             @endif
@@ -57,5 +65,5 @@
     @endif
 
     @yield('content')
-    
+
 </x-layout.dashboard>
