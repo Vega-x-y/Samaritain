@@ -1,5 +1,7 @@
 @extends('layouts.dashboard')
 
+@section('title', 'Les biens')
+
 @section('content')
     @if (!$properties->isEmpty())
         <div class="flex justify-between">
@@ -19,13 +21,12 @@
                             <tr>
                                 <th class="px-4 py-3 text-left">ID</th>
                                 <th class="px-4 py-3 text-left">Titre</th>
-                                <th class="px-4 py-3 text-left">Surface (m²)</th>
                                 <th class="px-4 py-3 text-left">Prix</th>
                                 <th class="px-4 py-3 text-left">Pièces</th>
-                                <th class="px-4 py-3 text-left">Chambres</th>
-                                <th class="px-4 py-3 text-left">Étages</th>
-                                <th class="px-4 py-3 text-left">Adresse</th>
+                                <th class="px-4 py-3 text-left">Ville</th>
                                 <th class="px-4 py-3 text-left">Statut</th>
+                                <th class="px-4 py-3 text-left">Vérifié</th>
+                                <th class="px-4 py-3 text-left">Actif</th>
                                 <th class="px-4 py-3 text-center">Actions</th>
                             </tr>
                         </thead>
@@ -33,35 +34,53 @@
                         <tbody class="divide-y divide-gray-100">
                             @foreach ($properties as $property)
                                 <tr>
-                                    <td class="px-4 py-3">#{{ $property->id }}</td>
-                                    <td class="px-4 py-3">{{ $property->title }}</td>
-                                    <td class="px-4 py-3">{{ $property->surface }}</td>
+                                    <td class="px-4 py-3">#{{ $loop->iteration }}</td>
+                                    <td class="px-4 py-3 font-medium hover:text-blue-600">
+                                        <a href="{{ route('admin.property.show', $property) }}">{{ $property->title }}</a>
+                                    </td>
                                     <td class="px-4 py-3">{{ number_format($property->price, 0, ',', ' ') }}</td>
                                     <td class="px-4 py-3">{{ $property->rooms }}</td>
-                                    <td class="px-4 py-3">{{ $property->bedrooms }}</td>
-                                    <td class="px-4 py-3">{{ $property->floor }}</td>
-                                    <td class="px-4 py-3">{{ $property->address }}</td>
+                                    <td class="px-4 py-3">{{ $property->ville }}</td>
                                     <td class="px-4 py-3">
                                         @switch($property->status->value)
                                             @case('available')
-                                                <span
-                                                    class="px-2 py-1 text-xs font-medium text-green-500 bg-green-300 rounded-full">disponible</span>
+                                                <span class="px-2 py-1 text-xs font-medium text-green-500 bg-green-300 rounded-full">disponible</span>
                                             @break
-    
                                             @case('sold')
-                                                <span
-                                                    class="px-2 py-1 text-xs font-medium text-red-500 bg-red-300 rounded-full">vendu</span>
+                                                <span class="px-2 py-1 text-xs font-medium text-red-500 bg-red-300 rounded-full">vendu</span>
                                             @break
-    
                                             @default
-                                                <span
-                                                    class="px-2 py-1 text-xs font-medium text-blue-500 bg-blue-300 rounded-full">loué</span>
+                                                <span class="px-2 py-1 text-xs font-medium text-blue-500 bg-blue-300 rounded-full">loué</span>
                                         @endswitch
                                     </td>
-    
+                                    <td class="px-4 py-3">
+                                        @if($property->is_verify)
+                                            <span class="px-2 py-1 text-xs font-medium text-green-500 bg-green-300 rounded-full">
+                                                <i data-lucide="check-circle" class="inline w-3 h-3"></i> Oui
+                                            </span>
+                                        @else
+                                            <span class="px-2 py-1 text-xs font-medium text-yellow-500 bg-yellow-300 rounded-full">
+                                                <i data-lucide="clock" class="inline w-3 h-3"></i> Non
+                                            </span>
+                                        @endif
+                                    </td>
+                                    <td class="px-4 py-3">
+                                        @if($property->is_active)
+                                            <span class="px-2 py-1 text-xs font-medium text-green-500 bg-green-300 rounded-full">
+                                                <i data-lucide="eye" class="inline w-3 h-3"></i> Actif
+                                            </span>
+                                        @else
+                                            <span class="px-2 py-1 text-xs font-medium text-red-500 bg-red-300 rounded-full">
+                                                <i data-lucide="eye-off" class="inline w-3 h-3"></i> Inactif
+                                            </span>
+                                        @endif
+                                    </td>
                                     <td class="px-4 py-3">
                                         <div class="flex items-center justify-center gap-2">
-                                            <a href="{{ route('admin.property.edit', $property) }}" class="block text-blue-500">
+                                            <a href="{{ route('admin.property.show', $property) }}" class="block text-blue-500">
+                                                <i data-lucide="eye" class="w-4 h-4"></i>
+                                            </a>
+                                            <a href="{{ route('admin.property.edit', $property) }}" class="block text-yellow-500">
                                                 <i data-lucide="edit" class="w-4 h-4"></i>
                                             </a>
                                             <button @click="openModal('{{ route('admin.property.destroy', $property) }}', '{{ $property->title }}')" class="block text-destructive">

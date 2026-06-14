@@ -2,7 +2,16 @@
 
 namespace App\Providers;
 
+use App\Models\AgencyInvitation;
+use App\Models\Property;
+use App\Models\User;
+use App\Policies\InvitationPolicy;
+use App\Policies\MemberPolicy;
+use App\Policies\PropertyPolicy;
+use App\Policies\RolePolicy;
+use Illuminate\Support\Facades\Gate;
 use Illuminate\Support\ServiceProvider;
+use Spatie\Permission\Models\Role;
 
 class AppServiceProvider extends ServiceProvider
 {
@@ -19,6 +28,9 @@ class AppServiceProvider extends ServiceProvider
      */
     public function boot(): void
     {
-        //
+        Gate::policy(Property::class, PropertyPolicy::class);
+        Gate::policy(User::class, MemberPolicy::class);
+        Gate::policy(AgencyInvitation::class, InvitationPolicy::class);
+        Gate::policy(Role::class, RolePolicy::class);
     }
 }

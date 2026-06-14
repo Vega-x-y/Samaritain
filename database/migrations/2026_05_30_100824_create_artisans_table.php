@@ -14,12 +14,20 @@ return new class extends Migration
         Schema::create('artisans', function (Blueprint $table) {
             $table->id();
             $table->foreignId('user_id')->constrained()->onDelete('cascade');
-            $table->string('specialty');
-            $table->text('description')->nullable();
-            $table->string('service_area')->nullable();
-            $table->string('years_of_experience')->nullable();
-            $table->string('available')->nullable();
-            $table->string('average_rating')->nullable();
+            $table->string('business_name');
+            $table->string('slug')->unique();
+            $table->string('profession');
+            $table->text('bio');
+            $table->string('phone');
+            $table->string('whatsapp')->nullable();
+            $table->string('website')->nullable();
+            $table->string('avatar')->nullable();
+            $table->string('cover')->nullable();
+            $table->string('city')->nullable();
+            // $table->foreignId('city_id')->constrained()->cascadeOnDelete();
+            $table->integer('experience')->nullable();
+            $table->boolean('verified')->nullable();
+            $table->boolean('is_active')->nullable();
             $table->timestamps();
 
 

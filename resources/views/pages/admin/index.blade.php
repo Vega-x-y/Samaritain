@@ -1,18 +1,304 @@
 @extends('layouts.dashboard')
 
+@section('title', 'Tableau de bord')
+
 @section('content')
-    <!-- Top Grid Section (Three cards) -->
-    <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4 shrink-0">
-        <x-card class="aspect-video" />
-        <x-card class="aspect-video" />
-        <x-card class="aspect-video" />
+    <!-- En-tête avec bienvenue -->
+    <div class="mb-8">
+        <h1 class="text-2xl font-bold text-gray-800">Bonjour, {{ auth()->user()->name }} 👋</h1>
+        <p class="text-gray-500 mt-1">Voici ce qui se passe sur votre plateforme aujourd'hui.</p>
     </div>
 
-    <!-- Bottom Wide Container -->
-    <x-card class="flex-1 min-h-[350px] w-full" />
-    hjjkj
-    <x-card class="flex-1 min-h-[350px] w-full" />
-    <x-card class="flex-1 min-h-[350px] w-full" />
-    <x-card class="flex-1 min-h-[350px] w-full" />
-    jhjjkkjkkjdkdk
+    <!-- Cartes de statistiques principales -->
+    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5 mb-8">
+        <!-- Total utilisateurs -->
+        <div class="bg-white rounded-xl shadow-sm border border-gray-100 p-5 hover:shadow-md transition">
+            <div class="flex items-center justify-between mb-3">
+                <div class="bg-blue-100 rounded-xl p-3">
+                    <i data-lucide="users" class="w-6 h-6 text-blue-600"></i>
+                </div>
+                <span class="text-xs text-gray-400 bg-gray-100 px-2 py-1 rounded-full">Total</span>
+            </div>
+            <div class="text-2xl font-bold text-gray-800">{{ $totalUsers }}</div>
+            <div class="text-sm text-gray-500 mt-1">Utilisateurs inscrits</div>
+            <div class="text-xs text-emerald-600 mt-2">+{{ $newThisWeek }} cette semaine</div>
+        </div>
+
+        <!-- Total biens -->
+        <div class="bg-white rounded-xl shadow-sm border border-gray-100 p-5 hover:shadow-md transition">
+            <div class="flex items-center justify-between mb-3">
+                <div class="bg-emerald-100 rounded-xl p-3">
+                    <i data-lucide="building" class="w-6 h-6 text-emerald-600"></i>
+                </div>
+            </div>
+            <div class="text-2xl font-bold text-gray-800">{{ $totalProperties }}</div>
+            <div class="text-sm text-gray-500 mt-1">Biens immobiliers</div>
+            <div class="text-xs text-gray-400 mt-2">{{ number_format($totalValue, 0, ',', ' ') }} FCFA</div>
+        </div>
+
+        <!-- Pass actifs -->
+        <div class="bg-white rounded-xl shadow-sm border border-gray-100 p-5 hover:shadow-md transition">
+            <div class="flex items-center justify-between mb-3">
+                <div class="bg-purple-100 rounded-xl p-3">
+                    <i data-lucide="ticket" class="w-6 h-6 text-purple-600"></i>
+                </div>
+            </div>
+            <div class="text-2xl font-bold text-gray-800">{{ $activePasses }}</div>
+            <div class="text-sm text-gray-500 mt-1">Pass actifs</div>
+            <div class="text-xs text-gray-400 mt-2">{{ $totalScans }} scans effectués</div>
+        </div>
+
+        <!-- Taux d'activité -->
+        <div class="bg-white rounded-xl shadow-sm border border-gray-100 p-5 hover:shadow-md transition">
+            <div class="flex items-center justify-between mb-3">
+                <div class="bg-amber-100 rounded-xl p-3">
+                    <i data-lucide="activity" class="w-6 h-6 text-amber-600"></i>
+                </div>
+                <i data-lucide="circle-check" class="w-4 h-4 text-emerald-500"></i>
+            </div>
+            <div class="text-2xl font-bold text-gray-800">{{ $activityRate }}%</div>
+            <div class="text-sm text-gray-500 mt-1">Taux d'activité</div>
+            <div class="text-xs text-gray-400 mt-2">des passes</div>
+        </div>
+    </div>
+
+    <!-- Statistiques détaillées des biens -->
+    <div class="grid grid-cols-1 md:grid-cols-4 gap-5 mb-8">
+        <div class="bg-gradient-to-br from-emerald-500 to-emerald-600 rounded-xl p-4 text-white">
+            <div class="flex items-center justify-between mb-2">
+                <i data-lucide="home" class="w-5 h-5 opacity-80"></i>
+                <span class="text-xs bg-white/20 px-2 py-0.5 rounded-full">Disponibles</span>
+            </div>
+            <div class="text-2xl font-bold">{{ $availableProperties }}</div>
+            <div class="text-xs opacity-80 mt-1">biens disponibles</div>
+        </div>
+
+        <div class="bg-gradient-to-br from-red-500 to-red-600 rounded-xl p-4 text-white">
+            <div class="flex items-center justify-between mb-2">
+                <i data-lucide="check-circle" class="w-5 h-5 opacity-80"></i>
+                <span class="text-xs bg-white/20 px-2 py-0.5 rounded-full">Vendus</span>
+            </div>
+            <div class="text-2xl font-bold">{{ $soldProperties }}</div>
+            <div class="text-xs opacity-80 mt-1">biens vendus</div>
+        </div>
+
+        <div class="bg-gradient-to-br from-blue-500 to-blue-600 rounded-xl p-4 text-white">
+            <div class="flex items-center justify-between mb-2">
+                <i data-lucide="key" class="w-5 h-5 opacity-80"></i>
+                <span class="text-xs bg-white/20 px-2 py-0.5 rounded-full">Loués</span>
+            </div>
+            <div class="text-2xl font-bold">{{ $rentedProperties }}</div>
+            <div class="text-xs opacity-80 mt-1">biens loués</div>
+        </div>
+
+        <div class="bg-gradient-to-br from-indigo-500 to-indigo-600 rounded-xl p-4 text-white">
+            <div class="flex items-center justify-between mb-2">
+                <i data-lucide="trending-up" class="w-5 h-5 opacity-80"></i>
+                <span class="text-xs bg-white/20 px-2 py-0.5 rounded-full">Valeur totale</span>
+            </div>
+            <div class="text-xl font-bold">{{ number_format($totalValue, 0, ',', ' ') }}</div>
+            <div class="text-xs opacity-80 mt-1">FCFA</div>
+        </div>
+    </div>
+
+    <!-- Graphique et actions rapides -->
+    <div class="grid grid-cols-1 lg:grid-cols-3 gap-6 mb-8">
+        <!-- Top biens -->
+        <div class="lg:col-span-2 bg-white rounded-xl shadow-sm border border-gray-100 p-5">
+            <div class="flex justify-between items-center mb-5">
+                <div>
+                    <h3 class="font-semibold text-gray-800">Top 3 des biens les plus chers</h3>
+                    <p class="text-xs text-gray-400 mt-1">Classement par valeur</p>
+                </div>
+                <a href="{{ route('admin.property.index') }}" class="text-xs text-blue-600 hover:text-blue-700">Voir tous →</a>
+            </div>
+            <div class="space-y-3">
+                @forelse($topProperties as $property)
+                    <div class="flex items-center justify-between p-3 bg-gray-50 rounded-lg">
+                        <div class="flex items-center gap-3">
+                            <div class="w-10 h-10 bg-gradient-to-br from-emerald-500 to-emerald-600 rounded-lg flex items-center justify-center text-white">
+                                <i data-lucide="building" class="w-5 h-5"></i>
+                            </div>
+                            <div>
+                                <p class="font-medium text-gray-800">{{ $property->title }}</p>
+                                <p class="text-xs text-gray-400">{{ $property->surface }} m² · {{ $property->rooms }} pièces</p>
+                            </div>
+                        </div>
+                        <div class="text-right">
+                            <p class="font-bold text-gray-800">{{ number_format($property->price, 0, ',', ' ') }} FCFA</p>
+                            <span class="text-xs px-2 py-0.5 rounded-full bg-{{ $property->status === 'available' ? 'emerald' : ($property->status === 'sold' ? 'red' : 'blue') }}-100 text-{{ $property->status === 'available' ? 'emerald' : ($property->status === 'sold' ? 'red' : 'blue') }}-600">
+                                {{ ucfirst($property->status) }}
+                            </span>
+                        </div>
+                    </div>
+                @empty
+                    <div class="text-center py-8">
+                        <i data-lucide="home" class="w-10 h-10 text-gray-300 mx-auto mb-2"></i>
+                        <p class="text-sm text-gray-400">Aucun bien enregistré</p>
+                    </div>
+                @endforelse
+            </div>
+        </div>
+
+        <!-- Actions rapides -->
+        <div class="bg-white rounded-xl shadow-sm border border-gray-100 p-5">
+            <h3 class="font-semibold text-gray-800 mb-4">Actions rapides</h3>
+            <div class="space-y-3">
+                <a href="{{ route('admin.property.create') }}" class="flex items-center gap-3 p-3 bg-gray-50 rounded-lg hover:bg-emerald-50 transition group">
+                    <div class="bg-emerald-100 rounded-lg p-2 group-hover:bg-emerald-200 transition">
+                        <i data-lucide="building" class="w-5 h-5 text-emerald-600"></i>
+                    </div>
+                    <div>
+                        <p class="font-medium text-gray-800 text-sm">Ajouter un bien</p>
+                        <p class="text-xs text-gray-400">Nouvelle propriété immobilière</p>
+                    </div>
+                    <i data-lucide="arrow-right" class="w-4 h-4 text-gray-400 ml-auto group-hover:text-emerald-500"></i>
+                </a>
+                
+                <a href="{{ route('passes.create') }}" class="flex items-center gap-3 p-3 bg-gray-50 rounded-lg hover:bg-blue-50 transition group">
+                    <div class="bg-blue-100 rounded-lg p-2 group-hover:bg-blue-200 transition">
+                        <i data-lucide="ticket-plus" class="w-5 h-5 text-blue-600"></i>
+                    </div>
+                    <div>
+                        <p class="font-medium text-gray-800 text-sm">Créer un Pass</p>
+                        <p class="text-xs text-gray-400">Ajouter un nouveau pass visiteur</p>
+                    </div>
+                    <i data-lucide="arrow-right" class="w-4 h-4 text-gray-400 ml-auto group-hover:text-blue-500"></i>
+                </a>
+                
+                <a href="{{ route('passes.index') }}" class="flex items-center gap-3 p-3 bg-gray-50 rounded-lg hover:bg-purple-50 transition group">
+                    <div class="bg-purple-100 rounded-lg p-2 group-hover:bg-purple-200 transition">
+                        <i data-lucide="list" class="w-5 h-5 text-purple-600"></i>
+                    </div>
+                    <div>
+                        <p class="font-medium text-gray-800 text-sm">Liste des passes</p>
+                        <p class="text-xs text-gray-400">Gérer tous les passes</p>
+                    </div>
+                    <i data-lucide="arrow-right" class="w-4 h-4 text-gray-400 ml-auto group-hover:text-purple-500"></i>
+                </a>
+            </div>
+        </div>
+    </div>
+
+    <!-- Deuxième ligne de contenu -->
+    <div class="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-6">
+        <!-- Derniers biens ajoutés -->
+        <div class="bg-white rounded-xl shadow-sm border border-gray-100 p-5">
+            <div class="flex justify-between items-center mb-4">
+                <h3 class="font-semibold text-gray-800">Derniers biens ajoutés</h3>
+                <i data-lucide="building" class="w-4 h-4 text-gray-400"></i>
+            </div>
+            <div class="space-y-3">
+                @forelse($recentProperties as $property)
+                    <div class="flex items-center justify-between p-2 hover:bg-gray-50 rounded-lg transition">
+                        <div class="flex-1">
+                            <p class="text-sm font-medium text-gray-800">{{ $property->title }}</p>
+                            <p class="text-xs text-gray-400">{{ $property->address }} · {{ $property->surface }} m²</p>
+                        </div>
+                        <div class="flex items-center gap-2">
+                            <span class="text-sm font-semibold text-gray-800">{{ number_format($property->price, 0, ',', ' ') }}</span>
+                            <span class="text-xs px-2 py-0.5 rounded-full bg-{{ $property->status === 'available' ? 'emerald' : ($property->status === 'sold' ? 'red' : 'blue') }}-100 text-{{ $property->status === 'available' ? 'emerald' : ($property->status === 'sold' ? 'red' : 'blue') }}-600">
+                                {{ ucfirst($property->status) }}
+                            </span>
+                        </div>
+                    </div>
+                @empty
+                    <div class="text-center py-8">
+                        <i data-lucide="building" class="w-10 h-10 text-gray-300 mx-auto mb-2"></i>
+                        <p class="text-sm text-gray-400">Aucun bien récent</p>
+                    </div>
+                @endforelse
+                <div class="pt-2">
+                    <a href="{{ route('admin.property.index') }}" class="text-xs text-blue-600 hover:text-blue-700">
+                        Voir tous les biens →
+                    </a>
+                </div>
+            </div>
+        </div>
+
+        <!-- Derniers passes créés -->
+        <div class="bg-white rounded-xl shadow-sm border border-gray-100 p-5">
+            <div class="flex justify-between items-center mb-4">
+                <h3 class="font-semibold text-gray-800">Derniers passes</h3>
+                <i data-lucide="ticket" class="w-4 h-4 text-gray-400"></i>
+            </div>
+            <div class="space-y-3">
+                @forelse($recentPasses as $pass)
+                    <div class="flex items-center justify-between p-2 hover:bg-gray-50 rounded-lg transition">
+                        <div class="flex-1">
+                            <p class="text-sm font-medium text-gray-800">{{ $pass->holder_name }}</p>
+                            <p class="text-xs text-gray-400">{{ $pass->phone }}</p>
+                        </div>
+                        <div class="flex items-center gap-2">
+                            <span class="px-2 py-0.5 text-xs rounded-full bg-{{ $pass->status === 'actif' ? 'emerald' : ($pass->status === 'expiré' ? 'red' : 'gray') }}-100 text-{{ $pass->status === 'actif' ? 'emerald' : ($pass->status === 'expiré' ? 'red' : 'gray') }}-600">
+                                {{ ucfirst($pass->status) }}
+                            </span>
+                            <span class="text-xs text-gray-400">{{ $pass->created_at->diffForHumans() }}</span>
+                        </div>
+                    </div>
+                @empty
+                    <div class="text-center py-8">
+                        <i data-lucide="ticket" class="w-10 h-10 text-gray-300 mx-auto mb-2"></i>
+                        <p class="text-sm text-gray-400">Aucun pass récent</p>
+                    </div>
+                @endforelse
+            </div>
+        </div>
+    </div>
+
+    <!-- Derniers utilisateurs et scans -->
+    <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+        <!-- Derniers utilisateurs inscrits -->
+        <div class="bg-white rounded-xl shadow-sm border border-gray-100 p-5">
+            <div class="flex justify-between items-center mb-4">
+                <h3 class="font-semibold text-gray-800">Derniers inscrits</h3>
+                <i data-lucide="users" class="w-4 h-4 text-gray-400"></i>
+            </div>
+            <div class="space-y-3">
+                @forelse($recentUsers as $user)
+                    <div class="flex items-center justify-between p-2 hover:bg-gray-50 rounded-lg transition">
+                        <div class="flex items-center gap-3">
+                            <div class="w-9 h-9 rounded-full bg-gradient-to-br from-blue-500 to-blue-600 flex items-center justify-center text-white font-semibold text-sm">
+                                {{ strtoupper(substr($user->name, 0, 1)) }}
+                            </div>
+                            <div>
+                                <p class="text-sm font-medium text-gray-800">{{ $user->name }}</p>
+                                <p class="text-xs text-gray-400">{{ $user->email }}</p>
+                            </div>
+                        </div>
+                        <span class="text-xs text-gray-400">{{ $user->created_at->diffForHumans() }}</span>
+                    </div>
+                @empty
+                    <div class="text-center py-8">
+                        <i data-lucide="users" class="w-10 h-10 text-gray-300 mx-auto mb-2"></i>
+                        <p class="text-sm text-gray-400">Aucun utilisateur récent</p>
+                    </div>
+                @endforelse
+            </div>
+        </div>
+
+        <!-- Derniers scans -->
+        @if($recentScans->isNotEmpty())
+        <div class="bg-white rounded-xl shadow-sm border border-gray-100 p-5">
+            <div class="flex justify-between items-center mb-4">
+                <h3 class="font-semibold text-gray-800">Dernières activités de scan</h3>
+                <i data-lucide="scan" class="w-4 h-4 text-gray-400"></i>
+            </div>
+            <div class="space-y-3 max-h-80 overflow-y-auto">
+                @foreach($recentScans as $scan)
+                    <div class="flex items-center justify-between p-2 hover:bg-gray-50 rounded-lg transition">
+                        <div class="flex-1">
+                            <p class="text-sm font-medium text-gray-800">{{ $scan->pass->holder_name }}</p>
+                            <p class="text-xs text-gray-400">Scanné par {{ $scan->user->name }}</p>
+                        </div>
+                        <div class="text-right">
+                            <span class="text-xs text-gray-400">{{ $scan->scanned_at->format('d/m/Y H:i') }}</span>
+                            <span class="text-xs text-gray-400 block">{{ $scan->ip_address }}</span>
+                        </div>
+                    </div>
+                @endforeach
+            </div>
+        </div>
+        @endif
+    </div>
 @endsection

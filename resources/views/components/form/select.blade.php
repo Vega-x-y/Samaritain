@@ -4,6 +4,8 @@
     'options' => [],
     'placeholder' => null,
     'value' => null,
+    'icon' => null,
+    'required' => false,
 
     // Pour les tableaux associatifs
     'optionValue' => 'id',
@@ -17,13 +19,23 @@
             class="block text-xs font-medium text-gray-700 mb-1"
         >
             {{ $label }}
+            @if($required)
+                <span class="text-red-500">*</span>
+            @endif
         </label>
     @endif
 
     <div class="relative">
+        @if($icon)
+            <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none z-10">
+                <i data-lucide="{{ $icon }}" class="w-4 h-4 text-gray-400"></i>
+            </div>
+        @endif
+
         <select
             id="{{ $name }}"
             name="{{ $name }}"
+            {{ $required ? 'required' : '' }}
             {{ $attributes->merge([
                 'class' => '
                     w-full
@@ -31,8 +43,6 @@
                     rounded-xl
                     border
                     border-gray-200
-                    pl-4
-                    pr-10
                     text-sm
                     text-gray-700
                     shadow-xs
@@ -43,6 +53,8 @@
                     focus:border-primary
                     focus:ring-4
                     focus:ring-primary/10
+                    ' . ($icon ? 'pl-10' : 'pl-4') . '
+                    pr-10
                 ',
             ]) }}
         >
@@ -53,7 +65,6 @@
             @endif
 
             @foreach ($options as $key => $option)
-
                 @php
                     $isArray = is_array($option);
                     $isObject = is_object($option);
@@ -77,7 +88,7 @@
         </select>
 
         <div class="pointer-events-none absolute inset-y-0 right-3 flex items-center">
-            <i data-lucide="chevrons-up-down" class="w-4 h-4"></i>
+            <i data-lucide="chevrons-up-down" class="w-4 h-4 text-gray-400"></i>
         </div>
     </div>
 

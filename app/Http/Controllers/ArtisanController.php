@@ -1,0 +1,152 @@
+<?php
+
+namespace App\Http\Controllers;
+
+use App\Http\Requests\StoreArtisanRequest;
+use App\Http\Requests\UpdateArtisanRequest;
+use App\Models\Artisan;
+use App\Models\ArtisanCategory;
+use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Storage;
+use Illuminate\Support\Str;
+
+class ArtisanController extends Controller
+{
+    public function index(Request $request)
+    {
+        $query = Artisan::query()->verified()->active()
+            ->with('categories:id,name,slug')
+            ->withCount('reviews')
+            ->withAvg('reviews as average_rating', 'rating');
+
+        if ($request->filled('search')) {
+            $query->search($request->search);
+        }
+
+        if ($request->filled('category')) {
+            $query->byCategory($request->category);
+        }
+
+        if ($request->filled('city')) {
+            $query->byCity($request->city);
+        }
+
+        if ($request->filled('rating')) {
+            $query->having('average_rating', '>=', $request->rating);
+        }
+
+        $artisans = $query->orderBy('average_rating', 'desc')
+            ->paginate(12)
+            ->withQueryString();
+
+        $categories = ArtisanCategory::orderBy('name')->get();
+        $cities = Artisan::verified()->active()->distinct()->pluck('city')->filter();
+
+        return view('pages.artisans.index', compact('artisans', 'categories', 'cities'));
+    }
+
+    public function show(Artisan $artisan)
+    {
+        $artisan->load(['categories', 'projects' => function ($query) {
+            $query->latest()->limit(12);
+        }, 'reviews' => function ($query) {
+            $query->with('user:id,name,avatar')->latest();
+        }]);
+
+        $userReview = null;
+        if (auth()->check()) {
+            $userReview = $artisan->reviews()->where('user_id', auth()->id())->first();
+        }
+
+        return view('pages.artisans.show', compact('artisan', 'userReview'));
+    }
+
+    public function create()
+    {
+        $categories = ArtisanCategory::orderBy('name')->get();
+        return view('pages.artisans.create', compact('categories'));
+    }
+
+    public function store(StoreArtisanRequest $request)
+    {
+        $data = $request->validated();
+        $data['user_id'] = auth()->id();
+        $data['slug'] = Str::slug($data['business_name']) . '-' . Str::random(6);
+        $data['verified'] = false;
+        $data['is_active'] = false;
+
+        if ($request->hasFile('avatar')) {
+            $data['avatar'] = $request->file('avatar')->store('artisans/avatars', 'public');
+        }
+
+        if ($request->hasFile('cover')) {
+            $data['cover'] = $request->file('cover')->store('artisans/covers', 'public');
+        }
+
+        $categories = $data['categories'];
+        unset($data['categories']);
+
+        $artisan = Artisan::create($data);
+        $artisan->categories()->sync($categories);
+
+        return redirect()->route('artisan.dashboard')
+            ->with('success', 'Votre profil artisan a été créé et est en attente de validation.');
+    }
+
+    public function edit(Artisan $artisan)
+    {
+        $categories = ArtisanCategory::orderBy('name')->get();
+        $selectedCategories = $artisan->categories->pluck('id')->toArray();
+        
+        return view('pages.artisans.edit', compact('artisan', 'categories', 'selectedCategories'));
+    }
+
+    public function update(UpdateArtisanRequest $request, Artisan $artisan)
+    {
+        $data = $request->validated();
+
+        if ($request->hasFile('avatar')) {
+            if ($artisan->avatar) {
+                Storage::disk('public')->delete($artisan->avatar);
+            }
+            $data['avatar'] = $request->file('avatar')->store('artisans/avatars', 'public');
+        }
+
+        if ($request->hasFile('cover')) {
+            if ($artisan->cover) {
+                Storage::disk('public')->delete($artisan->cover);
+            }
+            $data['cover'] = $request->file('cover')->store('artisans/covers', 'public');
+        }
+
+        $categories = $data['categories'];
+        unset($data['categories']);
+
+        $artisan->update($data);
+        $artisan->categories()->sync($categories);
+
+        return redirect()->route('artisan.dashboard')
+            ->with('success', 'Votre profil a été mis à jour.');
+    }
+
+    public function dashboard()
+    {
+        $artisan = auth()->user()->artisan;
+
+        if (!$artisan) {
+            return redirect()->route('artisan.create');
+        }
+
+        $stats = [
+            'reviews_count' => $artisan->reviews()->count(),
+            'average_rating' => $artisan->average_rating,
+            'projects_count' => $artisan->projects()->count(),
+            'contacts_count' => $artisan->contacts()->count(),
+        ];
+
+        $recentReviews = $artisan->reviews()->with('user:id,name,avatar')->latest()->limit(5)->get();
+        $recentContacts = $artisan->contacts()->latest()->limit(5)->get();
+
+        return view('pages.artisan.dashboard', compact('artisan', 'stats', 'recentReviews', 'recentContacts'));
+    }
+}

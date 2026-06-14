@@ -29,24 +29,33 @@
                 </x-sidebar.item>
 
                 <x-sidebar.item icon="land-plot" label="Parcelles" href="{{ route('admin.parcelle.index') }}" :active="request()->routeIs('admin.parcelle.index')" />
-                <x-sidebar.item icon="drill" label="Artisans" href="#" />
-                <x-sidebar.item icon="users" label="Clients" href="#" />
-                <x-sidebar.item icon="ticket" label="Passe visite" href="#" />
-                <x-sidebar.item icon="wallet" label="Transactions" href="#" />
+                <x-sidebar.item icon="drill" label="Artisans" href="{{ route('admin.artisans.index') }}" :active="request()->routeIs('admin.artisans.*')">
+                    <x-sidebar.sub-item label="Tous les artisans" href="{{ route('admin.artisans.index') }}"
+                        :active="request()->routeIs('admin.artisans.index')" />
+
+                    <x-sidebar.sub-item label="Les artisans en attente de vérification" href="{{ route('admin.artisans.pending') }}" :active="request()->routeIs('admin.artisans.pending')" />
+
+                    <x-sidebar.sub-item label="Les artisans suspendus" href="#" :active="request()->routeIs('admin.property.pending')" />
+                </x-sidebar.item>
+                <x-sidebar.item icon="ticket" label="Passe visite" href="{{ route('passes.index') }}" :active="request()->routeIs('passes.index')" />
                 <x-sidebar.item icon="settings-2" label="Paramètres" href="#" />
             </x-sidebar.group>
 
             <!-- Projects Group -->
             <x-sidebar.group label="Segments">
-                <x-sidebar.item icon="building" label="Résidentiel" href="#" />
-                <x-sidebar.item icon="briefcase" label="Commercial" href="#" />
-                <x-sidebar.item icon="map" label="Locations" href="#" />
+                @can('manage-members')
+                    <x-sidebar.item icon="users" label="Membres" href="{{ route('admin.members.index') }}" />
+                    <x-sidebar.item icon="briefcase" label="Invitations" href="{{ route('admin.invitations.index') }}" />
+                @endcan
+                @can('manage-roles')
+                    <x-sidebar.item icon="map" label="Rôles & Permissions" href="{{ route('admin.roles.index') }}" />
+                @endcan
             </x-sidebar.group>
 
             <!-- User Profile Footer -->
-            @if (auth()->user()->avatar)
+            @if (auth()->user()->profile_image)
                 <x-sidebar.footer name="{{ auth()->user()->name }}" email="{{ auth()->user()->email }}"
-                    avatar="{{ auth()->user()->avatar }}" />
+                    avatar="{{ auth()->user()->profile_image }}" />
             @else
                 <x-sidebar.footer name="{{ auth()->user()->name }}" email="{{ auth()->user()->email }}" />
             @endif

@@ -6,6 +6,7 @@ use App\Actions\UploadImage;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\PropertyFormRequest;
 use App\Models\Amenity;
+use App\Models\Arrondissement;
 use App\Models\Category;
 use App\Models\City;
 use App\Models\Property;
@@ -28,30 +29,27 @@ class PropertyController extends Controller
     }
 
     /**
+     * Display the specified resource.
+     */
+    public function show(Property $property)
+    {
+        $property->load(['amenities', 'images', 'category', 'city', 'arrondissement', 'creator']);
+
+        return view('pages.admin.property.show', [
+            'property' => $property,
+        ]);
+    }
+
+    /**
      * Show the form for creating a new resource.
      */
     public function create()
     {
-        // Category::create(['name' => 'Appartement']);
-        // Category::create(['name' => 'Maison']);
-        // Category::create(['name' => 'Studio']);
-        // Category::create(['name' => 'Local commercial']);
-
-        // City::create(['name' => 'Brazzaville']);
-        // City::create(['name' => 'Pointe-Noire']);
-
-        // Amenity::create(['name' => 'WiFi']);
-        // Amenity::create(['name' => 'Piscine']);
-        // Amenity::create(['name' => 'Parkings']);
-        // Amenity::create(['name' => 'Balcon']);
-        // Amenity::create(['name' => 'Jardin']);
-        // Amenity::create(['name' => 'Terrain de golfe']);
-
-
         return view('pages.admin.property.create', [
             'categories' => Category::select(['id', 'name'])->get(),
             'cities' => City::select(['id', 'name'])->get(),
             'amenities' => Amenity::select(['id', 'name'])->get(),
+            'arrondissements' => Arrondissement::select(['id', 'name'])->get(),
         ]);
     }
 
@@ -68,7 +66,7 @@ class PropertyController extends Controller
         ]);
 
         $property->amenities()->sync($request->validated('amenities'));
-    
+
         if ($request->hasFile('images')) {
             $storeImage->handle($property, $request->file('images'));
         }
@@ -82,12 +80,13 @@ class PropertyController extends Controller
     public function edit(Property $property)
     {
         $property->load(['amenities', 'images']);
-        
+
         return view('pages.admin.property.edit', [
             'property' => $property,
             'categories' => Category::select(['id', 'name'])->get(),
             'cities' => City::select(['id', 'name'])->get(),
             'amenities' => Amenity::select(['id', 'name'])->get(),
+            'arrondissements' => Arrondissement::select(['id', 'name'])->get(),
         ]);
     }
 
@@ -123,16 +122,103 @@ class PropertyController extends Controller
      */
     public function destroy(Property $property)
     {
-
         $property->images()
             ->get()
             ->each(function ($image) {
                 Storage::disk('public')->delete($image->getRawOriginal('image_url'));
                 $image->delete();
-        });
+            });
 
         $property->delete($property->id);
 
         return redirect()->route('admin.property.index')->with('success', 'Le bien a été supprimé avec succès.');
+    }
+
+    /**
+     * Vérifier une propriété (is_verify = true)
+     */
+    public function verify(Property $property)
+    {
+        $property->update([
+            'is_verify' => true,
+        ]);
+
+        return redirect()->route('admin.property.index')->with('success', 'Le bien a été vérifié avec succès.');
+    }
+
+    /**
+     * Désactiver une propriété (is_active = false)
+     */
+    public function disable(Property $property)
+    {
+        $property->update([
+            'is_active' => false,
+        ]);
+
+        return redirect()->route('admin.property.index')->with('success', 'Le bien a été désactivé avec succès.');
+    }
+
+    /**
+     * Activer une propriété (is_active = true)
+     */
+    public function enable(Property $property)
+    {
+        $property->update([
+            'is_active' => true,
+        ]);
+
+        return redirect()->route('admin.property.index')->with('success', 'Le bien a été activé avec succès.');
+    }
+
+    /**
+     * Annuler la vérification d'une propriété (is_verify = false)
+     */
+    public function unverify(Property $property)
+    {
+        $property->update([
+            'is_verify' => false,
+        ]);
+
+        return redirect()->route('admin.property.index')->with('success', 'La vérification du bien a été annulée.');
+    }
+
+    /**
+     * Basculement rapide du statut is_active via AJAX
+     */
+    public function toggleActive(Property $property)
+    {
+        $property->update([
+            'is_active' => !$property->is_active,
+        ]);
+
+        if (request()->ajax()) {
+            return response()->json([
+                'success' => true,
+                'is_active' => $property->is_active,
+                'message' => 'Le statut a été modifié avec succès.'
+            ]);
+        }
+
+        return redirect()->route('admin.property.index')->with('success', 'Le statut du bien a été modifié.');
+    }
+
+    /**
+     * Basculement rapide de la vérification via AJAX
+     */
+    public function toggleVerify(Property $property)
+    {
+        $property->update([
+            'is_verify' => !$property->is_verify,
+        ]);
+
+        if (request()->ajax()) {
+            return response()->json([
+                'success' => true,
+                'is_verify' => $property->is_verify,
+                'message' => 'La vérification a été modifiée avec succès.'
+            ]);
+        }
+
+        return redirect()->route('admin.property.index')->with('success', 'Le statut de vérification a été modifié.');
     }
 }

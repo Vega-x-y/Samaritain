@@ -70,15 +70,52 @@
                             </div>
                             <!-- Password -->
                             <div>
-                                <label class="mb-1.5 block text-sm font-medium text-gray-700 dark:text-gray-400">
-                                    Mot de passe
-                                </label>
+                                <div class="flex items-center justify-between">
+                                    <label class="mb-1.5 block text-sm font-medium text-gray-700 dark:text-gray-400">
+                                        Mot de passe
+                                    </label>
+                                    <a href="{{ route('password.request') }}" class="text-sm text-gray-500 hover:text-primary underline">
+                                        Mot de passe oublié?
+                                    </a>
+                                </div>
                                 <input type="password" name="password" placeholder="Entrez votre mot de passe"
                                     class="shadow-theme-xs focus:border-primary focus:ring-primary/10 h-9 w-full rounded-lg border px-4 py-2.5 text-sm text-gray-800 focus:ring-3 focus:outline-hidden" />
 
-                                @error('password')
+                                @error('password')                                <input
+                                    type="checkbox"
+                                    name="remember"
+                                    id="remember"
+                                    value="1"
+                                    {{ old('remember') ? 'checked' : '' }}
+                                    class="size-5 cursor-pointer rounded border-gray-300 accent-primary
+                                        transition duration-200
+                                        focus:ring-2 focus:ring-primary/20 focus:ring-offset-0">
+
+                                <label
+                                    for="remember"
+                                    class="text-sm font-medium text-gray-700 cursor-pointer">
+                                    Se souvenir de moi
+                                </label>
+                            </div>
                                     <span class="text-red-400 text-sm">{{ $message }}</span>
                                 @enderror
+                            </div>
+                            <div class="flex items-center gap-3 grow">
+                                <input
+                                    type="checkbox"
+                                    name="remember"
+                                    id="remember"
+                                    value="1"
+                                    {{ old('remember') ? 'checked' : '' }}
+                                    class="size-4 cursor-pointer rounded-md border-gray-300 accent-primary
+                                        transition duration-200
+                                        focus:ring-2 focus:ring-primary/20 focus:ring-offset-0">
+
+                                <label
+                                    for="remember"
+                                    class="text-sm font-medium text-gray-700 cursor-pointer">
+                                    Se souvenir de moi
+                                </label>
                             </div>
                             <div>
                                 <x-btn type="submit" class="w-full">
@@ -89,7 +126,7 @@
                     <div class="mt-5">
                         <p class="text-center text-sm font-normal text-gray-700 sm:text-start dark:text-gray-400">
                             Vous n'avez pas de compte?
-                            <a href="{{ route('register') }}" class="hover:text-primary">
+                            <a href="{{ route('register') }}" class="hover:text-primary underline">
                                 Créer un compte
                             </a>
                         </p>

@@ -24,8 +24,10 @@ class Property extends Model
         'address',
         'category_id',
         'city_id',
+        'arrondissement_id',
         'status',
-        'verified'
+        'is_verify',
+        'is_active',
     ];
 
     protected $casts = [
@@ -47,6 +49,11 @@ class Property extends Model
         return $this->belongsTo(City::class);
     }
 
+    public function arrondissement()
+    {
+        return $this->belongsTo(Arrondissement::class);
+    }
+
     public function amenities()
     {
         return $this->belongsToMany(Amenity::class, 'amenity_property');
@@ -61,5 +68,26 @@ class Property extends Model
     {
         $coverImage = $this->images()->where('cover_image', true)->first();
         return $coverImage ? $coverImage->image_url : null;
+    }
+
+    public function favoritedBy()
+    {
+        return $this->belongsToMany(
+            User::class,
+            'favorites'
+        )->withTimestamps();
+    }
+
+    public function isFavorited(): bool
+    {
+        if (!auth()->check()) {
+            return false;
+        }
+
+        return auth()
+            ->user()
+            ->favorites()
+            ->where('property_id', $this->id)
+            ->exists();
     }
 }
