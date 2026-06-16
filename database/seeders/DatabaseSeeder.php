@@ -13,6 +13,7 @@ class DatabaseSeeder extends Seeder
             PropertyCategorySeeder::class,
             AmenitySeeder::class,
             ArrondissementSeeder::class,
+            ArtisanCategorySeeder::class,
         ]);
     }
 }

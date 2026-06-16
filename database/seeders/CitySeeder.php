@@ -12,14 +12,6 @@ class CitySeeder extends Seeder
         $cities = [
             ['name' => 'Brazzaville'],
             ['name' => 'Pointe-Noire'],
-            ['name' => 'Dolisie'],
-            ['name' => 'Nkayi'],
-            ['name' => 'Owando'],
-            ['name' => 'Ouesso'],
-            ['name' => 'Madingou'],
-            ['name' => 'Gamboma'],
-            ['name' => 'Impfondo'],
-            ['name' => 'Sibiti'],
         ];
 
         foreach ($cities as $city) {
