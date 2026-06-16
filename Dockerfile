@@ -7,7 +7,7 @@ WORKDIR /app
 
 COPY package*.json ./
 
-RUN npm ci
+RUN npm install
 
 COPY . .
 
@@ -26,12 +26,15 @@ COPY composer.json composer.lock ./
 RUN composer install \
     --no-dev \
     --prefer-dist \
+    --no-scripts \
     --optimize-autoloader \
     --no-interaction
 
 COPY . .
 
 RUN composer dump-autoload --optimize
+
+RUN php artisan package:discover --ansi
 
 
 # ==========================================
