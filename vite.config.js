@@ -21,7 +21,7 @@ export default defineConfig({
     ],
     resolve: {
         alias: {
-            '@': path.resolve(__dirname, 'resources/js'), // ✅ Ajoutez
+            '@': path.resolve(__dirname, 'resources/js'),
         },
     },
     server: {
