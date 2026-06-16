@@ -7,7 +7,7 @@
             <span class="text-[10px] font-medium">Accueil</span>
         </a>
 
-        <a href="#"
+        <a href="{{ route('property.index') }}"
             class="flex flex-col items-center gap-0.5 px-3 py-1.5 rounded-xl text-gray-400 hover:text-primary transition">
             <i data-lucide="warehouse" class="w-5 h-5"></i>
             <span class="text-[10px] font-medium">Maison</span>
