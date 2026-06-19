@@ -109,7 +109,9 @@ import {
     Printer,
     Percent,
     FileCheck2,
-    Headphones
+    Headphones,
+    List,
+    Activity
 } from "lucide";
 
 createIcons({
@@ -223,7 +225,10 @@ createIcons({
         Printer,
         Percent,
         FileCheck2,
-        Headphones
+        Headphones,
+        Inbox,
+        List,
+        Activity
     },
 });
 
