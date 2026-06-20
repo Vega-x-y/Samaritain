@@ -88,7 +88,7 @@
 
         {{-- Bouton --}}
         
-    <a href="#" class="mt-2 w-full bg-emerald-600 hover:bg-emerald-700 text-white text-sm font-semibold py-2 rounded-xl transition-colors duration-200 text-center block" >
+    <a href="#" class="mt-2 w-full bg-primary hover:bg-primary text-white text-sm font-semibold py-2 rounded-xl transition-colors duration-200 text-center block" >
             Voir les détails
         </a>
 

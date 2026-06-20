@@ -146,7 +146,7 @@
                 {{-- Boutons --}}
                 <div class="flex items-center gap-3 pt-2">
                     <button type="button" @click="soumettre()" :disabled="chargement"
-                        class="bg-emerald-600 hover:bg-emerald-700 disabled:opacity-50 text-white font-semibold px-6 py-2.5 rounded-xl transition-colors duration-200 flex items-center gap-2">
+                        class="bg-primary disabled:opacity-50 text-white font-semibold px-6 py-2.5 rounded-xl transition-colors duration-200 flex items-center gap-2">
                         <svg x-show="chargement" class="animate-spin w-4 h-4" fill="none" viewBox="0 0 24 24">
                             <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4" />
                             <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v8z" />

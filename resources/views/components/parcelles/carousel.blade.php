@@ -24,13 +24,15 @@
             {{-- Quartier --}}
             <div class="flex flex-col gap-1">
                 <label class="text-xs font-semibold text-gray-500 dark:text-gray-400">Quartier</label>
-                <input
-                    type="text"
-                    x-model="filtres.quartier"
-                    @input.debounce.400ms="chargerParcelles()"
-                    placeholder="Ex: Bacongo"
+                <select
+                    x-model="filtres.viabilisee"
+                    @change="chargerParcelles()"
                     class="border border-gray-200 dark:border-gray-600 rounded-lg px-3 py-2 text-sm bg-white dark:bg-gray-700 dark:text-gray-100 focus:outline-none focus:ring-2 focus:ring-emerald-500"
-                />
+                >
+                    <option value="">Tous</option>
+                    <option value="1">Makélékélé</option>
+                    <option value="0">Bacongo</option>
+                </select>
             </div>
 
             {{-- Statut --}}
@@ -49,7 +51,7 @@
             </div>
 
             {{-- Viabilisée --}}
-            <div class="flex flex-col gap-1">
+            {{-- <div class="flex flex-col gap-1">
                 <label class="text-xs font-semibold text-gray-500 dark:text-gray-400">Viabilisée</label>
                 <select
                     x-model="filtres.viabilisee"
@@ -60,7 +62,7 @@
                     <option value="1">Oui</option>
                     <option value="0">Non</option>
                 </select>
-            </div>
+            </div> --}}
 
             {{-- Prix min --}}
             <div class="flex flex-col gap-1">
@@ -221,7 +223,7 @@
 
                         
                            <a :href="'/parcelles/' + parcelle.id"
-                            class="mt-2 w-full bg-emerald-600 hover:bg-emerald-700 text-white text-sm font-semibold py-2 rounded-xl transition-colors duration-200 text-center block"
+                            class="mt-2 w-full bg-primary text-white text-sm font-semibold py-2 rounded-xl transition-colors duration-200 text-center block"
                         >
                             Voir les détails
                         </a>
