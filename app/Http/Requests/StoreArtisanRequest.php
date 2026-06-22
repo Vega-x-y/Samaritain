@@ -24,22 +24,8 @@ class StoreArtisanRequest extends FormRequest
             'experience' => ['nullable', 'integer', 'min:0', 'max:50'],
             'categories' => ['required', 'array', 'min:1'],
             'categories.*' => ['exists:artisan_categories,id'],
-            'avatar' => ['nullable', 'image', 'max:2048', 'mimes:jpeg,png,jpg,webp'],
+            'avatar' => ['required', 'image', 'max:2048', 'mimes:jpeg,png,jpg,webp'],
             'cover' => ['nullable', 'image', 'max:5120', 'mimes:jpeg,png,jpg,webp'],
-        ];
-    }
-
-    public function messages(): array
-    {
-        return [
-            'business_name.required' => 'Le nom de l\'entreprise est requis.',
-            'profession.required' => 'La profession est requise.',
-            'phone.required' => 'Le numéro de téléphone est requis.',
-            'city.required' => 'La ville est requise.',
-            'categories.required' => 'Sélectionnez au moins une catégorie.',
-            'avatar.image' => 'Le fichier doit être une image.',
-            'avatar.max' => 'L\'avatar ne doit pas dépasser 2 Mo.',
-            'cover.max' => 'La couverture ne doit pas dépasser 5 Mo.',
         ];
     }
 }
