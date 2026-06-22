@@ -90,4 +90,9 @@ class Property extends Model
             ->where('property_id', $this->id)
             ->exists();
     }
+
+    public function incrementViews(): void
+    {
+        $this->increment('views');
+    }
 }

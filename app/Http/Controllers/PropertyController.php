@@ -11,6 +11,7 @@ use App\Models\City;
 use App\Models\Property;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\Storage;
 
 class PropertyController extends Controller
@@ -26,7 +27,7 @@ class PropertyController extends Controller
         $query = Property::query()
             ->where('is_active', true)
             ->where('is_verify', true)
-            ->with(['city', 'category']);
+            ->with(['city', 'category', 'images']);
 
         // Appliquer les filtres si présents
         if ($request->filled('city_id')) {
@@ -76,7 +77,7 @@ class PropertyController extends Controller
     /**
      * Display the specified property.
      */
-    public function show(Property $property)
+    public function show(Request $request,Property $property)
     {
         // Vérifier si l'utilisateur a le droit de voir ce bien
         // Un bien n'est visible que s'il est actif ET vérifié, OU si c'est le propriétaire
@@ -85,6 +86,8 @@ class PropertyController extends Controller
                 abort(404);
             }
         }
+
+        $this->registerView($request, $property);
 
         $property->load([
             'images',
@@ -386,5 +389,19 @@ class PropertyController extends Controller
 
         return redirect()->route('property.edit', $newProperty)
             ->with('success', 'Bien dupliqué avec succès. Vous pouvez maintenant modifier les informations.');
+    }
+
+    /**
+     * Enregistre une vue si elle n'a pas déjà été comptée dans les dernières 24h
+     * pour cet IP et ce bien.
+     */
+    protected function registerView(Request $request, Property $property): void
+    {
+        $cacheKey = 'property_view_' . $property->id . '_' . $request->ip();
+
+        // Cache::add() retourne true si la clé a été ajoutée (donc n'existait pas)
+        if (Cache::add($cacheKey, true, now()->addHours(24))) {
+            $property->incrementViews();
+        }
     }
 }

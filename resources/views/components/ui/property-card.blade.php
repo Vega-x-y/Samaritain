@@ -51,6 +51,12 @@
                 {{ $property->status }}
             </span>
         @endif
+
+        {{-- Affichage du nombre de vues sur l'image --}}
+        <div class="absolute bottom-2.5 right-2.5 flex items-center gap-1 bg-black/50 backdrop-blur-sm text-white text-xs font-medium px-2 py-1 rounded-full shadow-sm">
+            <i data-lucide="eye" class="w-3 h-3"></i>
+            {{ number_format($property->views) }}
+        </div>
     </div>
 
     {{-- Infos --}}
@@ -82,11 +88,18 @@
                 {{ number_format($property->price, 0, ',', ' ') }}
                 <span class="text-xs font-normal text-gray-400">FCFA / mois</span>
             </p>
-            <span
-                class="text-xs text-primary font-medium opacity-0 group-hover:opacity-100 transition flex items-center gap-0.5">
-                Voir
-                <i data-lucide="arrow-right" class="w-3 h-3"></i>
-            </span>
+            <div class="flex items-center gap-3">
+                {{-- Affichage alternatif des vues dans la partie inférieure --}}
+                <span class="text-xs text-gray-400 flex items-center gap-1">
+                    <i data-lucide="eye" class="w-3 h-3"></i>
+                    {{ number_format($property->views) }}
+                </span>
+                <span
+                    class="text-xs text-primary font-medium opacity-0 group-hover:opacity-100 transition flex items-center gap-0.5">
+                    Voir
+                    <i data-lucide="arrow-right" class="w-3 h-3"></i>
+                </span>
+            </div>
         </div>
     </div>
 </a>
