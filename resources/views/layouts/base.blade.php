@@ -14,7 +14,7 @@
 <body x-data="openModal()" class="min-h-screen flex flex-col">
     <x-ui.navbar />
 
-    <main class="flex-1">
+    <main class="flex-1 mb-3">
         @yield('content')
     </main>
 
