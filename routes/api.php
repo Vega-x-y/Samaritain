@@ -12,10 +12,8 @@ Route::prefix('parcelles')->group(function () {
     Route::get('/', [ParcelleController::class, 'index']);
     Route::get('/{id}', [ParcelleController::class, 'show']);
 
-    Route::middleware(['auth:sanctum', 'throttle:60,1'])->group(function () {
-        Route::delete('/images/{imageId}', [ParcelleController::class, 'deleteImage']);
-        Route::post('/', [ParcelleController::class, 'store']);
-        Route::post('/{id}', [ParcelleController::class, 'update']);
-        Route::delete('/{id}', [ParcelleController::class, 'destroy']);
-    });
+    Route::delete('/images/{imageId}', [ParcelleController::class, 'deleteImage']);
+    Route::post('/', [ParcelleController::class, 'store']);
+    Route::post('/{id}', [ParcelleController::class, 'update']);
+    Route::delete('/{id}', [ParcelleController::class, 'destroy']);
 });

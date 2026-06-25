@@ -12,6 +12,7 @@
 </head>
 
 <body x-data="openModal()" class="min-h-screen flex flex-col">
+    <x-ui.email-verification-banner />
     <x-ui.navbar />
 
     <main class="flex-1 mb-3">

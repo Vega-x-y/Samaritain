@@ -97,13 +97,14 @@ Route::get('/auth/{provider}/callback', ProviderCallbackController::class)->name
 
 // Parcelles
 Route::get('/parcelles', [ParcelleWebController::class, 'index'])->name('parcelles.index');
-Route::get('/parcelles/{id}', [ParcelleWebController::class, 'show'])->name('parcelles.show');
 
-Route::middleware(['auth', 'verified', StaffMiddleware::class])->group(function () {
+Route::middleware(['auth', 'verified'])->group(function () {
     Route::get('/parcelles/create', [ParcelleWebController::class, 'create'])->name('parcelles.create');
     Route::post('/parcelles', [ParcelleWebController::class, 'store'])->name('parcelles.store');
     Route::get('/parcelles/{id}/edit', [ParcelleWebController::class, 'edit'])->name('parcelles.edit');
-});
+    });
+
+Route::get('/parcelles/{id}', [ParcelleWebController::class, 'show'])->name('parcelles.show');
 
 // Artisans (public)
 Route::get('/artisans', [ArtisanController::class, 'index'])->name('artisans.index');

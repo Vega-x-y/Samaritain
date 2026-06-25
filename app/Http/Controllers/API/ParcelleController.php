@@ -67,8 +67,6 @@ class ParcelleController extends Controller
     // ✅ Création avec upload d'images
     public function store(Request $request)
     {
-        Gate::authorize('create', Parcelle::class);
-
         $request->validate([
             'titre' => 'required|string|max:255',
             'localisation' => 'required|string',
