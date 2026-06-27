@@ -23,6 +23,7 @@ use App\Http\Controllers\Socialite\ProviderCallbackController;
 use App\Http\Controllers\Socialite\ProviderRedirectController;
 use App\Http\Controllers\VisitRequestController;
 use App\Http\Middleware\StaffMiddleware;
+use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 
 Route::get('/test', function () {
@@ -186,4 +187,15 @@ Route::middleware(['auth', 'verified'])->group(function () {
     Route::delete('/notifications/destroy-all', [NotificationController::class, 'destroyAll'])->name('notifications.destroy-all');
     Route::delete('/notifications/destroy-read', [NotificationController::class, 'destroyRead'])->name('notifications.destroy-read');
     Route::get('/notifications/all', [NotificationController::class, 'showAll'])->name('notifications.all');
+});
+
+Route::get('/debug-signature', function (Request $request) {
+    return response()->json([
+        'full_url' => $request->fullUrl(),
+        'has_valid_signature' => $request->hasValidSignature(),
+        'scheme' => $request->getScheme(),
+        'host' => $request->getHost(),
+        'forwarded_proto' => $request->header('X-Forwarded-Proto'),
+        'forwarded_host' => $request->header('X-Forwarded-Host'),
+    ]);
 });
