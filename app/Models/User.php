@@ -9,6 +9,7 @@ use Illuminate\Contracts\Auth\MustVerifyEmail;
 use Illuminate\Database\Eloquent\Attributes\Fillable;
 use Illuminate\Database\Eloquent\Attributes\Hidden;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
+use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
 use Illuminate\Support\Facades\Storage;
@@ -97,10 +98,12 @@ class User extends Authenticatable implements MustVerifyEmail
         if ($this->isLocalImage()) {
             return $this->getLocalImageUrl();
         }
+
+        return null;
     }
 
     /**
-     * Vérifier si l'image provient de Google
+     * Vérifier si l'image provient de Google ou GitHub
      */
     private function isGoogleImage(): bool
     {
@@ -116,7 +119,11 @@ class User extends Authenticatable implements MustVerifyEmail
      */
     private function isLocalImage(): bool
     {
-        return ! Str::startsWith($this->profile_image, 'http' || 'https');
+        if (is_null($this->profile_image)) {
+            return false;
+        }
+
+        return ! Str::startsWith($this->profile_image, ['http://', 'https://']);
     }
 
     /**
@@ -129,5 +136,6 @@ class User extends Authenticatable implements MustVerifyEmail
             return Storage::disk('public')->url($this->profile_image);
         }
 
+        return null;
     }
 }

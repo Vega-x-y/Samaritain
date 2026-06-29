@@ -2,14 +2,14 @@
 
     <!-- Title Slot -->
     <x-slot:title>
-        Dashboard - Samaritain Immobilier
+        Dashboard | Samaritain
     </x-slot:title>
 
     <!-- Sidebar Navigation Slot -->
     <x-slot:sidebar>
         <x-sidebar>
             <!-- Workspace / Organization Header -->
-            <x-sidebar.header name="Samaritain Immobilier" role="Admin" />
+            <x-sidebar.header name="Samaritain" role="{{ auth()->user()->getRoleNames()->first() }}" />
 
             <!-- Platform Group -->
             <x-sidebar.group label="Gestion">

@@ -7,7 +7,6 @@ use Illuminate\Notifications\Messages\MailMessage;
 
 class CustomResetPassword extends ResetPassword
 {
-
     /**
      * Build the mail representation of the notification.
      *
