@@ -30,7 +30,7 @@
 
         {{-- Map placeholder --}}
         <div id="map"
-            class="w-full h-36 border border-secondary/10 dark:border-gray-700 rounded-xl
+            class="w-full h-36 border border-secondary/10 z-0 dark:border-gray-700 rounded-xl
                 flex flex-col items-center justify-center gap-2
                 font-body text-[0.75rem] mb-6 dark:text-gray-400
                 cursor-pointer transition-colors duration-200
@@ -41,8 +41,8 @@
 
         {{-- CTAs --}}
         <div class="flex flex-col gap-2.5 mb-4">
-            <x-btn class="dark:bg-primary-600 dark:text-white dark:hover:bg-primary-700">Contacter l'agence</x-btn>
-            <x-btn style="secondary" class="dark:border-gray-700 dark:text-gray-300 dark:hover:bg-gray-700">Reserver une
+            <x-contact.button label="Contacter l'agence" whatsapp="https://wa.me/242068007138" phone="+242068007138" :property="$property" />
+            <x-btn style="secondary" class="dark:border-gray-700 dark:text-gray-300 dark:hover:bg-gray-700">Acheter un pass
                 visite</x-btn>
         </div>
 

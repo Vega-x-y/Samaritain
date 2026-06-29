@@ -44,11 +44,17 @@
             @endif
         </div>
 
-        @if (!empty($property->status))
+        @if ($property->is_verify)
             <span
-                class="absolute bottom-2.5 left-2.5 flex items-center gap-1 bg-white/90 backdrop-blur-sm text-blue-600 text-xs font-medium px-2.5 py-1 rounded-full shadow-sm">
+                class="absolute bottom-2.5 left-2.5 flex items-center gap-1 bg-white/90 backdrop-blur-sm text-green-600 text-xs font-medium px-2.5 py-1 rounded-full shadow-sm">
                 <i data-lucide="badge-check" class="w-3 h-3"></i>
-                {{ $property->status }}
+                vérifié
+            </span>
+        @else
+            <span
+                class="absolute bottom-2.5 left-2.5 flex items-center gap-1 bg-white/90 backdrop-blur-sm text-amber-600 text-xs font-medium px-2.5 py-1 rounded-full shadow-sm">
+                <i data-lucide="hourglass" class="w-3 h-3"></i>
+                en attente
             </span>
         @endif
 

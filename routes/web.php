@@ -11,6 +11,7 @@ use App\Http\Controllers\ArtisanContactController;
 use App\Http\Controllers\ArtisanController;
 use App\Http\Controllers\ArtisanProjectController;
 use App\Http\Controllers\ArtisanReviewController;
+use App\Http\Controllers\ContactAgencyController;
 use App\Http\Controllers\FavoriteController;
 use App\Http\Controllers\HomeController;
 use App\Http\Controllers\NotificationController;
