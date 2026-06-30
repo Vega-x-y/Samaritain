@@ -100,19 +100,19 @@ class Pass extends Model
             return 'data:image/png;base64,'.base64_encode($qrContent);
         }
 
-        // // Génération à la volée si le fichier n'existe pas
-        // $url = route('scan.show', $this->uuid);
+        // Génération à la volée si le fichier n'existe pas
+        $url = route('scan.show', $this->uuid);
 
-        // return QrCodeHelper::generate($url);
+        return QrCodeHelper::generate($url);
     }
 
     /**
      * Récupère le QR Code avec label
      */
-    // public function getQrCodeWithLabel(?string $label = null): string
-    // {
-    //     $url = route('scan.show', $this->uuid);
+    public function getQrCodeWithLabel(?string $label = null): string
+    {
+        $url = route('scan.show', $this->uuid);
 
-    //     return QrCodeHelper::generate($url.'|'.($label ?? $this->holder_name));
-    // }
+        return QrCodeHelper::generate($url.'|'.($label ?? $this->holder_name));
+    }
 }
