@@ -5,8 +5,10 @@ namespace App\Http\Controllers;
 use App\Http\Requests\StoreArtisanRequest;
 use App\Http\Requests\UpdateArtisanRequest;
 use App\Models\Arrondissement;
+use App\Models\ArticleStock;
 use App\Models\Artisan;
 use App\Models\ArtisanCategory;
+use App\Models\Message;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Gate;
 use Illuminate\Support\Facades\Storage;
@@ -154,7 +156,7 @@ class ArtisanController extends Controller
             ->with('success', 'Votre profil a été mis à jour.');
     }
 
-    public function dashboard()
+    public function profile()
     {
         $artisan = auth()->user()->artisan;
 
@@ -162,18 +164,116 @@ class ArtisanController extends Controller
             return redirect()->route('artisan.create');
         }
 
+        $artisan->load(['categories', 'arrondissement.city']);
+
+        return view('pages.artisan.profile.show', compact('artisan'));
+    }
+
+    public function reviews()
+    {
+        $artisan = auth()->user()->artisan;
+
+        if (! $artisan) {
+            return redirect()->route('artisan.create');
+        }
+
+        $avis = $artisan->reviews()
+            ->with('user:id,name,profile_image')
+            ->latest()
+            ->paginate(20);
+
+        return view('pages.artisan.reviews.index', compact('artisan', 'avis'));
+    }
+
+    public function dashboard(Artisan $artisan = null)
+    {
+        // Si un artisan est passé en paramètre, l'utiliser
+        // Sinon, utiliser l'artisan de l'utilisateur connecté
+        if ($artisan) {
+            // Admin viewing another artisan's dashboard - pas de vérification supplémentaire
+        } else {
+            $artisan = auth()->user()->artisan;
+
+            if (! $artisan) {
+                return redirect()->route('artisan.create');
+            }
+        }
+
+        // Charger les relations nécessaires
+        $artisan->load(['chantiers' => function ($query) {
+            $query->with(['factures', 'depenses', 'documents']);
+        }]);
+
+        // 1. Projets en cours
+        $projetsEnCours = $artisan->chantiers()
+            ->where('statut', 'en_cours')
+            ->count();
+
+        // 2. Nombre total de clients enregistrés
+        $clientsActifs = $artisan->clients()->count();
+
+        // 3. CA du mois courant
+        $caMois = $artisan->chantiers()
+            ->join('factures', 'artisan_chantiers.id', '=', 'factures.chantier_id')
+            ->where('factures.statut', 'payee')
+            ->whereMonth('factures.date_emission', now()->month)
+            ->whereYear('factures.date_emission', now()->year)
+            ->sum('factures.montant_ttc');
+
+        // 4. Satisfaction (moyenne des avis)
+        $satisfaction = $artisan->reviews()
+            ->avg('rating');
+        $satisfaction = $satisfaction ? round($satisfaction, 1) : 0;
+
+        // 5. Stock critique (articles sous seuil minimum)
+        $stockCritique = ArticleStock::where('artisan_id', $artisan->id)
+            ->whereColumn('quantite', '<=', 'seuil_alerte')
+            ->count();
+
+        // 6. Messages non lus (toutes conversations confondues)
+        $messagesNonLus = Message::whereHas('conversation', fn ($q) => $q->where('artisan_id', $artisan->id))
+            ->where('lu', false)
+            ->where('expediteur_type', '!=', 'artisan')
+            ->count();
+
         $stats = [
-            'reviews_count' => $artisan->reviews()->count(),
-            'average_rating' => $artisan->average_rating,
-            'projects_count' => $artisan->projects()->count(),
-            'contacts_count' => $artisan->contacts()->count(),
-            'views_count' => $artisan->views,
-            'projects_views' => $artisan->projects()->sum('views'),
+            'projets_en_cours' => $projetsEnCours,
+            'clients_actifs' => $clientsActifs,
+            'ca_mois' => $caMois,
+            'satisfaction' => $satisfaction,
+            'stock_critique' => $stockCritique,
+            'messages_non_lus' => $messagesNonLus,
         ];
+
+        // Graphique CA sur 6 mois
+        $ca6Mois = [];
+        $labels6Mois = [];
+
+        for ($i = 5; $i >= 0; $i--) {
+            $date = now()->subMonths($i);
+            $labels6Mois[] = $date->format('M Y');
+
+            $ca = $artisan->chantiers()
+                ->join('factures', 'artisan_chantiers.id', '=', 'factures.chantier_id')
+                ->where('factures.statut', 'payee')
+                ->whereMonth('factures.date_emission', $date->month)
+                ->whereYear('factures.date_emission', $date->year)
+                ->sum('factures.montant_ttc');
+
+            $ca6Mois[] = $ca;
+        }
 
         $recentReviews = $artisan->reviews()->with('user:id,name,profile_image')->latest()->limit(5)->get();
         $recentContacts = $artisan->contacts()->latest()->limit(5)->get();
 
-        return view('pages.artisan.dashboard', compact('artisan', 'stats', 'recentReviews', 'recentContacts'));
+        return view('pages.artisan.dashboard', compact(
+            'artisan',
+            'stats',
+            'recentReviews',
+            'recentContacts',
+            'ca6Mois',
+            'labels6Mois',
+            'messagesNonLus'
+        ));
     }
 }

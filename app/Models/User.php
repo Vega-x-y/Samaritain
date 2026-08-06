@@ -67,6 +67,11 @@ class User extends Authenticatable implements MustVerifyEmail
         return $this->hasOne(Artisan::class);
     }
 
+    public function clients()
+    {
+        return $this->hasMany(Client::class);
+    }
+
     public function sentInvitations()
     {
         return $this->hasMany(AgencyInvitation::class, 'created_by');

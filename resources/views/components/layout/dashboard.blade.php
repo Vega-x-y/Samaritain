@@ -12,6 +12,8 @@
     @vite(['resources/css/app.css', 'resources/js/app.js'])
 
     <style>
+        [x-cloak] { display: none !important; }
+
         ::-webkit-scrollbar {
             width: 6px;
             height: 6px;
@@ -128,7 +130,8 @@
                 <!-- Notification Bell avec Dropdown -->
                 <div class="relative" x-data="notificationDropdown()" x-init="init()">
                     <!-- Cloche -->
-                    <button x-on:click="toggle" x-on:click.away="close"
+                    <button x-on:click="toggle"
+                        x-on:click.away="close"
                         class="relative p-1.5 rounded-md text-sidebar-foreground hover:text-foreground hover:bg-accent"
                         aria-label="Notifications">
                         <i data-lucide="bell" height="16" width="16"></i>
@@ -140,7 +143,7 @@
 
                     <!-- Dropdown -->
                     <div x-cloak x-show="open" x-on:click.away="close"
-                        class="absolute right-0 mt-2 w-80 md:w-96 bg-sidebar rounded-md shadow-lg overflow-hidden z-50 border border-sidebar-border"
+                        class="absolute right-0 mt-2 w-80 md:w-96 bg-sidebar rounded-md shadow-lg overflow-hidden z-50 border border-sidebar-border hidden"
                         x-transition:enter="transition ease-out duration-200"
                         x-transition:enter-start="opacity-0 scale-95" x-transition:enter-end="opacity-100 scale-100">
 

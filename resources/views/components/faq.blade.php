@@ -12,13 +12,13 @@
                         $faqs = [
                             (object) [
                                 'id' => 1,
-                                'question' => "Qu'est-ce que Samaritain ?",
-                                'reponse' => "Samaritain est une plateforme immobilière innovante qui met en relation directe propriétaires et locataires, sans frais de commission. Nous facilitons la recherche de logements et la gestion locative."
+                                'question' => "Qui sommes-nous  ?",
+                                'reponse' => "Samaritain est une plateforme immobilière innovante qui met en relation directe propriétaires et locataires, sans frais de commission. Nous facilitons la recherche de logements et la gestion locative,  Samaritain c’est également une plate-forme pour les artisans qui souhaitent organiser leur travail et conquérir de nouveaux clients. Et aux clients trouver des solutions de rénovation à deux doigts de leurs écrans."
                             ],
                             (object) [
                                 'id' => 2,
                                 'question' => "Pourquoi 0% de commission ?",
-                                'reponse' => "Notre modèle économique repose sur la transparence et l'accessibilité. Nous croyons que louer un bien ne devrait pas être un luxe. Les propriétaires nous paient des services complémentaires, permettant aux locataires de bénéficier de 0% de commission."
+                                'reponse' => "Notre modèle économique repose sur la transparence et l'accessibilité. Nous croyons que louer un bien ne devrait pas être un luxe. Notre modèle économique repose sur la publicité et les services à valeur ajoutée"
                             ],
                             (object) [
                                 'id' => 3,
@@ -28,7 +28,7 @@
                             (object) [
                                 'id' => 4,
                                 'question' => "Quels documents fournir ?",
-                                'reponse' => "Pièce d'identité valide, justificatif de revenus (3 dernières fiches de paie), contrat de travail ou attestation d'emploi, et éventuellement un garant selon le profil."
+                                'reponse' => "Tout dépend des exigences du propriétaire. Sélectionner le bien qui vous intéresse pour plus d’informations"
                             ],
                             (object) [
                                 'id' => 5,

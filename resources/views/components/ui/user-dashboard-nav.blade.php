@@ -4,11 +4,24 @@
         <div class="overflow-x-auto scrollbar-hide">
             <nav class="flex gap-6 min-w-max">
                 @php
+                    $messagesNonLus = $messagesNonLus ?? (auth()->user()
+                        ? \App\Models\Message::whereHas('conversation', fn ($q) => $q->whereIn('client_id', auth()->user()->clients()->pluck('id')))
+                            ->where('lu', false)
+                            ->where('expediteur_type', '!=', 'client')
+                            ->count()
+                        : 0);
+
                     $tabs = [
                         [
                             'route' => 'property.dashboard',
                             'icon' => 'warehouse',
                             'label' => 'Mes biens',
+                            'show' => true,
+                        ],
+                        [
+                            'route' => 'hotel.dashboard',
+                            'icon' => 'building-2',
+                            'label' => 'Hôtels',
                             'show' => true,
                         ],
                         [
@@ -22,6 +35,25 @@
                             'icon' => 'drill',
                             'label' => 'Artisan',
                             'show' => auth()->user()?->artisan,
+                        ],
+                        [
+                            'route' => 'client.dashboard',
+                            'icon' => 'users',
+                            'label' => 'Client',
+                            'show' => true,
+                        ],
+                        [
+                            'route' => 'client.messagerie.index',
+                            'icon' => 'message-circle',
+                            'label' => 'Messagerie',
+                            'show' => auth()->user()?->clients()->exists(),
+                            'badge' => $messagesNonLus ?? 0,
+                        ],
+                        [
+                            'route' => 'client.documents.index',
+                            'icon' => 'file-text',
+                            'label' => 'Documents',
+                            'show' => auth()->user()?->clients()->exists(),
                         ],
                         [
                             'route' => 'my-visit-passes.index',
@@ -53,6 +85,11 @@
                             'text-muted-foreground group-hover:text-foreground' => !$active,
                         ])></i>
                         {{ $tab['label'] }}
+                        @if (($tab['badge'] ?? 0) > 0)
+                            <span class="ml-auto shrink-0 inline-flex items-center justify-center px-1.5 py-0.5 text-[9px] font-bold leading-none text-white bg-red-500 rounded-full min-w-[18px] min-h-[18px]">
+                                {{ $tab['badge'] }}
+                            </span>
+                        @endif
                     </a>
                 @endforeach
             </nav>

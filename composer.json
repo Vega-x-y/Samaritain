@@ -11,9 +11,9 @@
     "require": {
         "php": "^8.3",
         "barryvdh/laravel-dompdf": "^3.1",
-        "ddfsn/blade-components": "^1.1",
+        "ddfsn/blade-components": "^1.3",
         "distortedfusion/blade-forms": "^3.0",
-        "endroid/qr-code": "^6.0",
+        "endroid/qr-code": "^6.1",
         "laravel/fortify": "^1.37",
         "laravel/framework": "^13.8",
         "laravel/octane": "^2.17",

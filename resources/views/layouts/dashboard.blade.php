@@ -14,32 +14,51 @@
             <!-- Platform Group -->
             <x-sidebar.group label="Gestion">
                 <!-- Collapsible Properties item, expanded by default -->
-                <x-sidebar.item icon="layout-dashboard" label="Tableau de bord" href="{{ route('admin.index') }}" :active="request()->routeIs('admin.index')" />
-                <x-sidebar.item icon="home" label="Propriétés" :active="request()->routeIs('admin.property.*')" :expanded="request()->routeIs('admin.property.*')">
+                <x-sidebar.item icon="layout-dashboard" label="Tableau de bord" href="{{ route('admin.index') }}"
+                    :active="request()->routeIs('admin.index')" />
+                <x-sidebar.item icon="home" label="Propriétés" :active="request()->routeIs('admin.property.*')"
+                    :expanded="request()->routeIs('admin.property.*')">
                     <x-sidebar.sub-item label="Tous les biens" href="{{ route('admin.property.index') }}"
                         :active="request()->routeIs('admin.property.index')" />
 
-                    <x-sidebar.sub-item label="Les biens vérifiés" href="#" :active="request()->routeIs('admin.property.verified')" />
+                    <x-sidebar.sub-item label="Les biens vérifiés" href="#"
+                        :active="request()->routeIs('admin.property.verified')" />
 
-                    <x-sidebar.sub-item label="Les biens non vérifiés" href="#" :active="request()->routeIs('admin.property.unverified')" />
+                    <x-sidebar.sub-item label="Les biens non vérifiés" href="#"
+                        :active="request()->routeIs('admin.property.unverified')" />
 
-                    <x-sidebar.sub-item label="Les biens en cour de vérification" href="#" :active="request()->routeIs('admin.property.pending')" />
+                    <x-sidebar.sub-item label="Les biens en cour de vérification" href="#"
+                        :active="request()->routeIs('admin.property.pending')" />
 
-                    <x-sidebar.sub-item label="Nouvelles annonces" href="#" :active="request()->routeIs('admin.property.new')" />
+                    <x-sidebar.sub-item label="Nouvelles annonces" href="#"
+                        :active="request()->routeIs('admin.property.new')" />
                 </x-sidebar.item>
 
-                <x-sidebar.item icon="land-plot" label="Parcelles" href="{{ route('admin.parcelle.index') }}" :active="request()->routeIs('admin.parcelle.index')" />
-                <x-sidebar.item icon="drill" label="Artisans" href="{{ route('admin.artisans.index') }}" :active="request()->routeIs('admin.artisans.*')">
+                <x-sidebar.item icon="building-2" label="Hôtels" href="{{ route('admin.hotel.index') }}"
+                    :active="request()->routeIs('admin.hotel.*')" />
+
+                <x-sidebar.item icon="land-plot" label="Parcelles" href="{{ route('admin.parcelle.index') }}"
+                    :active="request()->routeIs('admin.parcelle.index')" />
+                <x-sidebar.item icon="drill" label="Artisans" href="{{ route('admin.artisans.index') }}"
+                    :active="request()->routeIs('admin.artisans.*')">
                     <x-sidebar.sub-item label="Tous les artisans" href="{{ route('admin.artisans.index') }}"
                         :active="request()->routeIs('admin.artisans.index')" />
 
-                    <x-sidebar.sub-item label="Les artisans en attente de vérification" href="{{ route('admin.artisans.pending') }}" :active="request()->routeIs('admin.artisans.pending')" />
+                    <x-sidebar.sub-item label="Les artisans en attente de vérification"
+                        href="{{ route('admin.artisans.pending') }}"
+                        :active="request()->routeIs('admin.artisans.pending')" />
 
-                    <x-sidebar.sub-item label="Les artisans suspendus" href="#" :active="request()->routeIs('admin.property.pending')" />
+                    <x-sidebar.sub-item label="Les artisans suspendus" href="#"
+                        :active="request()->routeIs('admin.property.pending')" />
                 </x-sidebar.item>
-                <x-sidebar.item icon="ticket" label="Passe visite" href="{{ route('passes.index') }}" :active="request()->routeIs('passes.index')" />
-                <x-sidebar.item icon="scan-line" label="Scanner un pass" href="{{ route('scan.index') }}" :active="request()->routeIs('scan.index')" />
-                <x-sidebar.item icon="inbox" label="Inbox" href="{{ route('notifications.all') }}" :active="request()->routeIs('notifications.all')" />
+                <x-sidebar.item icon="ticket" label="Passe visite" href="{{ route('passes.index') }}"
+                    :active="request()->routeIs('passes.index')" />
+                <x-sidebar.item icon="scan-line" label="Scanner un pass" href="{{ route('scan.index') }}"
+                    :active="request()->routeIs('scan.index')" />
+                <x-sidebar.item icon="inbox" label="Inbox" href="{{ route('notifications.all') }}"
+                    :active="request()->routeIs('notifications.all')" />
+                <x-sidebar.item icon="qr-code" label="QR Code" href="{{ route('admin.qrcode.index') }}"
+                    :active="request()->routeIs('admin.qrcode.*')" />
                 <x-sidebar.item icon="settings-2" label="Paramètres" href="#" />
             </x-sidebar.group>
 
@@ -70,9 +89,10 @@
     </x-slot:breadcrumbs>
 
     @if (session('success'))
-        <x-alert style="success">
-            {{ session('success') }}
-        </x-alert>
+        <div
+            class="mb-4 flex items-center gap-2 px-4 py-3 rounded-lg bg-green-50 border border-green-200 text-green-700 text-sm font-medium">
+            <span>{{ session('success') }}</span>
+        </div>
     @endif
 
     @yield('content')

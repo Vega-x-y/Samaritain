@@ -15,8 +15,8 @@ class StaffMiddleware
             return $next($request);
         }
 
-        // Vérifier si l'utilisateur est connecté et est staff
-        if (! auth()->check() || ! auth()->user()->is_staff) {
+        // Vérifier si l'utilisateur est connecté et est admin ou staff
+        if (! auth()->check() || ! auth()->user()->isAdmin()) {
             abort(403, 'Accès réservé aux membres de l\'entreprise.');
         }
 

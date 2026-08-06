@@ -7,13 +7,14 @@ document.addEventListener('alpine:init', () => {
         isLoading: false,
 
         init() {
-            this.fetchNotifications();
+            // Ne pas charger les notifications immédiatement
+            // Elles seront chargées au premier clic
             // Polling toutes les 30 secondes
             this.interval = setInterval(() => {
                 this.fetchNotifications(true);
             }, 30000);
 
-            // Nettoyer l'intervalle lors de la destruction
+            // Charger les notifications quand le dropdown est ouvert
             this.$watch('open', (value) => {
                 if (value) {
                     this.fetchNotifications();

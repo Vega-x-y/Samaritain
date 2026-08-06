@@ -17,5 +17,9 @@ class DatabaseSeeder extends Seeder
             PropertySeeder::class,
             PropertyCategorySeeder::class,
         ]);
+
+        $this->call([
+            ArtisanDemoSeeder::class,
+        ]);
     }
 }
