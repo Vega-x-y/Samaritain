@@ -14,8 +14,11 @@ class Message extends Model
         'conversation_id',
         'expediteur_type',
         'expediteur_id',
+        'sender_id',
         'contenu',
+        'body',
         'lu',
+        'read_at',
         'fichier_path',
         'fichier_nom',
         'fichier_mime',
@@ -28,6 +31,7 @@ class Message extends Model
         return [
             'lu' => 'boolean',
             'fichier_taille' => 'integer',
+            'read_at' => 'datetime',
         ];
     }
 
@@ -39,6 +43,11 @@ class Message extends Model
     public function document(): BelongsTo
     {
         return $this->belongsTo(Document::class);
+    }
+
+    public function sender(): BelongsTo
+    {
+        return $this->belongsTo(User::class, 'sender_id');
     }
 
     public function getExpediteurAttribute()
@@ -66,5 +75,17 @@ class Message extends Model
         }
 
         return 'Inconnu';
+    }
+
+    public function isRead(): bool
+    {
+        return ! is_null($this->read_at) || $this->lu;
+    }
+
+    public function markAsRead(): void
+    {
+        if (! $this->isRead()) {
+            $this->update(['read_at' => now(), 'lu' => true]);
+        }
     }
 }
