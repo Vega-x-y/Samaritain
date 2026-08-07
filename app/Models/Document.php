@@ -4,7 +4,6 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
-use Illuminate\Database\Eloquent\Relations\MorphTo;
 use Illuminate\Support\Facades\Storage;
 
 class Document extends Model
@@ -58,12 +57,8 @@ class Document extends Model
     protected $fillable = [
         'chantier_id',
         'client_id',
-        'property_id',
-        'name',
-        'category',
+        'nom',
         'path',
-        'file_path',
-        'file_size',
         'type',
         'mime_type',
         'size',
@@ -72,16 +67,12 @@ class Document extends Model
         'status',
         'signed_at',
         'signature_data',
-        'documentable_id',
-        'documentable_type',
-        'created_by',
     ];
 
     protected function casts(): array
     {
         return [
             'size' => 'integer',
-            'file_size' => 'integer',
             'date_modification' => 'datetime',
             'metadata' => 'array',
             'signed_at' => 'datetime',
@@ -99,29 +90,14 @@ class Document extends Model
         return $this->belongsTo(Client::class);
     }
 
-    public function property(): BelongsTo
-    {
-        return $this->belongsTo(Property::class);
-    }
-
-    public function creator(): BelongsTo
-    {
-        return $this->belongsTo(User::class, 'created_by');
-    }
-
-    public function documentable(): MorphTo
-    {
-        return $this->morphTo();
-    }
-
     public function getUrlAttribute(): string
     {
-        return Storage::disk('r2')->url($this->path ?? $this->file_path);
+        return Storage::disk('r2')->url($this->path);
     }
 
     public function getFormattedSizeAttribute(): string
     {
-        $bytes = $this->size ?? $this->file_size ?? 0;
+        $bytes = $this->size;
         $units = ['B', 'KB', 'MB', 'GB'];
 
         for ($i = 0; $bytes > 1024 && $i < count($units) - 1; $i++) {

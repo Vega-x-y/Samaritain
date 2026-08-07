@@ -1,21 +1,20 @@
 import Alpine from 'alpinejs';
-import collapse from '@alpinejs/collapse';
-import './notificationDropdown';
-import { createIcons, icons } from 'lucide';
-
-createIcons({ icons });
+import { createIcons,icons } from 'lucide';
 
 // Make Alpine globally accessible
 window.Alpine = Alpine;
 
-Alpine.plugin(collapse);
-
 // Start Alpine
 Alpine.start();
 
+// Initialize Lucide icons
+// Since Vite loads modules with type="module" (deferred), the DOM is already
+// loaded by the time this code runs, so we can call createIcons() directly.
+createIcons({icons});
+
 // Re-render Lucide icons after Livewire navigation
 document.addEventListener('livewire:navigated', () => {
-    createIcons({icons});
+    createIcons( {icons});
 });
 
 // Re-render Lucide icons after Livewire loads

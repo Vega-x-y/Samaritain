@@ -31,10 +31,6 @@ class ParcelleService
             $query->where('statut', $filters['statut']);
         }
 
-        if (! empty($filters['type'])) {
-            $query->where('type', $filters['type']);
-        }
-
         if (isset($filters['prix_min'])) {
             $query->where('prix', '>=', $filters['prix_min']);
         }

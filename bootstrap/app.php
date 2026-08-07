@@ -1,7 +1,5 @@
 <?php
 
-use App\Http\Middleware\EnsureUserIsOwner;
-use App\Http\Middleware\EnsureUserIsTenant;
 use App\Http\Middleware\RoleMiddleware;
 use App\Http\Middleware\StaffMiddleware;
 use Illuminate\Foundation\Application;
@@ -28,8 +26,6 @@ return Application::configure(basePath: dirname(__DIR__))
         $middleware->alias([
             'staff' => StaffMiddleware::class,
             'role' => RoleMiddleware::class,
-            'owner' => EnsureUserIsOwner::class,
-            'tenant' => EnsureUserIsTenant::class,
         ]);
     })
     ->withExceptions(function (Exceptions $exceptions): void {

@@ -18,8 +18,7 @@ class VisitPass extends Model
     protected $fillable = [
         'uuid',
         'user_id',
-        'visit_passable_type',
-        'visit_passable_id',
+        'property_id',
         'transaction_id',
         'holder_name',
         'phone',
@@ -62,19 +61,9 @@ class VisitPass extends Model
         return $this->belongsTo(User::class);
     }
 
-    public function visitPassable()
+    public function property(): BelongsTo
     {
-        return $this->morphTo();
-    }
-
-    public function property()
-    {
-        return $this->visitPassable();
-    }
-
-    public function parcelle()
-    {
-        return $this->visitPassable();
+        return $this->belongsTo(Property::class);
     }
 
     public function transaction(): BelongsTo

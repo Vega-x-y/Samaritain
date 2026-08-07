@@ -5,7 +5,6 @@ namespace App\Models;
 use App\Enums\PropertyStatus;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
-use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Support\Str;
 
@@ -174,35 +173,5 @@ class Property extends Model
         $type = $this->price_type ?? 'monthly';
 
         return $type === 'daily' ? '/jour' : '/mois';
-    }
-
-    public function visitPasses()
-    {
-        return $this->morphMany(VisitPass::class, 'visit_passable');
-    }
-
-    public function contracts(): HasMany
-    {
-        return $this->hasMany(Contract::class);
-    }
-
-    public function invoices(): HasMany
-    {
-        return $this->hasMany(Invoice::class);
-    }
-
-    public function interventions(): HasMany
-    {
-        return $this->hasMany(Intervention::class);
-    }
-
-    public function inspections(): HasMany
-    {
-        return $this->hasMany(Inspection::class);
-    }
-
-    public function documents(): HasMany
-    {
-        return $this->hasMany(Document::class);
     }
 }
