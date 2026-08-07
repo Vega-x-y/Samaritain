@@ -13,6 +13,12 @@
 
                     $tabs = [
                         [
+                            'route' => 'owner.dashboard',
+                            'icon' => 'layout-dashboard',
+                            'label' => 'Portail Propriétaire',
+                            'show' => true,
+                        ],
+                        [
                             'route' => 'property.dashboard',
                             'icon' => 'warehouse',
                             'label' => 'Mes biens',

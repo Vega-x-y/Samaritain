@@ -12,7 +12,7 @@ use App\Http\Controllers\Admin\RoleController;
 use App\Http\Controllers\AgencyContactController;
 use App\Http\Controllers\Artisan\ChantierController;
 use App\Http\Controllers\Artisan\ClientController;
-use App\Http\Controllers\Artisan\DocumentController;
+use App\Http\Controllers\Artisan\DocumentController as ArtisanDocumentController;
 use App\Http\Controllers\Artisan\EvenementController;
 use App\Http\Controllers\Artisan\FinancesController;
 use App\Http\Controllers\Artisan\MembreEquipeController;
@@ -31,6 +31,12 @@ use App\Http\Controllers\FavoriteController;
 use App\Http\Controllers\HomeController;
 use App\Http\Controllers\HotelController;
 use App\Http\Controllers\NotificationController;
+use App\Http\Controllers\Owner\ContractController;
+use App\Http\Controllers\Owner\DocumentController as OwnerDocumentController;
+use App\Http\Controllers\Owner\FinancialController;
+use App\Http\Controllers\Owner\InspectionController;
+use App\Http\Controllers\Owner\InterventionController;
+use App\Http\Controllers\Owner\InvoiceController;
 use App\Http\Controllers\ParcelleWebController;
 use App\Http\Controllers\PassController;
 use App\Http\Controllers\ProfileController;
@@ -42,6 +48,7 @@ use App\Http\Controllers\Socialite\ProviderRedirectController;
 use App\Http\Controllers\TransactionController;
 use App\Http\Controllers\UserVisitPassController;
 use App\Http\Controllers\VisitRequestController;
+use App\Http\Middleware\EnsureUserCanSignContract;
 use App\Http\Middleware\StaffMiddleware;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
@@ -337,17 +344,19 @@ Route::middleware(['auth', 'verified'])->group(function () {
     Route::post('/artisan/finances/{chantier}/transactions', [FinancesController::class, 'storeTransaction'])->name('artisan.finances.store-transaction');
     Route::put('/artisan/finances/transactions/{transaction}', [FinancesController::class, 'updateTransaction'])->name('artisan.finances.update-transaction');
 
-    // Gestion des documents
-    Route::get('/artisan/documents', [DocumentController::class, 'index'])->name('artisan.documents.index');
-    Route::get('/artisan/documents/create/{type?}', [DocumentController::class, 'create'])->name('artisan.documents.create');
-    Route::post('/artisan/documents', [DocumentController::class, 'store'])->name('artisan.documents.store');
-    Route::get('/artisan/documents/{document}', [DocumentController::class, 'show'])->name('artisan.documents.show');
-    Route::get('/artisan/documents/{document}/edit', [DocumentController::class, 'edit'])->name('artisan.documents.edit');
-    Route::put('/artisan/documents/{document}', [DocumentController::class, 'update'])->name('artisan.documents.update');
-    Route::delete('/artisan/documents/{document}', [DocumentController::class, 'destroy'])->name('artisan.documents.destroy');
-    Route::get('/artisan/documents/{document}/export-pdf', [DocumentController::class, 'exportPdf'])->name('artisan.documents.export-pdf');
-    Route::post('/artisan/documents/{document}/send-to-client', [DocumentController::class, 'sendToClient'])->name('artisan.documents.send-to-client');
+    // ... à l'intérieur du groupe artisan ...
 
+    // Gestion des documents
+    Route::get('/artisan/documents', [ArtisanDocumentController::class, 'index'])->name('artisan.documents.index');
+    Route::get('/artisan/documents/create/{type?}', [ArtisanDocumentController::class, 'create'])->name('artisan.documents.create');
+    Route::post('/artisan/documents', [ArtisanDocumentController::class, 'store'])->name('artisan.documents.store');
+    Route::get('/artisan/documents/{document}', [ArtisanDocumentController::class, 'show'])->name('artisan.documents.show');
+    Route::get('/artisan/documents/{document}/edit', [ArtisanDocumentController::class, 'edit'])->name('artisan.documents.edit');
+    Route::put('/artisan/documents/{document}', [ArtisanDocumentController::class, 'update'])->name('artisan.documents.update');
+    Route::delete('/artisan/documents/{document}', [ArtisanDocumentController::class, 'destroy'])->name('artisan.documents.destroy');
+    Route::get('/artisan/documents/{document}/export-pdf', [ArtisanDocumentController::class, 'exportPdf'])->name('artisan.documents.export-pdf');
+    Route::post('/artisan/documents/{document}/send-to-client', [ArtisanDocumentController::class, 'sendToClient'])->name('artisan.documents.send-to-client');
+    
     // Gestion des réalisations
     Route::get('/artisan/{artisan}/projects', [ArtisanProjectController::class, 'index'])->name('artisan.projects.index');
     Route::get('/artisan/{artisan}/projects/create', [ArtisanProjectController::class, 'create'])->name('artisan.projects.create');
@@ -434,10 +443,28 @@ Route::get('/pay', [TransactionController::class, 'depositForm'])
 Route::get('/transactions/{transaction}/callback', [TransactionController::class, 'callback'])
     ->name('transactions.callback');
 
+Route::middleware(['auth', 'verified'])->group(function () {
+    Route::get('/messenger', function () {
+        $user = auth()->user();
+
+        if ($user->hasRole('owner') || $user->isAdmin()) {
+            return redirect()->route('owner.messenger');
+        }
+
+        if ($user->hasRole('tenant')) {
+            return redirect()->route('tenant.messenger');
+        }
+
+        return view('pages.messenger.index');
+    })->name('messenger');
+});
+
 // User visit passes routes
 Route::middleware(['auth', 'verified'])->group(function () {
-    Route::get('/visit-pass/create/{property}', [UserVisitPassController::class, 'create'])
+    Route::get('/visit-pass/create/{visitPassable}', [UserVisitPassController::class, 'create'])
         ->name('my-visit-passes.create');
+    Route::get('/visit-pass/create/parcelle/{visitPassable}', [UserVisitPassController::class, 'create'])
+        ->name('my-visit-passes.create.parcelle');
     Route::post('/visit-pass', [UserVisitPassController::class, 'store'])
         ->name('my-visit-passes.store');
     Route::get('/my-visit-passes', [UserVisitPassController::class, 'index'])
@@ -452,19 +479,6 @@ Route::middleware(['auth', 'verified'])->group(function () {
         ->name('my-visit-passes.destroy');
 });
 
-Route::livewire('chat', 'pages::chat.index');
-
-// Route::get('/debug-signature', function (Request $request) {
-//     return response()->json([
-//         'full_url' => $request->fullUrl(),
-//         'has_valid_signature' => $request->hasValidSignature(),
-//         'scheme' => $request->getScheme(),
-//         'host' => $request->getHost(),
-//         'forwarded_proto' => $request->header('X-Forwarded-Proto'),
-//         'forwarded_host' => $request->header('X-Forwarded-Host'),
-//     ]);
-// });
-
 Route::get('/propos', function () {
     return view('apropos');
 })->name('propos');
@@ -477,6 +491,80 @@ Route::get('/conditions', function () {
     return view('conditions');
 })->name('conditions');
 
-Route::get('/apropo_S', function () {
-    return view('apropo_S');
-})->name('apropos_S');
+Route::get('/apropo_s', function () {
+    return view('apropo_s');
+})->name('apropos_s');
+
+// Owner Portal & Management Routes
+Route::middleware(['auth', 'verified', 'owner'])->prefix('owner')->name('owner.')->group(function () {
+    // Dashboard / Portal Overview
+    Route::get('/dashboard', [App\Http\Controllers\Owner\DashboardController::class, 'index'])->name('dashboard');
+
+    // Financial Dashboard & Stats
+    Route::get('/financial', [FinancialController::class, 'index'])->name('financial');
+    Route::get('/financial/export', [FinancialController::class, 'export'])->name('financial.export');
+
+    // Contracts (Contrats)
+    Route::get('/contracts', [ContractController::class, 'index'])->name('contracts.index');
+    Route::get('/contracts/create', [ContractController::class, 'create'])->name('contracts.create');
+    Route::post('/contracts', [ContractController::class, 'store'])->name('contracts.store');
+    Route::get('/contracts/{contract}', [ContractController::class, 'show'])->name('contracts.show');
+    Route::get('/contracts/{contract}/pdf', [ContractController::class, 'downloadPdf'])->name('contracts.pdf');
+    Route::post('/contracts/{contract}/generate-rents', [ContractController::class, 'generateRents'])->name('contracts.generate-rents');
+    Route::post('/contracts/{contract}/sign', [ContractController::class, 'sign'])->middleware(EnsureUserCanSignContract::class)->name('contracts.sign');
+    Route::post('/contracts/{contract}/cancel', [ContractController::class, 'cancel'])->name('contracts.cancel');
+    Route::delete('/contracts/{contract}', [ContractController::class, 'destroy'])->name('contracts.destroy');
+    Route::post('/rent-payments/{rentPayment}/toggle-paid', [ContractController::class, 'togglePaid'])->name('rent-payments.toggle-paid');
+
+    // Invoices (Factures)
+    Route::get('/invoices', [InvoiceController::class, 'index'])->name('invoices.index');
+    Route::get('/invoices/create', [InvoiceController::class, 'create'])->name('invoices.create');
+    Route::post('/invoices', [InvoiceController::class, 'store'])->name('invoices.store');
+    Route::get('/invoices/{invoice}/pdf', [InvoiceController::class, 'downloadPdf'])->name('invoices.pdf');
+    Route::post('/invoices/{invoice}/toggle-paid', [InvoiceController::class, 'togglePaid'])->name('invoices.toggle-paid');
+    Route::delete('/invoices/{invoice}', [InvoiceController::class, 'destroy'])->name('invoices.destroy');
+
+    // Interventions / Maintenance
+    Route::get('/interventions', [InterventionController::class, 'index'])->name('interventions.index');
+    Route::get('/interventions/create', [InterventionController::class, 'create'])->name('interventions.create');
+    Route::post('/interventions', [InterventionController::class, 'store'])->name('interventions.store');
+    Route::get('/interventions/{intervention}', [InterventionController::class, 'show'])->name('interventions.show');
+    Route::post('/interventions/{intervention}/status', [InterventionController::class, 'updateStatus'])->name('interventions.update-status');
+
+    // Inspections (États des lieux)
+    Route::get('/inspections', [InspectionController::class, 'index'])->name('inspections.index');
+    Route::get('/inspections/create', [InspectionController::class, 'create'])->name('inspections.create');
+    Route::post('/inspections', [InspectionController::class, 'store'])->name('inspections.store');
+    Route::get('/inspections/compare', [InspectionController::class, 'compare'])->name('inspections.compare');
+    Route::get('/inspections/{inspection}', [InspectionController::class, 'show'])->name('inspections.show');
+    Route::get('/inspections/{inspection}/pdf', [InspectionController::class, 'downloadPdf'])->name('inspections.pdf');
+
+    // Documents
+        // Documents
+    Route::get('/documents', [OwnerDocumentController::class, 'index'])->name('documents.index');
+    Route::post('/documents', [OwnerDocumentController::class, 'store'])->name('documents.store');
+    Route::get('/documents/{document}/download', [OwnerDocumentController::class, 'download'])->name('documents.download');
+    Route::delete('/documents/{document}', [OwnerDocumentController::class, 'destroy'])->name('documents.destroy');
+    // Messagerie
+    Route::get('/messenger', function () {
+        return view('pages.owner.messenger');
+    })->name('messenger');
+});
+
+// Tenant Portal Routes
+Route::middleware(['auth', 'verified', 'tenant'])->prefix('tenant')->name('tenant.')->group(function () {
+    Route::get('/dashboard', [App\Http\Controllers\Tenant\DashboardController::class, 'index'])->name('dashboard');
+    Route::get('/contracts', [App\Http\Controllers\Tenant\DashboardController::class, 'contracts'])->name('contracts');
+    Route::get('/contracts/{contract}', [App\Http\Controllers\Tenant\DashboardController::class, 'show'])->name('contracts.show');
+    Route::post('/contracts/{contract}/sign', [App\Http\Controllers\Tenant\DashboardController::class, 'sign'])->middleware(EnsureUserCanSignContract::class)->name('contracts.sign');
+    Route::get('/contracts/{contract}/pdf', [App\Http\Controllers\Tenant\DashboardController::class, 'downloadPdf'])->name('contracts.pdf');
+    Route::get('/payments', [App\Http\Controllers\Tenant\DashboardController::class, 'payments'])->name('payments');
+    Route::get('/interventions', [App\Http\Controllers\Tenant\DashboardController::class, 'interventions'])->name('interventions');
+    Route::get('/documents', [App\Http\Controllers\Tenant\DashboardController::class, 'documents'])->name('documents');
+    Route::get('/documents/{document}/download', [App\Http\Controllers\Tenant\DashboardController::class, 'downloadDocument'])->name('documents.download');
+
+    // Messagerie
+    Route::get('/messenger', function () {
+        return view('pages.tenant.messenger');
+    })->name('messenger');
+});

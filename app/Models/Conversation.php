@@ -56,7 +56,6 @@ class Conversation extends Model
         if ($this->membre_equipe_id) {
             return $this->membreEquipe->nom ?? 'Membre';
         }
-
         return 'Inconnu';
     }
 }
