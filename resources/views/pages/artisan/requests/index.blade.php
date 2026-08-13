@@ -56,6 +56,12 @@
             </div>
         </div>
 
+        <!-- Barre de recherche -->
+        <div class="mb-4">
+            @include('components.artisan.search-bar', ['placeholder' => 'Rechercher une demande…'])
+        </div>
+
+        <!-- Liste des demandes -->
         <!-- Liste des demandes -->
         <div class="bg-card rounded-lg shadow-sm border border-border transition-all duration-300 hover:shadow-lg">
             @if($demandes->count() > 0)

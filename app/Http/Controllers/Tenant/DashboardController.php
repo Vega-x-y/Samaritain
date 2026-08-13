@@ -6,8 +6,8 @@ use App\Events\ContractFullySigned;
 use App\Events\ContractSigned;
 use App\Http\Controllers\Controller;
 use App\Models\Contract;
-use App\Models\Document;
 use App\Models\Intervention;
+use App\Models\OwnerDocument;
 use App\Models\RentPayment;
 use App\Notifications\ContractCompletedNotification;
 use App\Notifications\ContractSignedNotification;
@@ -62,7 +62,7 @@ class DashboardController extends Controller
         }
 
         $propertyIds = $contracts->pluck('property_id');
-        $documents = Document::whereIn('property_id', $propertyIds)
+        $documents = OwnerDocument::whereIn('property_id', $propertyIds)
             ->latest()
             ->take(5)
             ->get();
@@ -137,7 +137,7 @@ class DashboardController extends Controller
         $contracts = Contract::where('tenant_email', $user->email)->get();
         $propertyIds = $contracts->pluck('property_id');
 
-        $documents = Document::whereIn('property_id', $propertyIds)
+        $documents = OwnerDocument::whereIn('property_id', $propertyIds)
             ->latest()
             ->paginate(15);
 
@@ -198,7 +198,7 @@ class DashboardController extends Controller
         return response()->streamDownload(fn () => print ($pdf->output()), $fileName);
     }
 
-    public function downloadDocument(Document $document)
+    public function downloadDocument(OwnerDocument $document)
     {
         $user = auth()->user();
 

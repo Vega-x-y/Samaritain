@@ -31,6 +31,10 @@ class DocumentController extends Controller
             ->with('client')
             ->when($request->filled('client_id'), fn ($q) => $q->where('client_id', $request->client_id))
             ->when($request->filled('type'), fn ($q) => $q->where('type', $request->type))
+            ->when($request->filled('search'), fn ($q) => $q->where(function ($sub) use ($request) {
+                $sub->where('nom', 'like', '%'.$request->search.'%')
+                    ->orWhere('type', 'like', '%'.$request->search.'%');
+            }))
             ->latest()
             ->paginate(20);
 

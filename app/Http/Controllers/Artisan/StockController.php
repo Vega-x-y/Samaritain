@@ -22,7 +22,12 @@ class StockController extends Controller
         $articles = ArticleStock::query()
             ->where('artisan_id', $artisan->id)
             ->when($request->filled('categorie'), fn ($q) => $q->where('categorie', $request->categorie))
-            ->when($request->filled('search'), fn ($q) => $q->where('nom', 'like', '%'.$request->search.'%'))
+            ->when($request->filled('search'), fn ($q) => $q->where(function ($sub) use ($request) {
+                $sub->where('nom', 'like', '%'.$request->search.'%')
+                    ->orWhere('reference', 'like', '%'.$request->search.'%')
+                    ->orWhere('categorie', 'like', '%'.$request->search.'%')
+                    ->orWhere('fournisseur', 'like', '%'.$request->search.'%');
+            }))
             ->latest()
             ->paginate(12);
 

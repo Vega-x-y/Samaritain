@@ -51,6 +51,30 @@ test('artisan dashboard loads successfully without factures', function () {
         ->assertOk();
 });
 
+test('artisan dashboard shows CA Total as the sum of chantier budgets', function () {
+    Chantier::create([
+        'artisan_id' => $this->artisan->id,
+        'nom' => 'Chantier A',
+        'type' => 'plomberie',
+        'statut' => ChantierStatus::EN_COURS,
+        'budget' => 1200.00,
+    ]);
+
+    Chantier::create([
+        'artisan_id' => $this->artisan->id,
+        'nom' => 'Chantier B',
+        'type' => 'electricite',
+        'statut' => ChantierStatus::TERMINE,
+        'budget' => 800.00,
+    ]);
+
+    $this->actingAs($this->user)
+        ->get(route('artisan.dashboard'))
+        ->assertOk()
+        ->assertSee('CA Total')
+        ->assertSee('2 000 FCFA');
+});
+
 test('artisan dashboard is forbidden when user has no artisan profile', function () {
     $userWithoutArtisan = User::factory()->create();
 

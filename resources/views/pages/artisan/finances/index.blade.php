@@ -1,125 +1,257 @@
 @extends('layouts.artisan')
 
-@section('title', 'Finances')
+@section('title', 'Centre financier')
 
 @section('breadcrumbs')
     <nav class="flex items-center gap-2 text-sm text-muted-foreground">
-        <i data-lucide="wallet" class="w-4 h-4"></i>
-        <span>Finances</span>
+        <i data-lucide="pie-chart" class="w-4 h-4"></i>
+        <span>Centre financier</span>
     </nav>
 @endsection
 
 @section('content')
+    @php
+        $categorieLabels = [
+            'materiaux' => 'Matériaux',
+            'main_oeuvre' => "Main d'œuvre",
+            'transport' => 'Transport',
+            'autre' => 'Autre',
+        ];
+
+        $kpis = [
+            ['label' => 'CA Total', 'value' => $totalCA, 'suffix' => 'FCFA', 'border' => 'border-emerald-500', 'text' => 'text-emerald-500'],
+            ['label' => 'Dépenses totales', 'value' => $totalDepenses, 'suffix' => 'FCFA', 'border' => 'border-red-500', 'text' => 'text-red-500'],
+            ['label' => 'Bénéfice net', 'value' => $beneficeNet, 'suffix' => 'FCFA', 'border' => 'border-emerald-500', 'text' => 'text-emerald-500'],
+            ['label' => 'Marge', 'value' => $marge, 'suffix' => '%', 'border' => 'border-blue-500', 'text' => 'text-blue-500'],
+            ['label' => 'Acomptes reçus', 'value' => $acomptesRecus, 'suffix' => 'FCFA', 'border' => 'border-orange-500', 'text' => 'text-orange-500'],
+            ['label' => 'Impayés', 'value' => $impayes, 'suffix' => 'FCFA', 'border' => 'border-red-500', 'text' => 'text-red-500'],
+        ];
+
+        
+    @endphp
+
     <div class="space-y-6">
-        <!-- En-tête -->
-        <div class="flex items-center justify-between">
+        <!-- ===== HEADER ===== -->
+        <div class="flex flex-wrap items-center justify-between gap-4">
             <div>
-                <h1 class="text-2xl font-bold text-foreground">Finances</h1>
+                <h1 class="text-2xl font-bold text-foreground">Centre financier</h1>
                 <p class="text-sm text-muted-foreground mt-1">Gestion financière de vos chantiers</p>
             </div>
-            <a href="{{ route('artisan.chantiers.index') }}" 
-               class="inline-flex items-center px-4 py-2 bg-orange-500 hover:bg-orange-600 text-white rounded-lg transition-all duration-200 hover:scale-105 active:scale-95">
-                <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18"/>
-                </svg>
-                Retour aux chantiers
-            </a>
+            <div class="flex items-center gap-3">
+                <!-- Cloche notifications -->
+                <a href="{{ route('notifications.api') }}"
+                   class="relative w-10 h-10 rounded-full bg-card border border-border flex items-center justify-center text-muted-foreground hover:text-foreground hover:border-primary transition-all duration-200 hover:rotate-[-5deg]"
+                   aria-label="Notifications">
+                    <i data-lucide="bell" class="w-5 h-5"></i>
+                </a>
+                <!-- Nouveau projet -->
+                <a href="{{ route('artisan.chantiers.create') }}"
+                   class="inline-flex items-center gap-2 px-5 py-2.5 bg-orange-500 hover:bg-orange-600 text-white font-medium rounded-full transition-all duration-200 hover:scale-105 hover:shadow-lg hover:shadow-orange-500/30 active:scale-95">
+                    <i data-lucide="plus" class="w-4 h-4"></i>
+                    Nouveau projet
+                </a>
+            </div>
         </div>
 
-        <!-- Filtres -->
-        <div class="bg-card rounded-lg shadow-sm border border-border p-6 transition-all duration-300 hover:shadow-lg">
-            <form method="GET" action="{{ route('artisan.finances.index') }}" class="grid grid-cols-1 md:grid-cols-3 gap-4">
+        <!-- ===== SOUS-HEADER ===== -->
+        <div class="flex flex-wrap items-center justify-between gap-4 bg-card border border-border rounded-2xl shadow-sm px-5 py-4">
+            <div class="flex items-center gap-3">
+                <div class="w-10 h-10 rounded-full bg-orange-100 dark:bg-orange-900/30 flex items-center justify-center transition-all duration-300 hover:scale-110">
+                    <i data-lucide="pie-chart" class="w-5 h-5 text-orange-500"></i>
+                </div>
                 <div>
-                    <label class="block text-sm font-medium text-foreground mb-2">Chantier</label>
-                    <select name="chantier_id" class="w-full rounded-lg border-border focus:border-orange-500 focus:ring-orange-500 bg-background transition-all duration-200 focus:shadow-md">
-                        <option value="">Tous les chantiers</option>
+                    <p class="font-semibold text-foreground">Centre financier</p>
+                    <p class="text-xs text-muted-foreground">Vue d'ensemble de vos finances</p>
+                </div>
+            </div>
+            <button type="button"
+                    class="inline-flex items-center gap-2 px-4 py-2 bg-zinc-800 hover:bg-zinc-700 text-white text-sm font-medium rounded-lg transition-all duration-200 active:scale-95 hover:shadow-lg">
+                <i data-lucide="download" class="w-4 h-4"></i>
+                Exporter le bilan
+            </button>
+        </div>
+
+        <!-- ===== CARTES KPI ===== -->
+        <div class="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-4">
+            @foreach ($kpis as $kpi)
+                <div class="bg-card border border-border border-l-4 {{ $kpi['border'] }} rounded-2xl shadow-sm p-5 transition-all duration-300 ease-in-out hover:scale-[1.02] hover:shadow-2xl">
+                    <p class="text-[11px] font-semibold uppercase tracking-wider text-muted-foreground">
+                        {{ $kpi['label'] }}
+                    </p>
+                    <p class="mt-3 text-xl sm:text-2xl font-bold text-foreground truncate">
+                        {{ number_format($kpi['value'], 0, ',', ' ') }}
+                        <span class="text-xs sm:text-sm font-medium {{ $kpi['text'] }}">
+                            {{ $kpi['suffix'] }}
+                        </span>
+                    </p>
+                </div>
+            @endforeach
+        </div>
+        <!-- Barre de recherche -->
+        <div class="mb-4">
+            @include('components.artisan.search-bar', ['placeholder' => 'Rechercher une transaction…'])
+        </div>
+
+        <!-- ===== Enregistrement rapide d'une dépense ===== -->
+        <div class="bg-card border border-border rounded-2xl shadow-sm p-6 transition-all duration-300 hover:shadow-lg">
+            <div class="flex items-center justify-between gap-4 mb-4">
+                <div>
+                    <h3 class="text-lg font-semibold text-foreground">Nouvelle dépense</h3>
+                    <p class="text-sm text-muted-foreground">Enregistrez rapidement une sortie d'argent.</p>
+                </div>
+            </div>
+
+            <form id="depense-quick-form" method="POST" action="{{ route('artisan.finances.store-depense', $chantiersList->first()?->id ?? 0) }}" enctype="multipart/form-data" class="grid grid-cols-1 md:grid-cols-5 gap-4 items-end">
+                @csrf
+                <div class="md:col-span-2">
+                    <label class="block text-sm font-medium text-foreground mb-2">Chantier *</label>
+                    <select name="chantier_id" id="depense-chantier" required class="w-full rounded-lg border-border focus:border-orange-500 focus:ring-orange-500 bg-background">
+                        <option value="">Sélectionner un chantier</option>
                         @foreach($chantiersList as $chantier)
-                            <option value="{{ $chantier->id }}" {{ request('chantier_id') == $chantier->id ? 'selected' : '' }}>
-                                {{ $chantier->nom }}
-                            </option>
+                            <option value="{{ $chantier->id }}">{{ $chantier->nom }}</option>
                         @endforeach
                     </select>
                 </div>
-                <div class="flex items-end">
-                    <button type="submit" class="w-full px-4 py-2 bg-orange-500 hover:bg-orange-600 text-white rounded-lg transition-all duration-200 hover:scale-105 active:scale-95">
-                        Filtrer
-                    </button>
+                <div>
+                    <label class="block text-sm font-medium text-foreground mb-2">Type *</label>
+                    <select name="categorie" required class="w-full rounded-lg border-border focus:border-orange-500 focus:ring-orange-500 bg-background">
+                        <option value="materiaux">Matériaux</option>
+                        <option value="main_oeuvre">Main d'œuvre</option>
+                        <option value="transport">Transport</option>
+                        <option value="autre">Autre</option>
+                    </select>
                 </div>
-                <div class="flex items-end">
-                    <a href="{{ route('artisan.finances.index') }}" 
-                       class="w-full px-4 py-2 bg-orange-500 hover:bg-orange-600 text-white rounded-lg transition-all duration-200 hover:scale-105 active:scale-95 text-center">
-                        Réinitialiser
-                    </a>
+                <div>
+                    <label class="block text-sm font-medium text-foreground mb-2">Montant *</label>
+                    <input type="number" step="0.01" name="montant" required class="w-full rounded-lg border-border focus:border-orange-500 focus:ring-orange-500 bg-background" placeholder="Ex: 15000">
+                </div>
+                <div>
+                    <label class="block text-sm font-medium text-foreground mb-2">Date</label>
+                    <input type="date" name="date" value="{{ now()->format('Y-m-d') }}" class="w-full rounded-lg border-border focus:border-orange-500 focus:ring-orange-500 bg-background">
+                </div>
+                <div class="md:col-span-5">
+                    <button type="submit" class="inline-flex items-center gap-2 px-4 py-2 bg-orange-500 hover:bg-orange-600 text-white rounded-lg transition-all duration-200 hover:scale-105 active:scale-95">
+                        <i data-lucide="save" class="w-4 h-4"></i>
+                        Enregistrer la dépense
+                    </button>
                 </div>
             </form>
         </div>
 
-        <!-- Liste des chantiers -->
-        <div class="bg-card rounded-lg shadow-sm border border-border overflow-hidden transition-all duration-300 hover:shadow-lg">
-            <div class="overflow-x-auto">
-                <table class="min-w-full divide-y divide-orange-200">
-                    <thead class="bg-orange-50 dark:bg-orange-900/20">
-                        <tr>
-                            <th class="px-6 py-3 text-left text-xs font-medium text-muted-foreground uppercase">Chantier</th>
-                            <th class="px-6 py-3 text-left text-xs font-medium text-muted-foreground uppercase">Client</th>
-                            <th class="px-6 py-3 text-right text-xs font-medium text-muted-foreground uppercase">CA</th>
-                            <th class="px-6 py-3 text-right text-xs font-medium text-muted-foreground uppercase">Dépenses</th>
-                            <th class="px-6 py-3 text-right text-xs font-medium text-muted-foreground uppercase">Rentabilité</th>
-                            <th class="px-6 py-3 text-center text-xs font-medium text-muted-foreground uppercase">Actions</th>
-                        </tr>
-                    </thead>
-                    <tbody class="bg-card divide-y divide-border">
-                        @forelse($chantiers as $chantier)
-                            @php
-                                $rentabilite = $chantier->calculerRentabilite();
-                                $totalCA = $chantier->total_ca;
-                                $totalDepenses = $chantier->total_depenses;
-                            @endphp
-                            <tr class="hover:bg-muted/30 transition-colors duration-150">
-                                <td class="px-6 py-4">
-                                    <div class="text-sm font-medium text-foreground">{{ $chantier->nom }}</div>
-                                    <div class="text-sm text-muted-foreground">{{ $chantier->type }}</div>
-                                </td>
-                                <td class="px-6 py-4 text-sm text-foreground">
-                                    {{ $chantier->client?->name ?? 'Non assigné' }}
-                                </td>
-                                <td class="px-6 py-4 text-right text-sm font-medium text-green-600">
-                                    {{ number_format($totalCA, 2, ',', ' ') }} FCFA
-                                </td>
-                                <td class="px-6 py-4 text-right text-sm font-medium text-red-600">
-                                    {{ number_format($totalDepenses, 2, ',', ' ') }} FCFA
-                                </td>
-                                <td class="px-6 py-4 text-right">
-                                    <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium {{ $rentabilite >= 0 ? 'bg-green-100 text-green-800 dark:bg-green-900/30 dark:text-green-400' : 'bg-red-100 text-red-800 dark:bg-red-900/30 dark:text-red-400' }}">
-                                        {{ number_format($rentabilite, 2, ',', ' ') }} FCFA
-                                    </span>
-                                </td>
-                                <td class="px-6 py-4 text-center">
-                                    <a href="{{ route('artisan.finances.show', $chantier) }}" 
-                                       class="inline-flex items-center px-3 py-1.5 bg-orange-500 hover:bg-orange-600 text-white text-sm rounded-lg transition-all duration-200 hover:scale-105 active:scale-95">
-                                        Détails
-                                    </a>
-                                </td>
-                            </tr>
-                        @empty
-                            <tr>
-                                <td colspan="6" class="px-6 py-12 text-center text-muted-foreground">
-                                    <svg class="mx-auto h-12 w-12 text-muted-foreground/60 mb-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 7h6m0 10v-3m-3 3h.01M9 17h.01M9 14h.01M12 14h.01M15 11h.01M12 11h.01M9 11h.01M7 21h10a2 2 0 002-2V5a2 2 0 00-2-2H7a2 2 0 00-2 2v14a2 2 0 002 2z"/>
-                                    </svg>
-                                    Aucun chantier trouvé
-                                </td>
-                            </tr>
-                        @endforelse
-                    </tbody>
-                </table>
+        <script>
+            (function () {
+                const form = document.getElementById('depense-quick-form');
+                const select = document.getElementById('depense-chantier');
+                if (!form || !select) {
+                    return;
+                }
+
+                const updateAction = () => {
+                    const id = select.value || '0';
+                    form.action = `{{ url('/artisan/finances') }}/${id}/depenses`;
+                };
+
+                select.addEventListener('change', updateAction);
+                updateAction();
+            })();
+        </script>
+
+        <!-- ===== BLocs revenus / dépenses ===== -->
+
+        <!-- ===== BLocs revenus / dépenses ===== -->
+        <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+            <!-- Répartition des revenus -->
+            <div class="bg-card border border-border rounded-2xl shadow-sm p-6 transition-all duration-300 hover:scale-[1.01] hover:shadow-2xl">
+                <h3 class="text-sm font-semibold uppercase tracking-wider text-muted-foreground mb-5">
+                    Répartition des revenus
+                </h3>
+                <div class="space-y-4">
+                    @forelse ($repartitionRevenus as $item)
+                        <div class="group transition-all duration-200">
+                            <div class="flex items-center justify-between gap-3 text-sm">
+                                <a href="{{ route('artisan.finances.show', $item['chantier']) }}"
+                                   class="font-medium text-foreground hover:text-orange-500 hover:underline decoration-orange-500 underline-offset-2 transition-all truncate">
+                                    {{ $item['nom'] }}
+                                </a>
+                                <span class="font-semibold text-foreground whitespace-nowrap">
+                                    {{ number_format($item['montant'], 0, ',', ' ') }} FCFA
+                                </span>
+                            </div>
+                            <div class="mt-2 h-2 w-full bg-muted rounded-full overflow-hidden">
+                                <div class="h-full bg-orange-500 rounded-full transition-all group-hover:brightness-110"
+                                     style="width: {{ $maxRevenu > 0 ? (int) round(($item['montant'] / $maxRevenu) * 100) : 0 }}%"></div>
+                            </div>
+                        </div>
+                    @empty
+                        <p class="text-sm text-muted-foreground">Aucun revenu pour le moment.</p>
+                    @endforelse
+                </div>
             </div>
 
-            @if($chantiers->hasPages())
-                <div class="px-6 py-4 border-t border-border">
-                    {{ $chantiers->links() }}
+            <!-- Dépenses par type -->
+            <div class="bg-card border border-border rounded-2xl shadow-sm p-6 transition-all duration-300 hover:scale-[1.01] hover:shadow-2xl">
+                <h3 class="text-sm font-semibold uppercase tracking-wider text-muted-foreground mb-5">
+                    Dépenses par type
+                </h3>
+                <div class="space-y-4">
+                    @forelse ($depensesParType as $categorie => $montant)
+                        <div class="flex items-center justify-between gap-3 text-sm group">
+                            <span class="font-medium text-foreground">
+                                {{ $categorieLabels[$categorie] ?? ucfirst((string) $categorie) }}
+                            </span>
+                            <span class="font-semibold text-red-500 whitespace-nowrap transition-colors group-hover:text-red-400">
+                                {{ number_format($montant, 0, ',', ' ') }} FCFA
+                            </span>
+                        </div>
+                    @empty
+                        <p class="text-sm text-muted-foreground">Aucune dépense pour le moment.</p>
+                    @endforelse
                 </div>
-            @endif
+            </div>
+
+            <!-- Dernières dépenses -->
+            <div class="mt-6 bg-card border border-border rounded-2xl shadow-sm overflow-hidden transition-all duration-300 hover:shadow-lg">
+                <div class="px-6 py-4 border-b border-border">
+                    <h3 class="text-lg font-semibold text-foreground">Dernières dépenses</h3>
+                </div>
+                <div class="overflow-x-auto">
+                    <table class="min-w-full divide-y divide-gray-200 dark:divide-gray-700">
+                        <thead class="bg-gray-50 dark:bg-gray-800">
+                            <tr>
+                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase">Chantier</th>
+                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase">Type</th>
+                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase">Date</th>
+                                <th class="px-6 py-3 text-right text-xs font-medium text-gray-500 dark:text-gray-400 uppercase">Montant</th>
+                            </tr>
+                        </thead>
+                        <tbody class="divide-y divide-gray-200 dark:divide-gray-700">
+                            @forelse ($dernieresDepenses as $depense)
+                                <tr class="hover:bg-gray-50 dark:hover:bg-gray-700">
+                                    <td class="px-6 py-3 text-sm text-gray-900 dark:text-gray-100">
+                                        <a href="{{ route('artisan.finances.show', $depense->chantier) }}" class="hover:text-orange-500 transition-colors">
+                                            {{ $depense->chantier->nom ?? '—' }}
+                                        </a>
+                                    </td>
+                                    <td class="px-6 py-3 text-sm text-gray-900 dark:text-gray-100">
+                                        <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-orange-100 dark:bg-orange-900/40 text-orange-800 dark:text-orange-200">
+                                            {{ $categorieLabels[$depense->categorie] ?? ucfirst($depense->categorie) }}
+                                        </span>
+                                    </td>
+                                    <td class="px-6 py-3 text-sm text-gray-900 dark:text-gray-100">{{ $depense->date?->format('d/m/Y') }}</td>
+                                    <td class="px-6 py-3 text-right text-sm font-medium text-red-600 dark:text-red-400">
+                                        {{ number_format($depense->montant, 2, ',', ' ') }} FCFA
+                                    </td>
+                                </tr>
+                            @empty
+                                <tr>
+                                    <td colspan="4" class="px-6 py-8 text-center text-sm text-gray-500 dark:text-gray-400">Aucune dépense enregistrée.</td>
+                                </tr>
+                            @endforelse
+                        </tbody>
+                    </table>
+                </div>
+            </div>
         </div>
     </div>
 @endsection
+

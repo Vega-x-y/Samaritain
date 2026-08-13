@@ -1,4 +1,4 @@
-<section class="max-w-7xl mx-auto px-6 py-10">
+{{-- <section class="max-w-7xl mx-auto px-6 py-10">
     <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
 
         @php
@@ -37,4 +37,4 @@
         @endforeach
 
     </div>
-</section>
+</section> --}}

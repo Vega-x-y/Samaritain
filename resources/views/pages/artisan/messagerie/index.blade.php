@@ -22,6 +22,12 @@
             </a>
         </div>
     </div>
+    <!-- Barre de recherche -->
+    <div class="mb-4">
+        @include('components.artisan.search-bar', ['placeholder' => 'Rechercher un message…'])
+    </div>
+
+    <div class="grid grid-cols-1 gap-6">
 
     <div class="grid grid-cols-1 gap-6">
         <!-- Liste des conversations -->

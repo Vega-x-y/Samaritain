@@ -84,6 +84,13 @@ class MessagerieController extends Controller
 
         $conversations = Conversation::where('artisan_id', $artisan->id)
             ->with(['client', 'membreEquipe', 'messages' => fn ($q) => $q->latest()->limit(1)])
+            ->when($request->filled('search'), function ($q) use ($request) {
+                $q->where(function ($sub) use ($request) {
+                    $sub->where('sujet', 'like', '%'.$request->search.'%')
+                        ->orWhereHas('client', fn ($sq) => $sq->where('nom', 'like', '%'.$request->search.'%'))
+                        ->orWhereHas('membreEquipe', fn ($sq) => $sq->where('nom', 'like', '%'.$request->search.'%'));
+                });
+            })
             ->orderByDesc('dernier_message_at')
             ->get();
 

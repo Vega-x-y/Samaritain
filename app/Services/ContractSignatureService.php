@@ -5,7 +5,7 @@ namespace App\Services;
 use App\Enums\Owner\ContractStatus;
 use App\Models\Contract;
 use App\Models\ContractSignature;
-use App\Models\Document;
+use App\Models\OwnerDocument;
 use App\Models\User;
 use Barryvdh\DomPDF\Facade\Pdf;
 use Illuminate\Support\Facades\Storage;
@@ -193,11 +193,11 @@ class ContractSignatureService
 
         Storage::put($fullPath, $pdf->output());
 
-        if (Document::where('documentable_id', $contract->id)
+        if (OwnerDocument::where('documentable_id', $contract->id)
             ->where('documentable_type', Contract::class)
             ->where('category', 'lease_contract')
             ->exists()) {
-            Document::where('documentable_id', $contract->id)
+            OwnerDocument::where('documentable_id', $contract->id)
                 ->where('documentable_type', Contract::class)
                 ->where('category', 'lease_contract')
                 ->update([
@@ -205,7 +205,7 @@ class ContractSignatureService
                     'file_size' => Storage::size($fullPath),
                 ]);
         } else {
-            Document::create([
+            OwnerDocument::create([
                 'property_id' => $contract->property_id,
                 'name' => 'Contrat de bail - '.$contract->tenant_name.' (signé)',
                 'category' => 'lease_contract',

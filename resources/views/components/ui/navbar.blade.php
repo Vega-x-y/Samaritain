@@ -73,6 +73,15 @@
                 Boite à suggestions
             </a>
 
+            <a href="{{ route('artisan.dashboard') }}" @class([
+                'px-3 py-2 text-sm font-medium hover:text-primary dark:hover:text-primary-400 hover:bg-primary/5 dark:hover:bg-primary/10 rounded-lg transition',
+                'text-primary dark:text-primary-400 bg-primary/5 dark:bg-primary/10' =>
+                    request()->route()->getName() === 'artisan.dashboard',
+                'text-gray-700 dark:text-gray-300' => request()->route()->getName() !== 'artisan.dashboard',
+            ])>
+                Dashbord
+            </a>
+
 
 
         </div>

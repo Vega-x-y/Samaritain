@@ -141,4 +141,7 @@
         </form>
     </div>
 </div>
+@if(session('reload_kpis'))
+    <script>setTimeout(() => location.reload(), 100);</script>
+@endif
 @endsection

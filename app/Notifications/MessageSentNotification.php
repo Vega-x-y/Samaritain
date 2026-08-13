@@ -2,8 +2,8 @@
 
 namespace App\Notifications;
 
-use App\Models\Conversation;
-use App\Models\Message;
+use App\Models\OwnerConversation;
+use App\Models\OwnerMessage;
 use Illuminate\Bus\Queueable;
 use Illuminate\Notifications\Notification;
 
@@ -12,8 +12,8 @@ class MessageSentNotification extends Notification
     use Queueable;
 
     public function __construct(
-        public Message $message,
-        public Conversation $conversation,
+        public OwnerMessage $message,
+        public OwnerConversation $conversation,
     ) {}
 
     public function via(object $notifiable): array

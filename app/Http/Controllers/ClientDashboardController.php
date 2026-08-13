@@ -16,26 +16,28 @@ class ClientDashboardController extends Controller
         /** @var User $user */
         $user = $request->user();
 
+        $clientIds = $user->clients()->pluck('id');
+
         $chantiers = Chantier::query()
-            ->where('client_id', $user->id)
+            ->whereIn('client_id', $clientIds)
             ->with(['artisan', 'client'])
             ->latest()
             ->take(5)
             ->get();
 
         $documents = Document::query()
-            ->where('client_id', $user->id)
+            ->whereIn('client_id', $clientIds)
             ->latest()
             ->take(5)
             ->get();
 
         $stats = [
-            'total_chantiers' => Chantier::where('client_id', $user->id)->count(),
-            'total_documents' => Document::where('client_id', $user->id)->count(),
-            'chantiers_en_cours' => Chantier::where('client_id', $user->id)->where('statut', 'en_cours')->count(),
-            'chantiers_termines' => Chantier::where('client_id', $user->id)->where('statut', 'termine')->count(),
-            'chantiers_en_attente' => Chantier::where('client_id', $user->id)->where('statut', 'attente')->count(),
-            'chantiers_en_arret' => Chantier::where('client_id', $user->id)->where('statut', 'arret')->count(),
+            'total_chantiers' => Chantier::whereIn('client_id', $clientIds)->count(),
+            'total_documents' => Document::whereIn('client_id', $clientIds)->count(),
+            'chantiers_en_cours' => Chantier::whereIn('client_id', $clientIds)->where('statut', 'en_cours')->count(),
+            'chantiers_termines' => Chantier::whereIn('client_id', $clientIds)->where('statut', 'termine')->count(),
+            'chantiers_en_attente' => Chantier::whereIn('client_id', $clientIds)->where('statut', 'attente')->count(),
+            'chantiers_en_arret' => Chantier::whereIn('client_id', $clientIds)->where('statut', 'arret')->count(),
         ];
 
         $messagesNonLus = Message::whereHas('conversation', fn ($q) => $q->where('client_id', $user->id))
@@ -51,8 +53,10 @@ class ClientDashboardController extends Controller
         /** @var User $user */
         $user = $request->user();
 
+        $clientIds = $user->clients()->pluck('id');
+
         $chantiers = Chantier::query()
-            ->where('client_id', $user->id)
+            ->whereIn('client_id', $clientIds)
             ->with(['artisan', 'client'])
             ->when($request->filled('statut'), fn ($q) => $q->where('statut', $request->statut))
             ->latest()
@@ -60,11 +64,11 @@ class ClientDashboardController extends Controller
             ->withQueryString();
 
         $stats = [
-            'total_chantiers' => Chantier::where('client_id', $user->id)->count(),
-            'chantiers_en_cours' => Chantier::where('client_id', $user->id)->where('statut', 'en_cours')->count(),
-            'chantiers_termines' => Chantier::where('client_id', $user->id)->where('statut', 'termine')->count(),
-            'chantiers_en_attente' => Chantier::where('client_id', $user->id)->where('statut', 'attente')->count(),
-            'chantiers_en_arret' => Chantier::where('client_id', $user->id)->where('statut', 'arret')->count(),
+            'total_chantiers' => Chantier::whereIn('client_id', $clientIds)->count(),
+            'chantiers_en_cours' => Chantier::whereIn('client_id', $clientIds)->where('statut', 'en_cours')->count(),
+            'chantiers_termines' => Chantier::whereIn('client_id', $clientIds)->where('statut', 'termine')->count(),
+            'chantiers_en_attente' => Chantier::whereIn('client_id', $clientIds)->where('statut', 'attente')->count(),
+            'chantiers_en_arret' => Chantier::whereIn('client_id', $clientIds)->where('statut', 'arret')->count(),
         ];
 
         return view('pages.client.chantiers.index', compact('chantiers', 'stats'));

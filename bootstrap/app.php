@@ -1,8 +1,8 @@
 <?php
 
-use App\Http\Middleware\RoleMiddleware;
 use App\Http\Middleware\EnsureUserIsOwner;
 use App\Http\Middleware\EnsureUserIsTenant;
+use App\Http\Middleware\RoleMiddleware;
 use App\Http\Middleware\StaffMiddleware;
 use Illuminate\Foundation\Application;
 use Illuminate\Foundation\Configuration\Exceptions;

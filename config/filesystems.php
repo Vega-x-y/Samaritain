@@ -68,10 +68,12 @@ return [
             'bucket' => env('AWS_BUCKET'),
             'url' => env('AWS_URL'),
             'endpoint' => env('AWS_ENDPOINT'),
-            'use_path_style_endpoint' => env('AWS_USE_PATH_STYLE_ENDPOINT', false),
+            'use_path_style_endpoint' => env('AWS_USE_PATH_STYLE_ENDPOINT', true),
             'visibility' => 'public',
-            'throw' => false,
-            'report' => false,
+            // SSL verification disabled in local/dev due to Windows OpenSSL CA bundle issues
+            'verify' => ! in_array(env('APP_ENV', 'production'), ['local', 'testing']),
+            'throw' => ! in_array(env('APP_ENV', 'production'), ['local', 'testing']),
+            'report' => ! in_array(env('APP_ENV', 'production'), ['local', 'testing']),
         ],
 
     ],

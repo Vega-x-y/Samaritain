@@ -27,6 +27,10 @@ class EvenementController extends Controller
             ->when($request->filled('type'), fn ($q) => $q->where('type', $request->type))
             ->when($request->filled('chantier_id'), fn ($q) => $q->where('chantier_id', $request->chantier_id))
             ->when($request->filled('date'), fn ($q) => $q->whereDate('date_debut', $request->date))
+            ->when($request->filled('search'), fn ($q) => $q->where(function ($sub) use ($request) {
+                $sub->where('titre', 'like', '%'.$request->search.'%')
+                    ->orWhere('description', 'like', '%'.$request->search.'%');
+            }))
             ->orderBy('date_debut')
             ->get();
 

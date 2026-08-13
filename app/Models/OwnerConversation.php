@@ -10,7 +10,7 @@ class OwnerConversation extends Model
 {
     // Table différente pour éviter les conflits
     protected $table = 'owner_conversations';
-    
+
     protected $fillable = [
         'contract_id',
         'owner_id',
@@ -39,7 +39,7 @@ class OwnerConversation extends Model
 
     public function messages(): HasMany
     {
-        return $this->hasMany(Message::class, 'owner_conversation_id')->latest();
+        return $this->hasMany(OwnerMessage::class, 'conversation_id')->latest();
     }
 
     public function scopeForUser($query, User $user)

@@ -42,7 +42,7 @@ test('client dashboard loads successfully', function () {
 test('client dashboard shows chantiers linked to user', function () {
     Chantier::create([
         'artisan_id' => $this->artisan->id,
-        'client_id' => $this->user->id,
+        'client_id' => $this->client->id,
         'nom' => 'Rénovation cuisine',
         'type' => 'plomberie',
         'statut' => ChantierStatus::EN_COURS,
@@ -57,7 +57,7 @@ test('client dashboard shows chantiers linked to user', function () {
 test('client chantiers index page loads successfully', function () {
     Chantier::create([
         'artisan_id' => $this->artisan->id,
-        'client_id' => $this->user->id,
+        'client_id' => $this->client->id,
         'nom' => 'Rénovation salle de bain',
         'type' => 'plomberie',
         'statut' => ChantierStatus::EN_COURS,
@@ -73,7 +73,7 @@ test('client chantiers index page loads successfully', function () {
 test('client chantiers index filters by statut', function () {
     Chantier::create([
         'artisan_id' => $this->artisan->id,
-        'client_id' => $this->user->id,
+        'client_id' => $this->client->id,
         'nom' => 'Chantier en cours',
         'type' => 'plomberie',
         'statut' => ChantierStatus::EN_COURS,
@@ -81,7 +81,7 @@ test('client chantiers index filters by statut', function () {
 
     Chantier::create([
         'artisan_id' => $this->artisan->id,
-        'client_id' => $this->user->id,
+        'client_id' => $this->client->id,
         'nom' => 'Chantier terminé',
         'type' => 'electricite',
         'statut' => ChantierStatus::TERMINE,
@@ -99,6 +99,38 @@ test('client dashboard shows empty state when no chantiers', function () {
         ->get(route('client.dashboard'))
         ->assertOk()
         ->assertSee('Aucun chantier pour le moment.');
+});
+
+test('client dashboard only shows chantiers from the user own client records', function () {
+    Chantier::create([
+        'artisan_id' => $this->artisan->id,
+        'client_id' => $this->client->id,
+        'nom' => 'Chantier du client',
+        'type' => 'plomberie',
+        'statut' => ChantierStatus::EN_COURS,
+    ]);
+
+    // Un chantier lié à un autre client ne doit pas apparaître
+    $otherClient = Client::create([
+        'artisan_id' => $this->artisan->id,
+        'user_id' => null,
+        'nom' => 'Autre Client',
+        'telephone' => '+33600000000',
+        'type' => 'particulier',
+    ]);
+    Chantier::create([
+        'artisan_id' => $this->artisan->id,
+        'client_id' => $otherClient->id,
+        'nom' => 'Chantier autre client',
+        'type' => 'electricite',
+        'statut' => ChantierStatus::TERMINE,
+    ]);
+
+    $this->actingAs($this->user)
+        ->get(route('client.dashboard'))
+        ->assertOk()
+        ->assertSee('Chantier du client')
+        ->assertDontSee('Chantier autre client');
 });
 
 test('client dashboard is accessible to any authenticated user', function () {

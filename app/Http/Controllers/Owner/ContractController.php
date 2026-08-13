@@ -11,8 +11,7 @@ use App\Http\Controllers\Controller;
 use App\Http\Requests\Owner\StoreContractRequest;
 use App\Models\Contract;
 use App\Models\ContractSignature;
-use App\Models\Conversation;
-use App\Models\Document;
+use App\Models\OwnerDocument;
 use App\Models\Property;
 use App\Models\RentPayment;
 use App\Models\User;
@@ -143,7 +142,7 @@ class ContractController extends Controller
             ]);
 
             // Find and delete the generated receipt document if it exists
-            $document = Document::where('documentable_id', $rentPayment->id)
+            $document = OwnerDocument::where('documentable_id', $rentPayment->id)
                 ->where('documentable_type', RentPayment::class)
                 ->first();
 
@@ -292,7 +291,7 @@ class ContractController extends Controller
         $contract->conversation()->delete();
 
         // Delete related documents (receipts, signed PDFs)
-        Document::where('documentable_id', $contract->id)
+        OwnerDocument::where('documentable_id', $contract->id)
             ->where('documentable_type', Contract::class)
             ->delete();
 
@@ -314,20 +313,20 @@ class ContractController extends Controller
         });
 
         // Delete contract PDF documents
-        $documents = Document::where('documentable_id', $contract->id)
+        $documents = OwnerDocument::where('documentable_id', $contract->id)
             ->where('documentable_type', Contract::class)
             ->get();
 
-        $documents->each(function (Document $document) {
+        $documents->each(function (OwnerDocument $document) {
             Storage::delete($document->file_path);
         });
 
         // Delete receipt PDFs for this contract's rent payments
-        $receiptDocuments = Document::where('documentable_type', RentPayment::class)
+        $receiptDocuments = OwnerDocument::where('documentable_type', RentPayment::class)
             ->whereIn('documentable_id', $contract->rentPayments()->pluck('id'))
             ->get();
 
-        $receiptDocuments->each(function (Document $document) {
+        $receiptDocuments->each(function (OwnerDocument $document) {
             Storage::delete($document->file_path);
         });
     }
@@ -345,7 +344,7 @@ class ContractController extends Controller
 
         Storage::put($fullPath, $pdf->output());
 
-        Document::create([
+        OwnerDocument::create([
             'property_id' => $contract->property_id,
             'name' => 'Contrat de bail - '.$contract->tenant_name.' (signé)',
             'category' => 'lease_contract',
@@ -371,7 +370,7 @@ class ContractController extends Controller
         Storage::put($fullPath, $pdf->output());
 
         // Register in documents table
-        Document::create([
+        OwnerDocument::create([
             'property_id' => $property->id,
             'name' => 'Reçu de loyer - '.$rentPayment->month.'/'.$rentPayment->year.' - '.$contract->tenant_name,
             'category' => 'receipt',

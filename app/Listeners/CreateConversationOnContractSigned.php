@@ -3,8 +3,8 @@
 namespace App\Listeners;
 
 use App\Events\ContractFullySigned;
-use App\Models\Conversation;
-use App\Models\Message;
+use App\Models\OwnerConversation;
+use App\Models\OwnerMessage;
 use App\Models\User;
 use App\Notifications\MessageSentNotification;
 
@@ -23,7 +23,7 @@ class CreateConversationOnContractSigned
             return;
         }
 
-        $conversation = Conversation::firstOrCreate(
+        $conversation = OwnerConversation::firstOrCreate(
             ['contract_id' => $contract->id],
             [
                 'owner_id' => $contract->created_by,
@@ -37,7 +37,7 @@ class CreateConversationOnContractSigned
             return;
         }
 
-        $greeting = Message::create([
+        $greeting = OwnerMessage::create([
             'conversation_id' => $conversation->id,
             'sender_id' => $contract->created_by,
             'body' => "Bonjour {$tenant->name}, votre contrat pour « {$contract->property->title} » est maintenant actif. Vous pouvez communiquer ici.",

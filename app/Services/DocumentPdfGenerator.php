@@ -132,11 +132,39 @@ class DocumentPdfGenerator
 
         try {
             // Upload du PDF vers R2
+            // Forcer le mode throw pour capturer les erreurs détaillées
             $uploaded = Storage::disk('r2')->put($r2Path, $pdfContent);
 
-            // Vérifier que le fichier a bien été uploadé (évite un appel réseau redondant)
+            // Vérifier que le fichier a bien été uploadé
             if (! $uploaded) {
-                throw new \Exception('Le fichier PDF n\'a pas pu être uploadé vers R2');
+                // Si put() retourne false sans exception, essayer de récupérer les erreurs du disque
+                $errorMessage = 'Upload failed without exception';
+
+                // En mode local/dev, essayer avec throw activé pour obtenir plus de détails
+                if (in_array(config('app.env'), ['local', 'testing'])) {
+                    try {
+                        // Créer une instance temporaire du disque avec throw activé
+                        $disk = Storage::build([
+                            'driver' => 's3',
+                            'key' => config('filesystems.disks.r2.key'),
+                            'secret' => config('filesystems.disks.r2.secret'),
+                            'region' => config('filesystems.disks.r2.region'),
+                            'bucket' => config('filesystems.disks.r2.bucket'),
+                            'url' => config('filesystems.disks.r2.url'),
+                            'endpoint' => config('filesystems.disks.r2.endpoint'),
+                            'use_path_style_endpoint' => config('filesystems.disks.r2.use_path_style_endpoint'),
+                            'visibility' => config('filesystems.disks.r2.visibility'),
+                            'verify' => config('filesystems.disks.r2.verify'),
+                            'throw' => true,
+                            'report' => true,
+                        ]);
+                        $disk->put($r2Path, $pdfContent);
+                    } catch (\Exception $throwE) {
+                        $errorMessage = $throwE->getMessage();
+                    }
+                }
+
+                throw new \Exception('Le fichier PDF n\'a pas pu être uploadé vers R2: '.$errorMessage);
             }
 
             \Log::info('PDF uploadé avec succès vers R2', [
@@ -154,10 +182,12 @@ class DocumentPdfGenerator
 
             return $r2Path;
         } catch (\Exception $e) {
-            \Log::error('Erreur upload PDF vers R2: '.$e->getMessage(), [
+            \Log::error('Erreur upload PDF vers R2', [
                 'document_id' => $document->id,
                 'r2_path' => $r2Path,
-                'error' => $e->getTraceAsString(),
+                'error_message' => $e->getMessage(),
+                'error_class' => get_class($e),
+                'error_trace' => $e->getTraceAsString(),
             ]);
             throw new \Exception('Erreur lors de l\'upload du PDF vers R2: '.$e->getMessage());
         }

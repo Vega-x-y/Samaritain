@@ -6,15 +6,23 @@ use App\Http\Requests\StoreArtisanProjectRequest;
 use App\Models\Artisan;
 use App\Models\ArtisanProject;
 use App\Models\ArtisanProjectImage;
+use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Gate;
 use Illuminate\Support\Facades\Storage;
 
 class ArtisanProjectController extends Controller
 {
-    public function index(Artisan $artisan)
+    public function index(Request $request, Artisan $artisan)
     {
-        $projects = $artisan->projects()->with('images')->latest()->paginate(12);
+        $projects = $artisan->projects()
+            ->with('images')
+            ->when($request->filled('search'), fn ($q) => $q->where(function ($sub) use ($request) {
+                $sub->where('title', 'like', '%'.$request->search.'%')
+                    ->orWhere('description', 'like', '%'.$request->search.'%');
+            }))
+            ->latest()
+            ->paginate(12);
 
         return view('pages.artisan.projects.index', compact('artisan', 'projects'));
     }

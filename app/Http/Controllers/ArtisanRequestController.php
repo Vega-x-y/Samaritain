@@ -9,7 +9,7 @@ use Illuminate\Support\Facades\Gate;
 
 class ArtisanRequestController extends Controller
 {
-    public function index()
+    public function index(Request $request)
     {
         $artisan = auth()->user()->artisan;
 
@@ -19,6 +19,11 @@ class ArtisanRequestController extends Controller
 
         $demandes = $artisan->demandesRecues()
             ->with('user')
+            ->when($request->filled('search'), fn ($q) => $q->where(function ($sub) use ($request) {
+                $sub->where('message', 'like', '%'.$request->search.'%')
+                    ->orWhere('type', 'like', '%'.$request->search.'%')
+                    ->orWhereHas('user', fn ($sq) => $sq->where('name', 'like', '%'.$request->search.'%'));
+            }))
             ->latest()
             ->paginate(20);
 

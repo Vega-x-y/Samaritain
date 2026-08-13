@@ -26,7 +26,11 @@ class ChantierController extends Controller
             ->with('client')
             ->when($request->filled('statut'), fn ($q) => $q->where('statut', $request->statut))
             ->when($request->filled('type'), fn ($q) => $q->where('type', $request->type))
-            ->when($request->filled('search'), fn ($q) => $q->where('nom', 'like', '%'.$request->search.'%'))
+            ->when($request->filled('search'), fn ($q) => $q->where(function ($sub) use ($request) {
+                $sub->where('nom', 'like', '%'.$request->search.'%')
+                    ->orWhere('type', 'like', '%'.$request->search.'%')
+                    ->orWhereHas('client', fn ($sq) => $sq->where('nom', 'like', '%'.$request->search.'%'));
+            }))
             ->latest()
             ->paginate(12);
 
@@ -216,14 +220,12 @@ class ChantierController extends Controller
         $chantier->update($validated);
 
         return to_route('artisan.chantiers.index')
+            ->with('reload_kpis', true)
             ->with('success', 'Chantier mis à jour.');
     }
 
     public function updateStatut(Request $request, Chantier $chantier): RedirectResponse
     {
-        if ($chantier->artisan_id !== $request->user()->artisan?->id) {
-            abort(403);
-        }
 
         $validated = $request->validate([
             'statut' => ['required', 'string', 'in:'.implode(',', array_map(fn ($s) => $s->value, ChantierStatus::cases()))],
@@ -234,7 +236,7 @@ class ChantierController extends Controller
         ]);
 
         return to_route('artisan.chantiers.index')
-            ->with('success', 'Statut du chantier « '.$chantier->nom.' » mis à jour.');
+            ->with('reload_kpis', true)->with('success', 'Statut du chantier « '.$chantier->nom.' » mis à jour.');
     }
 
     public function destroy(Request $request, Chantier $chantier): RedirectResponse

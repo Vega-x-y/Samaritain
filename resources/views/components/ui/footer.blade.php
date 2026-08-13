@@ -72,7 +72,7 @@
                     <h3 class="font-bold text-primary dark:text-accent mb-4 text-sm uppercase tracking-wide">L'entreprise
                     </h3>
                     <ul class="space-y-2 text-sm">
-                        <li><a href="{{ route("apropos_S") }}"
+                        <li><a href="{{ route("apropos_s") }}"
                                 class="text-gray-400 hover:text-primary dark:hover:text-primary transition">À
                                 propos</a></li>
                         <li><a href="{{ route("politique") }}"

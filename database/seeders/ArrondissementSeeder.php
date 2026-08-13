@@ -30,7 +30,7 @@ class ArrondissementSeeder extends Seeder
             ];
 
             foreach ($brazzavilleArrondissements as $arrondissement) {
-                Arrondissement::create([
+                Arrondissement::firstOrCreate([
                     'name' => $arrondissement,
                     'city_id' => $brazzaville->id,
                 ]);
@@ -53,7 +53,7 @@ class ArrondissementSeeder extends Seeder
             ];
 
             foreach ($pointeNoireArrondissements as $arrondissement) {
-                Arrondissement::create([
+                Arrondissement::firstOrCreate([
                     'name' => $arrondissement,
                     'city_id' => $pointeNoire->id,
                 ]);

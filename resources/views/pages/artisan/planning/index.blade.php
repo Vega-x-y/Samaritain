@@ -22,6 +22,11 @@
         </a>
     </div>
 
+        <!-- Barre de recherche -->
+    <div class="mb-4">
+        @include('components.artisan.search-bar', ['placeholder' => 'Rechercher un événement…'])
+    </div>
+
     <!-- Filtres -->
     <div class="flex flex-wrap gap-2 items-center mb-6">
         <a href="{{ route('artisan.planning.index') }}"

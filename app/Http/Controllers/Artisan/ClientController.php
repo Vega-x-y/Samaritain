@@ -24,7 +24,12 @@ class ClientController extends Controller
             ->where('artisan_id', $artisan->id)
             ->with('user')
             ->when($request->filled('type'), fn ($q) => $q->where('type', $request->type))
-            ->when($request->filled('search'), fn ($q) => $q->where('nom', 'like', '%'.$request->search.'%'))
+            ->when($request->filled('search'), fn ($q) => $q->where(function ($sub) use ($request) {
+                $sub->where('nom', 'like', '%'.$request->search.'%')
+                    ->orWhere('email', 'like', '%'.$request->search.'%')
+                    ->orWhere('telephone', 'like', '%'.$request->search.'%')
+                    ->orWhere('adresse', 'like', '%'.$request->search.'%');
+            }))
             ->latest()
             ->paginate(12);
 

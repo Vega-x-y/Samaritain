@@ -2,7 +2,7 @@
 
 namespace App\Livewire\Messenger;
 
-use App\Models\Conversation;
+use App\Models\OwnerConversation;
 use Illuminate\Contracts\View\View;
 use Livewire\Component;
 
@@ -12,7 +12,7 @@ class ConversationList extends Component
 
     public function getConversationsProperty()
     {
-        return Conversation::forUser(auth()->user())
+        return OwnerConversation::forUser(auth()->user())
             ->with('owner', 'tenant', 'contract.property')
             ->orderBy('last_message_at', 'desc')
             ->get()

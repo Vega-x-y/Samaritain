@@ -15,13 +15,10 @@ class DatabaseSeeder extends Seeder
             ArrondissementSeeder::class,
             ArtisanCategorySeeder::class,
             ParcelleSeeder::class,
-            PropertySeeder::class,
             PropertyCategorySeeder::class,
+            // PropertySeeder::class,
             OwnerPortalSeeder::class,
-        ]);
-
-        $this->call([
-            ArtisanDemoSeeder::class,
+            // ArtisanDemoSeeder::class,
         ]);
     }
 }

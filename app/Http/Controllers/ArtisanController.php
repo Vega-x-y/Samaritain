@@ -2,13 +2,18 @@
 
 namespace App\Http\Controllers;
 
+use App\Enums\ClientType;
 use App\Http\Requests\StoreArtisanRequest;
 use App\Http\Requests\UpdateArtisanRequest;
 use App\Models\Arrondissement;
 use App\Models\ArticleStock;
 use App\Models\Artisan;
 use App\Models\ArtisanCategory;
+use App\Models\Client;
+use App\Models\Conversation;
 use App\Models\Message;
+use App\Models\User;
+use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Gate;
 use Illuminate\Support\Facades\Storage;
@@ -74,11 +79,134 @@ class ArtisanController extends Controller
         }
 
         $userReview = null;
+        $conversation = null;
+        $messagesNonLus = 0;
+
         if (auth()->check()) {
             $userReview = $artisan->reviews()->where('user_id', auth()->id())->first();
+
+            if (auth()->id() !== $artisan->user_id) {
+                $conversation = $this->resolveConversation(auth()->user(), $artisan);
+
+                if ($conversation) {
+                    $messagesNonLus = $conversation->messages()
+                        ->where('lu', false)
+                        ->where('expediteur_type', '!=', 'client')
+                        ->count();
+
+                    $conversation->messages()
+                        ->where('lu', false)
+                        ->where('expediteur_type', '!=', 'client')
+                        ->update(['lu' => true]);
+                }
+            }
         }
 
-        return view('pages.artisans.show', compact('artisan', 'userReview'));
+        return view('pages.artisans.show', compact('artisan', 'userReview', 'conversation', 'messagesNonLus'));
+    }
+
+    public function profileMessages(Request $request, Artisan $artisan)
+    {
+        abort_unless(auth()->check() && auth()->id() !== $artisan->user_id, 403);
+
+        $conversation = $this->resolveConversation($request->user(), $artisan);
+
+        if ($conversation) {
+            $conversation->messages()
+                ->where('lu', false)
+                ->where('expediteur_type', '!=', 'client')
+                ->update(['lu' => true]);
+
+            $conversation->load('messages');
+        }
+
+        return view('pages.artisans.partials.profile-messages', compact('conversation'));
+    }
+
+    public function storeProfileMessage(Request $request, Artisan $artisan): RedirectResponse
+    {
+        abort_unless(auth()->check() && auth()->id() !== $artisan->user_id, 403);
+
+        $validated = $request->validate([
+            'contenu' => ['nullable', 'string', 'max:2000'],
+            'fichier' => ['nullable', 'file', 'max:10240'],
+            'document_id' => ['nullable', 'exists:documents,id'],
+        ]);
+
+        $client = $this->resolveClient($request->user(), $artisan);
+
+        $conversation = Conversation::where('artisan_id', $artisan->id)
+            ->where('client_id', $client->id)
+            ->first();
+
+        if (! $conversation) {
+            $conversation = Conversation::create([
+                'artisan_id' => $artisan->id,
+                'client_id' => $client->id,
+                'lu' => false,
+                'dernier_message_at' => now(),
+            ]);
+        }
+
+        $data = [
+            'expediteur_type' => 'client',
+            'expediteur_id' => $client->id,
+            'lu' => false,
+            'document_id' => $validated['document_id'] ?? null,
+        ];
+
+        if (! empty($validated['contenu'])) {
+            $data['contenu'] = $validated['contenu'];
+        }
+
+        if ($request->hasFile('fichier')) {
+            $fichier = $request->file('fichier');
+            $path = $fichier->store('messages/'.$conversation->id, 'r2');
+
+            $data['fichier_path'] = $path;
+            $data['fichier_nom'] = $fichier->getClientOriginalName();
+            $data['fichier_mime'] = $fichier->getClientMimeType();
+            $data['fichier_taille'] = $fichier->getSize();
+        }
+
+        if (empty($data['contenu']) && empty($data['fichier_path'])) {
+            return back()->withErrors(['contenu' => 'Veuillez saisir un message ou joindre un fichier.']);
+        }
+
+        $conversation->messages()->create($data);
+        $conversation->update(['dernier_message_at' => now(), 'lu' => false]);
+
+        return back()->with('success', 'Message envoyé.');
+    }
+
+    /**
+     * Retrouve la conversation liant un utilisateur connecté à un artisan (via son Client).
+     */
+    private function resolveConversation(User $user, Artisan $artisan): ?Conversation
+    {
+        $client = Client::where('user_id', $user->id)
+            ->where('artisan_id', $artisan->id)
+            ->first();
+
+        if (! $client) {
+            return null;
+        }
+
+        return Conversation::where('artisan_id', $artisan->id)
+            ->where('client_id', $client->id)
+            ->with(['messages' => fn ($q) => $q->latest()])
+            ->first();
+    }
+
+    /**
+     * Retrouve ou crée le Client liant un utilisateur connecté à un artisan.
+     */
+    private function resolveClient(User $user, Artisan $artisan): Client
+    {
+        return Client::firstOrCreate(
+            ['user_id' => $user->id, 'artisan_id' => $artisan->id],
+            ['nom' => $user->name, 'telephone' => '', 'email' => $user->email, 'type' => ClientType::PARTICULIER]
+        );
     }
 
     public function create()
@@ -169,7 +297,7 @@ class ArtisanController extends Controller
         return view('pages.artisan.profile.show', compact('artisan'));
     }
 
-    public function reviews()
+    public function reviews(Request $request)
     {
         $artisan = auth()->user()->artisan;
 
@@ -179,13 +307,17 @@ class ArtisanController extends Controller
 
         $avis = $artisan->reviews()
             ->with('user:id,name,profile_image')
+            ->when($request->filled('search'), fn ($q) => $q->where(function ($sub) use ($request) {
+                $sub->where('comment', 'like', '%'.$request->search.'%')
+                    ->orWhereHas('user', fn ($sq) => $sq->where('name', 'like', '%'.$request->search.'%'));
+            }))
             ->latest()
             ->paginate(20);
 
         return view('pages.artisan.reviews.index', compact('artisan', 'avis'));
     }
 
-    public function dashboard(Artisan $artisan = null)
+    public function dashboard(?Artisan $artisan = null)
     {
         // Si un artisan est passé en paramètre, l'utiliser
         // Sinon, utiliser l'artisan de l'utilisateur connecté
@@ -212,13 +344,8 @@ class ArtisanController extends Controller
         // 2. Nombre total de clients enregistrés
         $clientsActifs = $artisan->clients()->count();
 
-        // 3. CA du mois courant
-        $caMois = $artisan->chantiers()
-            ->join('factures', 'artisan_chantiers.id', '=', 'factures.chantier_id')
-            ->where('factures.statut', 'payee')
-            ->whereMonth('factures.date_emission', now()->month)
-            ->whereYear('factures.date_emission', now()->year)
-            ->sum('factures.montant_ttc');
+        // 3. CA Total = somme des budgets (FCFA HT) de tous les chantiers de l'artisan
+        $caTotal = round((float) $artisan->chantiers()->sum('budget'), 2);
 
         // 4. Satisfaction (moyenne des avis)
         $satisfaction = $artisan->reviews()
@@ -239,7 +366,7 @@ class ArtisanController extends Controller
         $stats = [
             'projets_en_cours' => $projetsEnCours,
             'clients_actifs' => $clientsActifs,
-            'ca_mois' => $caMois,
+            'ca_total' => $caTotal,
             'satisfaction' => $satisfaction,
             'stock_critique' => $stockCritique,
             'messages_non_lus' => $messagesNonLus,

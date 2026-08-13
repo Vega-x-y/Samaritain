@@ -241,7 +241,7 @@
                 {{-- <div class="logo-block">
                     <img src="{{ $logoBase64 }}" alt="Samaritain">
                     <p>VIVEZ SERENEMENT</p>
-                    
+
                 </div> --}}
             </div>
         </div>
@@ -300,7 +300,7 @@
 
         <!-- Bandeau Total -->
         <div class="total-band flex justify-between items-center">
-            
+
             <span class="total-label">Total: </span>
             <span class="total-value">{{ number_format($grandTotal, 0, ',', ' ') }} FCFA</span>
         </div>
@@ -322,9 +322,12 @@
         </div>
 
         <!-- Pied de page -->
+        <div class="italic">J'atteste avoir pris connaissance du devis ci-dessus et j'accepte les termes de ce devis.
+            {{ $client->nom ?? 'N/A' }}
+        </div>
         <div class="footer">
             <p>Document généré le {{ now()->format('d/m/Y à H:i') }}</p>
-            <p>Merci de retourner ce devis accepté pour accord.</p>
+            <p>Merci de retourner ce devis accepté pour accord. </p>
         </div>
     </div>
 </body>

@@ -2,7 +2,7 @@
 
 namespace App\Policies;
 
-use App\Models\Document;
+use App\Models\OwnerDocument;
 use App\Models\User;
 
 class DocumentPolicy
@@ -12,7 +12,7 @@ class DocumentPolicy
         return true;
     }
 
-    public function view(User $user, Document $document): bool
+    public function view(User $user, OwnerDocument $document): bool
     {
         return $document->created_by === $user->id;
     }
@@ -22,12 +22,12 @@ class DocumentPolicy
         return true;
     }
 
-    public function update(User $user, Document $document): bool
+    public function update(User $user, OwnerDocument $document): bool
     {
         return $document->created_by === $user->id;
     }
 
-    public function delete(User $user, Document $document): bool
+    public function delete(User $user, OwnerDocument $document): bool
     {
         return $document->created_by === $user->id;
     }

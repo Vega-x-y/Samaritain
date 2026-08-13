@@ -24,7 +24,12 @@ class MembreEquipeController extends Controller
             ->where('artisan_id', $artisan->id)
             ->with('user')
             ->when($request->filled('statut'), fn ($q) => $q->where('statut', $request->statut))
-            ->when($request->filled('search'), fn ($q) => $q->where('nom', 'like', '%'.$request->search.'%'))
+            ->when($request->filled('search'), fn ($q) => $q->where(function ($sub) use ($request) {
+                $sub->where('nom', 'like', '%'.$request->search.'%')
+                    ->orWhere('email', 'like', '%'.$request->search.'%')
+                    ->orWhere('telephone', 'like', '%'.$request->search.'%')
+                    ->orWhere('role', 'like', '%'.$request->search.'%');
+            }))
             ->latest()
             ->paginate(12);
 

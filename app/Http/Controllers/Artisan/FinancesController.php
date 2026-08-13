@@ -36,7 +36,114 @@ class FinancesController extends Controller
             ->orderBy('nom')
             ->get(['id', 'nom']);
 
-        return view('pages.artisan.finances.index', compact('chantiers', 'chantiersList'));
+        // ===== Agrégats du centre financier (tous les chantiers) =====
+        $allChantiers = Chantier::where('artisan_id', $artisan->id)
+            ->with(['factures', 'depenses', 'transactions'])
+            ->when($request->filled('search'), fn ($q) => $q->where('nom', 'like', '%'.$request->search.'%'))
+            ->get();
+
+        // CA Total = somme des budgets (FCFA HT) de tous les chantiers de l'artisan
+        $totalCA = round((float) $allChantiers->sum('budget'), 2);
+        $totalDepenses = round((float) $allChantiers->sum('total_depenses'), 2);
+        $beneficeNet = round($totalCA - $totalDepenses, 2);
+        $marge = $totalCA > 0 ? (int) round(($beneficeNet / $totalCA) * 100) : 0;
+        $totalBudget = $totalCA;
+
+        $chantierIds = $allChantiers->pluck('id');
+
+        // Acomptes reçus : somme des acomptes déjà encaissés (type = acompte, statut = recu)
+        $acomptesRecus = round((float) ChantierTransaction::whereIn('chantier_id', $chantierIds)
+            ->where('type', 'acompte')
+            ->where('statut', 'recu')
+            ->sum('montant'), 2);
+
+        // Impayés : somme des budgets (FCFA HT) de tous les chantiers, moins les acomptes déjà encaissés
+        $impayes = round(max(0.0, $totalBudget - $acomptesRecus), 2);
+
+        // Répartition des revenus par poste (chantier), tri décroissant par montant
+        $repartitionRevenus = $allChantiers
+            ->filter(fn ($c) => (float) $c->total_ca > 0)
+            ->map(fn ($c) => [
+                'chantier' => $c,
+                'nom' => $c->nom,
+                'montant' => (float) $c->total_ca,
+            ])
+            ->sortByDesc('montant')
+            ->values();
+
+        $maxRevenu = $repartitionRevenus->isEmpty() ? 0 : (float) $repartitionRevenus->max('montant');
+
+        // Dépenses agrégées par catégorie (type), tri décroissant
+        $depensesParType = Depense::whereIn('chantier_id', $chantierIds)
+            ->get()
+            ->groupBy('categorie')
+            ->map(fn ($groupe) => round((float) $groupe->sum('montant'), 2))
+            ->reject(fn ($montant) => $montant <= 0)
+            ->sortDesc();
+
+        $dernieresDepenses = Depense::whereIn('chantier_id', $chantierIds)
+            ->with('chantier')
+            ->latest()
+            ->take(10)
+            ->get();
+        // ===== Fin agrégats =====
+
+        return view('pages.artisan.finances.index', compact(
+            'chantiers',
+            'chantiersList',
+            'totalCA',
+            'totalDepenses',
+            'beneficeNet',
+            'marge',
+            'acomptesRecus',
+            'totalBudget',
+            'impayes',
+            'repartitionRevenus',
+            'depensesParType',
+            'maxRevenu',
+            'dernieresDepenses'
+        ));
+    }
+
+    // ==================== KPI JSON (endpoint) ====================
+
+    public function kpis(Request $request)
+    {
+        /** @var User $user */
+        $user = $request->user();
+        $artisan = $user->artisan;
+
+        abort_unless($artisan, 403, 'Vous devez avoir un profil artisan.');
+
+        $allChantiers = Chantier::where('artisan_id', $artisan->id)
+            ->with(['factures', 'depenses', 'transactions'])
+            ->get();
+
+        $chantierIds = $allChantiers->pluck('id');
+
+        // CA Total = somme des budgets (FCFA HT) de tous les chantiers de l'artisan
+        $totalCA = round((float) $allChantiers->sum('budget'), 2);
+        $totalDepenses = round((float) $allChantiers->sum('total_depenses'), 2);
+        $beneficeNet = round($totalCA - $totalDepenses, 2);
+        $marge = $totalCA > 0 ? (int) round(($beneficeNet / $totalCA) * 100) : 0;
+        $totalBudget = $totalCA;
+
+        $acomptesRecus = round((float) ChantierTransaction::whereIn('chantier_id', $chantierIds)
+            ->where('type', 'acompte')
+            ->where('statut', 'recu')
+            ->sum('montant'), 2);
+
+        $impayes = round(max(0.0, $totalBudget - $acomptesRecus), 2);
+
+        return response()->json([
+            'totalBudget' => $totalBudget,
+            'totalCA' => $totalCA,
+            'acomptesRecus' => $acomptesRecus,
+            'impayes' => $impayes,
+            'totalDepenses' => $totalDepenses,
+            'beneficeNet' => $beneficeNet,
+            'marge' => $marge,
+        ]);
     }
 
     public function show(Request $request, Chantier $chantier): View
@@ -85,7 +192,7 @@ class FinancesController extends Controller
             $chantier->update(['statut' => ChantierStatus::EN_COURS]);
         }
 
-        return back()->with('success', 'Devis créé avec succès.');
+        return back()->with('success', 'Devis créé avec succès.')->with('reload_kpis', true);
     }
 
     public function updateDevis(Request $request, Devis $devis): RedirectResponse
@@ -111,7 +218,7 @@ class FinancesController extends Controller
             $devis->chantier->update(['statut' => ChantierStatus::EN_COURS]);
         }
 
-        return back()->with('success', 'Devis mis à jour.');
+        return back()->with('success', 'Devis mis à jour.')->with('reload_kpis', true);
     }
 
     // ==================== FACTURES ====================
@@ -135,7 +242,7 @@ class FinancesController extends Controller
 
         $chantier->factures()->create($validated);
 
-        return back()->with('success', 'Facture créée avec succès.');
+        return back()->with('success', 'Facture créée avec succès.')->with('reload_kpis', true);
     }
 
     public function updateFacture(Request $request, Facture $facture): RedirectResponse
@@ -156,7 +263,7 @@ class FinancesController extends Controller
 
         $facture->update($validated);
 
-        return back()->with('success', 'Facture mise à jour.');
+        return back()->with('success', 'Facture mise à jour.')->with('reload_kpis', true);
     }
 
     // ==================== DÉPENSES ====================
@@ -185,7 +292,7 @@ class FinancesController extends Controller
 
         $chantier->depenses()->create($data);
 
-        return back()->with('success', 'Dépense ajoutée avec succès.');
+        return back()->with('success', 'Dépense ajoutée avec succès.')->with('reload_kpis', true);
     }
 
     public function updateDepense(Request $request, Depense $depense): RedirectResponse
@@ -216,7 +323,7 @@ class FinancesController extends Controller
 
         $depense->update($data);
 
-        return back()->with('success', 'Dépense mise à jour.');
+        return back()->with('success', 'Dépense mise à jour.')->with('reload_kpis', true);
     }
 
     public function destroyDepense(Request $request, Depense $depense): RedirectResponse
@@ -232,7 +339,7 @@ class FinancesController extends Controller
 
         $depense->delete();
 
-        return back()->with('success', 'Dépense supprimée.');
+        return back()->with('success', 'Dépense supprimée.')->with('reload_kpis', true);
     }
 
     // ==================== TRANSACTIONS ====================
@@ -254,7 +361,7 @@ class FinancesController extends Controller
 
         $chantier->transactions()->create($validated);
 
-        return back()->with('success', 'Transaction ajoutée avec succès.');
+        return back()->with('success', 'Transaction ajoutée avec succès.')->with('reload_kpis', true);
     }
 
     public function updateTransaction(Request $request, ChantierTransaction $transaction): RedirectResponse
@@ -274,6 +381,6 @@ class FinancesController extends Controller
 
         $transaction->update($validated);
 
-        return back()->with('success', 'Transaction mise à jour.');
+        return back()->with('success', 'Transaction mise à jour.')->with('reload_kpis', true);
     }
 }

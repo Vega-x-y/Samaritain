@@ -101,7 +101,6 @@ class Hotel extends Model
         return $this->belongsTo(User::class, 'created_by');
     }
 
-
     public function city(): BelongsTo
     {
         return $this->belongsTo(City::class);

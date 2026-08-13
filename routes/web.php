@@ -50,7 +50,6 @@ use App\Http\Controllers\UserVisitPassController;
 use App\Http\Controllers\VisitRequestController;
 use App\Http\Middleware\EnsureUserCanSignContract;
 use App\Http\Middleware\StaffMiddleware;
-use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 
 Route::get('/', [HomeController::class, 'index'])->name('index');
@@ -225,6 +224,12 @@ Route::middleware(['auth', 'verified'])->group(function () {
     Route::post('/artisans/{artisan:slug}/demande', [ArtisanRequestController::class, 'store'])->middleware('throttle:5,1')->name('artisans.request.store');
 });
 
+// Messagerie depuis le profil public de l'artisan
+Route::middleware(['auth', 'verified'])->group(function () {
+    Route::get('/artisans/{artisan:slug}/messages', [ArtisanController::class, 'profileMessages'])->name('artisans.message.index');
+    Route::post('/artisans/{artisan:slug}/message', [ArtisanController::class, 'storeProfileMessage'])->middleware('throttle:10,1')->name('artisans.message.store');
+});
+
 // Routes authentifiées pour artisans
 Route::middleware(['auth', 'verified'])->group(function () {
     // Devenir artisan
@@ -325,6 +330,7 @@ Route::middleware(['auth', 'verified'])->group(function () {
 
     // Gestion des finances
     Route::get('/artisan/finances', [FinancesController::class, 'index'])->name('artisan.finances.index');
+    Route::get('/artisan/finances/kpis', [FinancesController::class, 'kpis'])->name('artisan.finances.kpis');
     Route::get('/artisan/finances/{chantier}', [FinancesController::class, 'show'])->name('artisan.finances.show');
 
     // Devis
@@ -356,7 +362,7 @@ Route::middleware(['auth', 'verified'])->group(function () {
     Route::delete('/artisan/documents/{document}', [ArtisanDocumentController::class, 'destroy'])->name('artisan.documents.destroy');
     Route::get('/artisan/documents/{document}/export-pdf', [ArtisanDocumentController::class, 'exportPdf'])->name('artisan.documents.export-pdf');
     Route::post('/artisan/documents/{document}/send-to-client', [ArtisanDocumentController::class, 'sendToClient'])->name('artisan.documents.send-to-client');
-    
+
     // Gestion des réalisations
     Route::get('/artisan/{artisan}/projects', [ArtisanProjectController::class, 'index'])->name('artisan.projects.index');
     Route::get('/artisan/{artisan}/projects/create', [ArtisanProjectController::class, 'create'])->name('artisan.projects.create');
@@ -540,11 +546,12 @@ Route::middleware(['auth', 'verified', 'owner'])->prefix('owner')->name('owner.'
     Route::get('/inspections/{inspection}/pdf', [InspectionController::class, 'downloadPdf'])->name('inspections.pdf');
 
     // Documents
-        // Documents
+    // Documents
     Route::get('/documents', [OwnerDocumentController::class, 'index'])->name('documents.index');
     Route::post('/documents', [OwnerDocumentController::class, 'store'])->name('documents.store');
     Route::get('/documents/{document}/download', [OwnerDocumentController::class, 'download'])->name('documents.download');
     Route::delete('/documents/{document}', [OwnerDocumentController::class, 'destroy'])->name('documents.destroy');
+
     // Messagerie
     Route::get('/messenger', function () {
         return view('pages.owner.messenger');
