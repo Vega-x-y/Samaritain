@@ -24,6 +24,7 @@ class UpdateParcelleRequest extends FormRequest
             'prix' => ['sometimes', 'numeric', 'min:0'],
             'statut' => ['sometimes', 'in:disponible,vendu,réservé'],
             'type' => ['nullable', 'in:'.implode(',', array_keys(Parcelle::TYPES))],
+            'parcelle_category_id' => ['nullable', 'exists:parcelle_categories,id'],
             'titre_foncier' => ['nullable', 'string', 'max:255'],
             'viabilisee' => ['nullable', 'boolean'],
             'images' => ['nullable', 'array'],

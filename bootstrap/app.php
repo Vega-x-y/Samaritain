@@ -31,6 +31,13 @@ return Application::configure(basePath: dirname(__DIR__))
             'owner' => EnsureUserIsOwner::class,      // Middleware de ton coéquipier
             'tenant' => EnsureUserIsTenant::class,    // Middleware de ton coéquipier
         ]);
+
+        // pawaPay server-to-server callbacks are unauthenticated POSTs with
+        // HMAC signature verification handled in the controller. Exclude from CSRF.
+        $middleware->validateCsrfTokens(except: [
+            'transactions/*/webhook',
+            'transactions/webhook',
+        ]);
     })
     ->withExceptions(function (Exceptions $exceptions): void {
         //
