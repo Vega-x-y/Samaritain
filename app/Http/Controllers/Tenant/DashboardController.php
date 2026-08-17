@@ -7,8 +7,8 @@ use App\Events\ContractSigned;
 use App\Exceptions\PawaPayException;
 use App\Http\Controllers\Controller;
 use App\Models\Contract;
-use App\Models\Document;
 use App\Models\Intervention;
+use App\Models\OwnerDocument;
 use App\Models\RentPayment;
 use App\Models\Transaction;
 use App\Notifications\ContractCompletedNotification;
@@ -66,7 +66,7 @@ class DashboardController extends Controller
         }
 
         $propertyIds = $contracts->pluck('property_id');
-        $documents = Document::whereIn('property_id', $propertyIds)
+        $documents = OwnerDocument::whereIn('property_id', $propertyIds)
             ->latest()
             ->take(5)
             ->get();
@@ -224,7 +224,7 @@ class DashboardController extends Controller
         $contracts = Contract::where('tenant_email', $user->email)->get();
         $propertyIds = $contracts->pluck('property_id');
 
-        $documents = Document::whereIn('property_id', $propertyIds)
+        $documents = OwnerDocument::whereIn('property_id', $propertyIds)
             ->latest()
             ->paginate(15);
 
@@ -285,7 +285,7 @@ class DashboardController extends Controller
         return response()->streamDownload(fn () => print ($pdf->output()), $fileName);
     }
 
-    public function downloadDocument(Document $document)
+    public function downloadDocument(OwnerDocument $document)
     {
         $user = auth()->user();
 

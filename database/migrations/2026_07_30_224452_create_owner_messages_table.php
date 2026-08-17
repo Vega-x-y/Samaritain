@@ -6,14 +6,11 @@ use Illuminate\Support\Facades\Schema;
 
 return new class extends Migration
 {
-    /**
-     * Run the migrations.
-     */
     public function up(): void
     {
-        Schema::create('messages', function (Blueprint $table) {
+        Schema::create('owner_messages', function (Blueprint $table) {
             $table->id();
-            $table->foreignId('conversation_id')->constrained('conversations')->cascadeOnDelete();
+            $table->foreignId('conversation_id')->constrained('owner_conversations')->cascadeOnDelete();
             $table->foreignId('sender_id')->constrained('users')->cascadeOnDelete();
             $table->text('body');
             $table->timestamp('read_at')->nullable();
@@ -23,11 +20,8 @@ return new class extends Migration
         });
     }
 
-    /**
-     * Reverse the migrations.
-     */
     public function down(): void
     {
-        Schema::dropIfExists('messages');
+        Schema::dropIfExists('owner_messages');
     }
 };

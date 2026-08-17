@@ -2,41 +2,69 @@
 
 namespace App\Models;
 
+use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
 class Message extends Model
 {
+    use HasFactory;
+
     protected $fillable = [
         'conversation_id',
-        'sender_id',
-        'body',
-        'read_at',
+        'expediteur_type',
+        'expediteur_id',
+        'contenu',
+        'lu',
+        'fichier_path',
+        'fichier_nom',
+        'fichier_mime',
+        'fichier_taille',
+        'document_id',
     ];
 
-    protected $casts = [
-        'read_at' => 'datetime',
-    ];
+    protected function casts(): array
+    {
+        return [
+            'lu' => 'boolean',
+            'fichier_taille' => 'integer',
+        ];
+    }
 
     public function conversation(): BelongsTo
     {
         return $this->belongsTo(Conversation::class);
     }
 
-    public function sender(): BelongsTo
+    public function document(): BelongsTo
     {
-        return $this->belongsTo(User::class, 'sender_id');
+        return $this->belongsTo(Document::class);
     }
 
-    public function isRead(): bool
+    public function getExpediteurAttribute()
     {
-        return ! is_null($this->read_at);
+        return match ($this->expediteur_type) {
+            'artisan' => Artisan::find($this->expediteur_id),
+            'client' => Client::find($this->expediteur_id),
+            'equipe' => MembreEquipe::find($this->expediteur_id),
+            default => null,
+        };
     }
 
-    public function markAsRead(): void
+    public function getExpediteurNomAttribute(): string
     {
-        if (! $this->isRead()) {
-            $this->update(['read_at' => now()]);
+        $expediteur = $this->expediteur;
+
+        if ($expediteur instanceof Artisan) {
+            return $expediteur->user->name ?? 'Artisan';
         }
+        if ($expediteur instanceof Client) {
+            return $expediteur->nom ?? 'Client';
+        }
+        if ($expediteur instanceof MembreEquipe) {
+            return $expediteur->nom ?? 'Membre';
+        }
+
+        return 'Inconnu';
     }
 }

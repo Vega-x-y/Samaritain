@@ -2,6 +2,7 @@
 
 use App\Http\Middleware\EnsureUserIsOwner;
 use App\Http\Middleware\EnsureUserIsTenant;
+use App\Http\Middleware\RoleMiddleware;
 use App\Http\Middleware\StaffMiddleware;
 use Illuminate\Foundation\Application;
 use Illuminate\Foundation\Configuration\Exceptions;
@@ -26,8 +27,9 @@ return Application::configure(basePath: dirname(__DIR__))
 
         $middleware->alias([
             'staff' => StaffMiddleware::class,
-            'owner' => EnsureUserIsOwner::class,
-            'tenant' => EnsureUserIsTenant::class,
+            'role' => RoleMiddleware::class,          // Ton middleware
+            'owner' => EnsureUserIsOwner::class,      // Middleware de ton coéquipier
+            'tenant' => EnsureUserIsTenant::class,    // Middleware de ton coéquipier
         ]);
 
         // pawaPay server-to-server callbacks are unauthenticated POSTs with

@@ -73,13 +73,21 @@ class FinancialController extends Controller
             $monthlyRevenue[$month - 1] = (int) $total;
         }
 
+        $monthExpr = DB::getDriverName() === 'sqlite'
+            ? "strftime('%m', created_at)"
+            : 'MONTH(created_at)';
+
+        $paidAtMonthExpr = DB::getDriverName() === 'sqlite'
+            ? "strftime('%m', paid_at)"
+            : 'MONTH(paid_at)';
+
         // Monthly expenses (maintenance)
         $expensesByMonth = Intervention::whereIn('property_id', $scopedPropertyIds)
             ->where('status', 'completed')
             ->where('is_renovation', false)
             ->whereYear('created_at', $filterYear)
-            ->selectRaw('MONTH(created_at) as month, COALESCE(SUM(cost), 0) as total')
-            ->groupBy(DB::raw('MONTH(created_at)'))
+            ->selectRaw("$monthExpr as month, COALESCE(SUM(cost), 0) as total")
+            ->groupBy(DB::raw($monthExpr))
             ->pluck('total', 'month');
 
         // Monthly renovations
@@ -87,20 +95,21 @@ class FinancialController extends Controller
             ->where('status', 'completed')
             ->where('is_renovation', true)
             ->whereYear('created_at', $filterYear)
-            ->selectRaw('MONTH(created_at) as month, COALESCE(SUM(cost), 0) as total')
-            ->groupBy(DB::raw('MONTH(created_at)'))
+            ->selectRaw("$monthExpr as month, COALESCE(SUM(cost), 0) as total")
+            ->groupBy(DB::raw($monthExpr))
             ->pluck('total', 'month');
 
         // Monthly utilities
         $utilitiesByMonth = Invoice::whereIn('property_id', $scopedPropertyIds)
             ->where('status', 'paid')
             ->whereYear('paid_at', $filterYear)
-            ->selectRaw('MONTH(paid_at) as month, COALESCE(SUM(amount), 0) as total')
-            ->groupBy(DB::raw('MONTH(paid_at)'))
+            ->selectRaw("$paidAtMonthExpr as month, COALESCE(SUM(amount), 0) as total")
+            ->groupBy(DB::raw($paidAtMonthExpr))
             ->pluck('total', 'month');
 
         foreach (range(0, 11) as $i) {
             $month = $i + 1;
+
             $exp = (int) ($expensesByMonth[$month] ?? 0);
             $ren = (int) ($renovationsByMonth[$month] ?? 0);
             $ut = (int) ($utilitiesByMonth[$month] ?? 0);

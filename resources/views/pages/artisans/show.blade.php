@@ -77,7 +77,7 @@
 
                             {{-- Boutons d'action --}}
                             <div class="flex flex-wrap gap-3">
-                                @if (auth()->user)
+                                @if (auth()->check())
                                     <a href="tel:{{ $artisan->phone }}"
                                         class="inline-flex items-center gap-2 bg-foreground text-background px-6 py-2.5 rounded-2xl hover:bg-foreground/90 transition-all duration-200 font-medium text-sm shadow-sm">
                                         <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -120,6 +120,7 @@
                             <div class="text-2xl md:text-3xl font-bold text-foreground">{{ $artisan->projects->count() }}</div>
                             <p class="text-xs text-muted-foreground mt-1">Réalisations</p>
                         </div>
+
                     </div>
                 </div>
             </div>
@@ -142,6 +143,18 @@
                         class="pb-3 text-sm font-medium border-b-2 transition-colors whitespace-nowrap shrink-0">
                         Réalisations
                         <sup class="text-xs text-muted-foreground ml-0.5">{{ $artisan->projects->count() }}</sup>
+                    </button>
+                    <button x-on:click="tab = 'messages'"
+                        :class="tab === 'messages' ? 'border-foreground text-foreground' : 'border-transparent text-muted-foreground hover:text-foreground'"
+                        class="pb-3 text-sm font-medium border-b-2 transition-colors whitespace-nowrap shrink-0">
+                        Messagerie
+                        @if ($messagesNonLus > 0)
+                            <sup class="ml-0.5 inline-flex items-center justify-center min-w-[1.25rem] h-5 px-1.5 rounded-full bg-primary text-primary-foreground text-xs font-bold">
+                                {{ $messagesNonLus }}
+                            </sup>
+                        @else
+                            <sup class="text-xs text-muted-foreground ml-0.5">0</sup>
+                        @endif
                     </button>
                     <button x-on:click="tab = 'reviews'"
                         :class="tab === 'reviews' ? 'border-foreground text-foreground' : 'border-transparent text-muted-foreground hover:text-foreground'"
@@ -289,7 +302,110 @@
                         @endforelse
                     </div>
                 </div>
+
+                {{-- Onglet Messagerie --}}
+                <div x-show="tab === 'messages'">
+                    @auth
+                        @if (auth()->id() !== $artisan->user_id)
+                            <div x-transition:enter="transition ease-out duration-200" x-transition:enter-start="opacity-0 translate-y-2" x-transition:enter-end="opacity-100 translate-y-0" x-data="profileMessaging('{{ $artisan->slug }}')">
+                            <div class="flex items-center gap-3 mb-6">
+                                <div class="w-11 h-11 rounded-full bg-primary/10 flex items-center justify-center">
+                                    <svg class="w-5 h-5 text-primary" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z"/>
+                                    </svg>
+                                </div>
+                                <div>
+                                    <h2 class="text-lg font-bold text-foreground">Messagerie</h2>
+                                    <p class="text-sm text-muted-foreground">Échangez directement avec {{ $artisan->business_name }}</p>
+                                </div>
+                            </div>
+
+                            <div class="bg-card border border-border rounded-3xl shadow-sm overflow-hidden">
+                                <div class="max-h-96 overflow-y-auto p-5" id="profile-message-scroll">
+                                    @include('pages.artisans.partials.profile-messages', ['conversation' => $conversation])
+                                </div>
+
+                                <form method="POST" action="{{ route('artisans.message.store', $artisan) }}" enctype="multipart/form-data" class="border-t border-border p-4 flex flex-col gap-2" x-data="{ fileName: '' }">
+                                    @csrf
+                                    <div class="flex gap-2">
+                                        <input type="text" name="contenu" placeholder="Écrivez votre message..." class="flex-1 px-4 py-2.5 border border-border rounded-2xl bg-background text-foreground focus:outline-none focus:ring-2 focus:ring-primary/40 transition" />
+                                        <input type="file" name="fichier" id="profile-file-input" accept=".pdf,.doc,.docx,.jpg,.jpeg,.png" @change="fileName = $event.target.files[0]?.name || ''" class="hidden" />
+                                        <button type="button" @click="document.getElementById('profile-file-input').click()" class="bg-muted hover:bg-muted/70 text-foreground px-4 py-2.5 rounded-2xl transition" aria-label="Joindre un fichier">
+                                            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15.172 7l-6.586 6.586a2 2 0 102.828 2.828l6.414-6.586a4 4 0 00-5.656-5.656l-6.415 6.585a6 6 0 108.486 8.486L20.5 13"/>
+                                            </svg>
+                                        </button>
+                                        <button type="submit" class="bg-primary text-primary-foreground px-6 py-2.5 rounded-2xl font-medium transition hover:bg-primary/90">Envoyer</button>
+                                    </div>
+                                    <div x-show="fileName" x-cloak class="flex items-center gap-2 text-sm text-muted-foreground bg-muted/50 rounded-xl px-3 py-2">
+                                        <svg class="w-4 h-4 text-primary" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/>
+                                        </svg>
+                                        <span class="truncate" x-text="fileName"></span>
+                                        <button type="button" @click="fileName = ''; document.getElementById('profile-file-input').value = ''" class="text-muted-foreground hover:text-foreground transition" aria-label="Retirer le fichier">
+                                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/>
+                                            </svg>
+                                        </button>
+                                    </div>
+                                </form>
+                            </div>
+                        </div>
+
+                        @push('scripts')
+                        <script>
+                            document.addEventListener('alpine:init', () => {
+                                Alpine.data('profileMessaging', (slug) => ({
+                                    pollingInterval: null,
+                                    init() {
+                                        const scroll = document.getElementById('profile-message-scroll');
+                                        if (scroll) scroll.scrollTop = scroll.scrollHeight;
+                                        this.pollingInterval = setInterval(() => this.refresh(), 5000);
+                                    },
+                                    refresh() {
+                                        fetch(`/artisans/${encodeURIComponent(slug)}/messages`)
+                                            .then(response => response.text())
+                                            .then(html => {
+                                                const doc = new DOMParser().parseFromString(html, 'text/html');
+                                                const newThread = doc.querySelector('#profile-message-thread');
+                                                const current = document.getElementById('profile-message-thread');
+                                                if (newThread && current && newThread.innerHTML !== current.innerHTML) {
+                                                    current.innerHTML = newThread.innerHTML;
+                                                    const scroll = document.getElementById('profile-message-scroll');
+                                                    if (scroll) scroll.scrollTop = scroll.scrollHeight;
+                                                }
+                                            })
+                                            .catch(() => {});
+                                    },
+                                    destroy() {
+                                        if (this.pollingInterval) clearInterval(this.pollingInterval);
+                                    }
+                                }));
+                            });
+                        </script>
+                        @endpush
+                        @else
+                            <div class="bg-muted/40 rounded-3xl p-6 text-center border border-border/50">
+                                <p class="text-muted-foreground text-sm">Vous ne pouvez pas échanger avec votre propre profil.</p>
+                            </div>
+                        @endif
+                    @else
+                        <div class="bg-muted/40 rounded-3xl p-6 text-center border border-border/50">
+                            <p class="text-muted-foreground text-sm">
+                                <a href="{{ route('login') }}" class="text-primary hover:underline font-medium">Connectez-vous</a>
+                                pour commencer une discussion avec {{ $artisan->business_name }}.
+                            </p>
+                        </div>
+                    @endauth
+                </div>
+
             </div>
+            
+
+
+
+
         </div>
+        
     </div>
 </x-app-layout>

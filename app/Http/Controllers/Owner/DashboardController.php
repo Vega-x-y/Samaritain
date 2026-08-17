@@ -4,9 +4,9 @@ namespace App\Http\Controllers\Owner;
 
 use App\Http\Controllers\Controller;
 use App\Models\Contract;
-use App\Models\Document;
 use App\Models\Intervention;
 use App\Models\Invoice;
+use App\Models\OwnerDocument;
 use App\Models\Property;
 use App\Models\RentPayment;
 use Illuminate\Support\Facades\DB;
@@ -62,7 +62,7 @@ class DashboardController extends Controller
             ->get();
 
         // 5. Recent documents
-        $recentDocuments = Document::where('created_by', $userId)
+        $recentDocuments = OwnerDocument::where('created_by', $userId)
             ->with('property:id,title')
             ->latest()
             ->take(5)
@@ -88,11 +88,15 @@ class DashboardController extends Controller
             $monthlyRevenue[$month - 1] = (int) $total;
         }
 
+        $monthExpr = DB::getDriverName() === 'sqlite'
+            ? "strftime('%m', created_at)"
+            : 'MONTH(created_at)';
+
         $expensesByMonth = Intervention::whereIn('property_id', $propertyIds)
             ->where('status', 'completed')
             ->whereYear('created_at', $currentYear)
-            ->selectRaw('MONTH(created_at) as month, COALESCE(SUM(cost), 0) as total')
-            ->groupBy(DB::raw('MONTH(created_at)'))
+            ->selectRaw("$monthExpr as month, COALESCE(SUM(cost), 0) as total")
+            ->groupBy(DB::raw($monthExpr))
             ->pluck('total', 'month');
 
         foreach ($expensesByMonth as $month => $total) {

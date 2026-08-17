@@ -2,61 +2,61 @@
 
 namespace App\Models;
 
+use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 
 class Conversation extends Model
 {
+    use HasFactory;
+
     protected $fillable = [
-        'contract_id',
-        'owner_id',
-        'tenant_id',
-        'last_message_at',
+        'artisan_id',
+        'client_id',
+        'membre_equipe_id',
+        'sujet',
+        'lu',
+        'dernier_message_at',
     ];
 
-    protected $casts = [
-        'last_message_at' => 'datetime',
-    ];
-
-    public function contract(): BelongsTo
+    protected function casts(): array
     {
-        return $this->belongsTo(Contract::class);
+        return [
+            'lu' => 'boolean',
+            'dernier_message_at' => 'datetime',
+        ];
     }
 
-    public function owner(): BelongsTo
+    public function artisan(): BelongsTo
     {
-        return $this->belongsTo(User::class, 'owner_id');
+        return $this->belongsTo(Artisan::class);
     }
 
-    public function tenant(): BelongsTo
+    public function client(): BelongsTo
     {
-        return $this->belongsTo(User::class, 'tenant_id');
+        return $this->belongsTo(Client::class);
+    }
+
+    public function membreEquipe(): BelongsTo
+    {
+        return $this->belongsTo(MembreEquipe::class);
     }
 
     public function messages(): HasMany
     {
-        return $this->hasMany(Message::class)->latest();
+        return $this->hasMany(Message::class);
     }
 
-    public function scopeForUser($query, User $user)
+    public function getParticipantNameAttribute(): string
     {
-        return $query->where('owner_id', $user->id)
-            ->orWhere('tenant_id', $user->id);
-    }
+        if ($this->client_id) {
+            return $this->client->nom ?? 'Client';
+        }
+        if ($this->membre_equipe_id) {
+            return $this->membreEquipe->nom ?? 'Membre';
+        }
 
-    public function unreadCountFor(int $userId): int
-    {
-        return $this->messages()
-            ->where('sender_id', '!=', $userId)
-            ->whereNull('read_at')
-            ->count();
-    }
-
-    public function theOtherUser(User $user): User
-    {
-        return $user->id === $this->owner_id
-            ? $this->tenant
-            : $this->owner;
+        return 'Inconnu';
     }
 }

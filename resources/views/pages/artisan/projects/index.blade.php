@@ -23,6 +23,11 @@
     </div>
 
     <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+        <!-- Barre de recherche -->
+        <div class="mb-4">
+            @include('components.artisan.search-bar', ['placeholder' => 'Rechercher un projet…'])
+        </div>
+
         @if($projects->isNotEmpty())
             <!-- Statistiques -->
             <div class="grid grid-cols-1 sm:grid-cols-3 gap-4 mb-8">
@@ -42,6 +47,8 @@
                     <p class="text-sm text-gray-600 dark:text-gray-300">Vues totales</p>
                 </div>
             </div>
+
+            <!-- Grille des réalisations -->
 
             <!-- Grille des réalisations -->
             <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">

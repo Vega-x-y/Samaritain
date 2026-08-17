@@ -41,6 +41,15 @@
                             Modifier
                         </x-btn>
                     </a>
+                    <a href="{{ route('artisan.dashboard.admin', $artisan) }}"
+                        class="dark:bg-blue-600 dark:text-white dark:hover:bg-blue-700">
+                        <x-btn type="button" style="info" size="sm" class="dark:bg-blue-600 dark:text-white dark:hover:bg-blue-700">
+                            <x-slot:prefix>
+                                <i data-lucide="layout-dashboard" class="w-4 h-4"></i>
+                            </x-slot:prefix>
+                            Voir le dashboard
+                        </x-btn>
+                    </a>
                     <form action="{{ route('admin.artisans.destroy', $artisan) }}" method="POST"
                         onsubmit="return confirm('Supprimer définitivement cet artisan ? Cette action est irréversible.')">
                         @csrf

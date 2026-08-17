@@ -81,9 +81,44 @@ class Artisan extends Model
         return $this->hasMany(ArtisanProject::class);
     }
 
+    public function chantiers(): HasMany
+    {
+        return $this->hasMany(Chantier::class);
+    }
+
     public function contacts(): HasMany
     {
         return $this->hasMany(ArtisanContact::class);
+    }
+
+    public function clients(): HasMany
+    {
+        return $this->hasMany(Client::class);
+    }
+
+    public function membresEquipe(): HasMany
+    {
+        return $this->hasMany(MembreEquipe::class);
+    }
+
+    public function articlesStock(): HasMany
+    {
+        return $this->hasMany(ArticleStock::class);
+    }
+
+    public function evenements(): HasMany
+    {
+        return $this->hasMany(Evenement::class);
+    }
+
+    public function demandesRecues(): HasMany
+    {
+        return $this->hasMany(ArtisanRequest::class);
+    }
+
+    public function groupes(): HasMany
+    {
+        return $this->hasMany(Groupe::class);
     }
 
     public function arrondissement(): BelongsTo

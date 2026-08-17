@@ -28,13 +28,21 @@
             ])>
                 Maisons
             </a>
+            <a href="{{ route('hotel.index') }}" @class([
+                'px-3 py-2 text-sm font-medium hover:text-primary dark:hover:text-primary-400 hover:bg-primary/5 dark:hover:bg-primary/10 rounded-lg transition',
+                'text-primary dark:text-primary-400 bg-primary/5 dark:bg-primary/10' =>
+                    request()->route()->getName() === 'hotel.index',
+                'text-gray-700 dark:text-gray-300' => request()->route()->getName() !== 'hotel.index',
+            ])>
+                Hôtels
+            </a>
             <a href="{{ route('parcelles.index') }}" @class([
                 'px-3 py-2 text-sm font-medium hover:text-primary dark:hover:text-primary-400 hover:bg-primary/5 dark:hover:bg-primary/10 rounded-lg transition',
                 'text-primary dark:text-primary-400 bg-primary/5 dark:bg-primary/10' =>
                     request()->route()->getName() === 'parcelles.index',
                 'text-gray-700 dark:text-gray-300' => request()->route()->getName() !== 'parcelles.index',
             ])>
-                Parcelles à vendre
+                Parcelles
             </a>
             <a href="{{ route('artisans.index') }}" @class([
                 'px-3 py-2 text-sm font-medium hover:text-primary dark:hover:text-primary-400 hover:bg-primary/5 dark:hover:bg-primary/10 rounded-lg transition',
@@ -65,24 +73,11 @@
                 Boite à suggestions
             </a>
 
-
-
         </div>
 
         {{-- CTA + Auth --}}
         <div class="flex items-center gap-3">
-            <button x-data="{
-                toggleTheme() {
-                    const isDark = document.documentElement.classList.contains('dark');
-                    if (isDark) {
-                        document.documentElement.classList.remove('dark');
-                        localStorage.theme = 'light';
-                    } else {
-                        document.documentElement.classList.add('dark');
-                        localStorage.theme = 'dark';
-                    }
-                }
-            }" x-on:click="toggleTheme()"
+            <button x-on:click="toggleTheme()"
                 class="p-1.5 text-[var(--muted-foreground)] dark:text-gray-400 hover:text-[var(--foreground)] dark:hover:text-white rounded-md hover:bg-[var(--sidebar-border)] dark:hover:bg-gray-700 transition-colors focus:outline-none">
                 <i data-lucide="sun" class="h-4 w-4 hidden dark:block"></i>
                 <i data-lucide="moon" class="h-4 w-4 block dark:hidden"></i>
@@ -181,18 +176,7 @@
         </a>
 
         <div class="flex items-center gap-2">
-            <button x-data="{
-                toggleTheme() {
-                    const isDark = document.documentElement.classList.contains('dark');
-                    if (isDark) {
-                        document.documentElement.classList.remove('dark');
-                        localStorage.theme = 'light';
-                    } else {
-                        document.documentElement.classList.add('dark');
-                        localStorage.theme = 'dark';
-                    }
-                }
-            }" x-on:click="toggleTheme()"
+            <button x-on:click="toggleTheme()"
                 class="p-1.5 text-[var(--muted-foreground)] dark:text-gray-400 hover:text-[var(--foreground)] dark:hover:text-white rounded-md hover:bg-[var(--sidebar-border)] dark:hover:bg-gray-700 transition-colors focus:outline-none">
                 <i data-lucide="sun" class="h-4 w-4 hidden dark:block"></i>
                 <i data-lucide="moon" class="h-4 w-4 block dark:hidden"></i>
@@ -250,6 +234,10 @@
             <a href="{{ route('property.index') }}" x-on:click="isOpen = false"
                 class="flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-medium text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-800">
                 <i data-lucide="warehouse" class="w-4 h-4 text-gray-400 dark:text-gray-500"></i> Maisons
+            </a>
+            <a href="{{ route('hotel.index') }}" x-on:click="isOpen = false"
+                class="flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-medium text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-800">
+                <i data-lucide="building-2" class="w-4 h-4 text-gray-400 dark:text-gray-500"></i> Hôtels
             </a>
             <a href="{{ route('parcelles.index') }}" x-on:click="isOpen = false"
                 class="flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-medium text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-800">
@@ -333,6 +321,16 @@
                 'text-gray-700 dark:text-gray-300' => request()->route()->getName() !== 'property.index',
             ])>
                 Maisons
+            </a>
+            <a href="{{ route('hotel.index') }}" @class([
+
+                'px-5 py-1 flex jutify-center items-center  text-sm font-medium hover:text-primary dark:hover:text-primary-400 transition text-gray-700 dark:text-gray-300 border-1 border-solid rounded-md',
+
+                'text-primary dark:text-primary-400 bg-primary/5 dark:bg-primary/10' =>
+                    request()->route()->getName() === 'hotel.index',
+                'text-gray-700 dark:text-gray-300' => request()->route()->getName() !== 'hotel.index',
+            ])>
+                Hôtels
             </a>
             <a href="{{ route('parcelles.index') }}" @class([
 

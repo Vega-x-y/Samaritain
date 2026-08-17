@@ -3,7 +3,7 @@
 namespace App\Services\Owner;
 
 use App\Models\Contract;
-use App\Models\Document;
+use App\Models\OwnerDocument;
 use App\Models\RentPayment;
 use Barryvdh\DomPDF\Facade\Pdf;
 use Illuminate\Support\Facades\Storage;
@@ -55,7 +55,7 @@ class ContractService
         ]);
 
         // Find and delete the generated receipt document if it exists
-        $document = Document::where('documentable_id', $rentPayment->id)
+        $document = OwnerDocument::where('documentable_id', $rentPayment->id)
             ->where('documentable_type', RentPayment::class)
             ->first();
 
@@ -78,7 +78,7 @@ class ContractService
 
         Storage::put($fullPath, $pdf->output());
 
-        Document::create([
+        OwnerDocument::create([
             'property_id' => $property->id,
             'name' => 'Reçu de loyer - '.$rentPayment->month.'/'.$rentPayment->year.' - '.$contract->tenant_name,
             'category' => 'receipt',

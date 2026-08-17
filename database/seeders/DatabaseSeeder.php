@@ -16,9 +16,10 @@ class DatabaseSeeder extends Seeder
             ArtisanCategorySeeder::class,
             ParcelleCategorySeeder::class,
             ParcelleSeeder::class,
-            PropertySeeder::class,
             PropertyCategorySeeder::class,
+            // PropertySeeder::class,
             OwnerPortalSeeder::class,
+            // ArtisanDemoSeeder::class,
         ]);
     }
 }

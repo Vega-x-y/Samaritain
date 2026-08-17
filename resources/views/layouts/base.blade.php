@@ -110,8 +110,38 @@
                 }
             }
         }
+
+        function deleteModal() {
+            return {
+                isOpen: false,
+                deleteAction: '',
+                hotelTitle: '',
+                openModal(action, title) {
+                    this.deleteAction = action;
+                    this.hotelTitle = title;
+                    this.isOpen = true;
+                },
+                closeModal() {
+                    this.isOpen = false;
+                    this.deleteAction = '';
+                    this.hotelTitle = '';
+                }
+            }
+        }
+
+        function toggleTheme() {
+            const isDark = document.documentElement.classList.contains('dark');
+            if (isDark) {
+                document.documentElement.classList.remove('dark');
+                localStorage.theme = 'light';
+            } else {
+                document.documentElement.classList.add('dark');
+                localStorage.theme = 'dark';
+            }
+        }
     </script>
     @livewireScripts
+    @stack('scripts')
 </body>
 
 </html>

@@ -2,8 +2,8 @@
 
 namespace App\Livewire\Messenger;
 
-use App\Models\Conversation;
-use App\Models\Message;
+use App\Models\OwnerConversation;
+use App\Models\OwnerMessage;
 use App\Notifications\MessageSentNotification;
 use Illuminate\Contracts\View\View;
 use Livewire\Attributes\On;
@@ -28,7 +28,7 @@ class ChatWindow extends Component
             return null;
         }
 
-        return Conversation::forUser(auth()->user())
+        return OwnerConversation::forUser(auth()->user())
             ->with(['owner', 'tenant', 'contract.property'])
             ->findOrFail($this->conversationId);
     }
@@ -39,7 +39,7 @@ class ChatWindow extends Component
             return collect();
         }
 
-        return Message::where('conversation_id', $this->conversationId)
+        return OwnerMessage::where('conversation_id', $this->conversationId)
             ->with('sender')
             ->orderByDesc('created_at')
             ->take(50)
@@ -76,13 +76,13 @@ class ChatWindow extends Component
             return;
         }
 
-        $message = Message::create([
+        $message = OwnerMessage::create([
             'conversation_id' => $this->conversation->id,
             'sender_id' => auth()->id(),
             'body' => $this->body,
         ]);
 
-        Message::where('conversation_id', $this->conversation->id)
+        OwnerMessage::where('conversation_id', $this->conversation->id)
             ->where('sender_id', '!=', auth()->id())
             ->whereNull('read_at')
             ->update(['read_at' => now()]);

@@ -55,7 +55,7 @@
                     <!-- Ville + Arrondissement (Livewire) -->
                     <div class="lg:col-span-2">
                         <livewire:arrondissement-filter
-                            :ville="request('city_id') ? \App\Models\City::find(request('city_id'))?->name : ''"
+                            :ville="request('city_id') ? (\App\Models\City::find(request('city_id'))?->name ?? '') : ''"
                             :arrondissement-id="request('arrondissement_id') ? (int) request('arrondissement_id') : null"
                             ville-name="city_id"
                             arrondissement-name="arrondissement_id"
