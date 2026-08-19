@@ -175,6 +175,102 @@ class PawapayService
     }
 
     /**
+     * Fetch provider branding (display name + logo) from the pawaPay toolkit so
+     * the in-app payment step can show the operator's real logo.
+     *
+     * Returns an empty array when the toolkit is unreachable.
+     *
+     * @return array<string, array{displayName?: string, logo?: string|null, status?: string|null}>
+     */
+    public function getProviderDetails(): array
+    {
+        try {
+            $config = $this->getActiveConfiguration();
+        } catch (PawaPayException $e) {
+            Log::warning('pawaPay active-configuration unavailable for branding', [
+                'error' => $e->getMessage(),
+            ]);
+
+            return [];
+        }
+
+        return $this->normalizeProviderDetails($config);
+    }
+
+    /**
+     * Normalize the active-configuration response into a map keyed by provider code.
+     *
+     * The toolkit returns per-provider arrays containing `logo` and `displayName`.
+     * When a provider is just a string (no branding available) it is preserved.
+     *
+     * @param  array<string, mixed>  $body
+     * @return array<string, array{displayName?: string, logo?: string|null, status?: string|null}>
+     */
+    protected function normalizeProviderDetails(array $body): array
+    {
+        $out = [];
+
+        $providers = $body['providers'] ?? [];
+
+        if (! is_array($providers)) {
+            return $out;
+        }
+
+        foreach ($providers as $entry) {
+            if (is_string($entry)) {
+                $out[$entry] = ['displayName' => $entry, 'logo' => null];
+
+                continue;
+            }
+
+            if (! is_array($entry)) {
+                continue;
+            }
+
+            $code = $entry['provider'] ?? $entry['providerId'] ?? $entry['code'] ?? null;
+
+            if (! $code) {
+                continue;
+            }
+
+            $out[$code] = [
+                'displayName' => $entry['displayName'] ?? $code,
+                'logo' => $entry['logo'] ?? null,
+                'status' => $entry['status'] ?? null,
+            ];
+        }
+
+        return $out;
+    }
+
+    /**
+     * Build the list of providers with branding (label + logo) for the in-app
+     * payment step, falling back to the configured labels when pawaPay cannot
+     * be reached.
+     *
+     * @return array<string, array{label: string, logo: string|null, status: string|null}>
+     */
+    public function availableProvidersWithBranding(): array
+    {
+        $labels = $this->availableProviders();
+        $details = $this->getProviderDetails();
+
+        $out = [];
+
+        foreach ($labels as $code => $label) {
+            $detail = $details[$code] ?? [];
+
+            $out[$code] = [
+                'label' => $detail['displayName'] ?? $label,
+                'logo' => $detail['logo'] ?? null,
+                'status' => $detail['status'] ?? null,
+            ];
+        }
+
+        return $out;
+    }
+
+    /**
      * Normalize a customer-entered phone number to the MSISDN format pawaPay
      * expects (digits only, country code required, no leading zero).
      *

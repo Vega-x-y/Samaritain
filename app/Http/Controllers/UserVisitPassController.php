@@ -57,7 +57,7 @@ class UserVisitPassController extends Controller
                 ->with('info', 'Ce pass visite est déjà payé.');
         }
 
-        $providers = $this->pawapay->availableProviders();
+        $providers = $this->pawapay->availableProvidersWithBranding();
         $currency = config('services.pawapay.currency', 'XAF');
 
         return view('visit-passes.pay', compact('visitPass', 'providers', 'currency'));

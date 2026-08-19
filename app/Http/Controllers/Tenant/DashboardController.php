@@ -139,7 +139,7 @@ class DashboardController extends Controller
                 ->with('info', 'Ce loyer est déjà payé.');
         }
 
-        $providers = $pawapay->availableProviders();
+        $providers = $pawapay->availableProvidersWithBranding();
         $currency = config('services.pawapay.currency', 'XAF');
 
         return view('pages.tenant.rent-pay', compact('rentPayment', 'contract', 'providers', 'currency'));

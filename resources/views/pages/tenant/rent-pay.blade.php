@@ -33,18 +33,23 @@
 
         <h2 class="font-semibold text-gray-800 dark:text-white text-lg mb-4">Votre opérateur</h2>
         <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 mb-6">
-            @foreach ($providers as $code => $label)
+            @foreach ($providers as $code => $provider)
                 <label class="relative block cursor-pointer rounded-xl border-2 p-5 transition has-[:checked]:border-emerald-500 has-[:checked]:bg-emerald-50 dark:has-[:checked]:bg-emerald-900/20 border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 hover:border-gray-300 dark:hover:border-gray-600">
                     <input type="radio" name="provider" value="{{ $code }}"
                         class="peer sr-only" required
                         @checked(old('provider') === $code)>
                     <div class="flex items-center justify-between">
                         <div class="flex items-center gap-3">
-                            <div class="w-10 h-10 rounded-lg bg-emerald-100 dark:bg-emerald-900/30 text-emerald-600 dark:text-emerald-400 flex items-center justify-center">
-                                <i data-lucide="smartphone" class="w-5 h-5"></i>
+                            <div class="w-10 h-10 rounded-lg bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-600 flex items-center justify-center p-1 shrink-0">
+                                @if (!empty($provider['logo']))
+                                    <img src="{{ $provider['logo'] }}" alt="{{ $provider['label'] }}"
+                                        class="w-full h-full object-contain">
+                                @else
+                                    <i data-lucide="smartphone" class="w-5 h-5 text-emerald-600 dark:text-emerald-400"></i>
+                                @endif
                             </div>
                             <div>
-                                <p class="font-semibold text-sm text-gray-800 dark:text-white">{{ $label }}</p>
+                                <p class="font-semibold text-sm text-gray-800 dark:text-white">{{ $provider['label'] }}</p>
                                 <p class="text-xs text-gray-500 dark:text-gray-400">{{ $code }}</p>
                             </div>
                         </div>

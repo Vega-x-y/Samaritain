@@ -76,14 +76,27 @@ function depositsHttpFake(string $status = 'ACCEPTED'): void
 |--------------------------------------------------------------------------
 */
 
-test('le locataire arrive sur la page de choix d\'opérateur pour son loyer', function () {
+test('le locataire arrive sur la page de choix d\'opérateur pour son loyer et voit les logos pawaPay', function () {
     $s = rentPaymentScenario();
+
+    Http::fake([
+        'api.sandbox.pawapay.io/v2/active-configuration' => Http::response([
+            'country' => 'COG',
+            'currency' => 'XAF',
+            'providers' => [
+                ['provider' => 'MTN_MOMO_COG', 'displayName' => 'MTN Mobile Money', 'logo' => 'https://img.pawapay/MTN_MOMO_COG.png'],
+                ['provider' => 'AIRTEL_COG', 'displayName' => 'Airtel Money', 'logo' => 'https://img.pawapay/AIRTEL_COG.png'],
+            ],
+        ], 200),
+    ]);
 
     $this->actingAs($s['tenant'])
         ->get(route('tenant.rent-payments.pay', $s['rentPayment']))
         ->assertOk()
         ->assertSee('MTN Mobile Money')
-        ->assertSee('Airtel Money');
+        ->assertSee('https://img.pawapay/MTN_MOMO_COG.png')
+        ->assertSee('Airtel Money')
+        ->assertSee('https://img.pawapay/AIRTEL_COG.png');
 });
 
 test('le locataire peut initier le paiement de son loyer via un dépôt direct', function () {

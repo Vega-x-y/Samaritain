@@ -67,13 +67,55 @@ test('get_active_configuration retourne les providers et décimales', function (
         ], 200),
     ]);
 
-    $service = new PawapayService;
+        $service = new PawapayService;
     $result = $service->getActiveConfiguration();
 
     expect($result['country'])->toBe('COG')
         ->and($result['currency'])->toBe('XAF')
         ->and($result['decimalsInAmount'])->toBe('NONE')
         ->and($result['providers'])->toMatchArray(['MTN_MOMO_COG', 'AIRTEL_COG']);
+});
+
+test('available_providers_with_branding récupère les logos et libellés depuis active-configuration', function () {
+    config(['services.pawapay.base_url' => 'https://api.sandbox.pawapay.io']);
+    config(['services.pawapay.token' => 'test-token']);
+
+    Http::fake([
+        'api.sandbox.pawapay.io/v2/active-configuration' => Http::response([
+            'country' => 'COG',
+            'currency' => 'XAF',
+            'providers' => [
+                ['provider' => 'MTN_MOMO_COG', 'displayName' => 'MTN Mobile Money', 'logo' => 'https://img.pawapay/MTN_MOMO_COG.png'],
+                ['provider' => 'AIRTEL_COG', 'displayName' => 'Airtel Money', 'logo' => 'https://img.pawapay/AIRTEL_COG.png'],
+            ],
+        ], 200),
+    ]);
+
+    $service = new PawapayService;
+    $branding = $service->availableProvidersWithBranding();
+
+    expect($branding)
+        ->toHaveKeys(['MTN_MOMO_COG', 'AIRTEL_COG'])
+        ->and($branding['MTN_MOMO_COG']['label'])->toBe('MTN Mobile Money')
+        ->and($branding['MTN_MOMO_COG']['logo'])->toBe('https://img.pawapay/MTN_MOMO_COG.png')
+        ->and($branding['AIRTEL_COG']['logo'])->toBe('https://img.pawapay/AIRTEL_COG.png');
+});
+
+test('available_providers_with_branding retombe sur les libellés sans logo quand pawaPay échoue', function () {
+    config(['services.pawapay.base_url' => 'https://api.sandbox.pawapay.io']);
+    config(['services.pawapay.token' => 'test-token']);
+
+    Http::fake([
+        'api.sandbox.pawapay.io/v2/active-configuration' => Http::response('Error', 500),
+    ]);
+
+    $service = new PawapayService;
+    $branding = $service->availableProvidersWithBranding();
+
+    expect(array_keys($branding))->toBe(['MTN_MOMO_COG', 'AIRTEL_COG'])
+        ->and($branding['MTN_MOMO_COG']['logo'])->toBeNull()
+        ->and($branding['MTN_MOMO_COG']['label'])->toBe('MTN Mobile Money')
+        ->and($branding['AIRTEL_COG']['logo'])->toBeNull();
 });
 
 test('create_deposit envoie le depositId et retourne ACCEPTED', function () {
