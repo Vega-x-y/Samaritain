@@ -75,8 +75,8 @@
                                 Générer mon pass {{ number_format($price, 0, ',', ' ') }} FCFA
                             </button>
                             <p class="text-xs text-gray-500 dark:text-gray-400 mt-2 text-center">
-                                Vous serez redirigé vers la page de paiement après confirmation.
-                            </p>
+                                    Vous choisirez ensuite votre opérateur et votre numéro Mobile Money pour payer.
+                                </p>
                         </div>
                     </form>
                 </div>

@@ -10,9 +10,11 @@ use App\Models\Transaction;
 use App\Models\VisitPass;
 use App\Services\PawapayService;
 use App\Services\VisitPassService;
+use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Gate;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Str;
+use Illuminate\Validation\Rule;
 
 class UserVisitPassController extends Controller
 {
@@ -32,70 +34,104 @@ class UserVisitPassController extends Controller
     }
 
     /**
-     * Store the visit pass request and redirect to payment.
+     * Store the visit pass request and send the user to the dedicated payment step.
      */
     public function store(StoreVisitPassRequest $request)
     {
         $visitPass = $this->visitPassService->createVisitPass($request->validated());
 
-        // Redirect to payment page
-        return $this->redirectToPayment($visitPass);
+        // Redirect to the in-app payment step (choose operator + enter number).
+        return redirect()->route('my-visit-passes.pay', $visitPass);
     }
 
-    protected function redirectToPayment(VisitPass $visitPass)
+    /**
+     * Dedicated payment step: the customer picks their operator (MTN or Airtel)
+     * and enters the Mobile Money number that will receive the USSD push.
+     */
+    public function pay(VisitPass $visitPass)
     {
-        // Generate and persist the UUIDv4 idempotency key BEFORE calling pawaPay.
+        Gate::authorize('view', $visitPass);
+
+        if ($visitPass->isPaid()) {
+            return redirect()->route('my-visit-passes.show', $visitPass)
+                ->with('info', 'Ce pass visite est déjà payé.');
+        }
+
+        $providers = $this->pawapay->availableProviders();
+        $currency = config('services.pawapay.currency', 'XAF');
+
+        return view('visit-passes.pay', compact('visitPass', 'providers', 'currency'));
+    }
+
+    /**
+     * Initiate a direct pawaPay deposit (USSD push) for the visit pass.
+     *
+     * Generate and persist the UUIDv4 depositId BEFORE calling pawaPay so it can
+     * serve as the reconciliation anchor. On an HTTP failure the transaction is
+     * kept as pending — never failed.
+     */
+    public function initiatePayment(Request $request, VisitPass $visitPass)
+    {
+        Gate::authorize('view', $visitPass);
+
+        if ($visitPass->isPaid()) {
+            return redirect()->route('my-visit-passes.show', $visitPass)
+                ->with('info', 'Ce pass visite est déjà payé.');
+        }
+
+        $data = $request->validate([
+            'provider' => ['required', 'string', Rule::in(array_keys($this->pawapay->availableProviders()))],
+            'phone' => ['required', 'string'],
+        ]);
+
+        try {
+            $msisdn = $this->pawapay->normalizeMsisdn($data['phone']);
+        } catch (PawaPayException $e) {
+            return redirect()->back()->withErrors(['phone' => 'Numéro de téléphone invalide.'])->withInput();
+        }
+
         $depositId = (string) Str::uuid();
 
         $transaction = Transaction::create([
-            'user_id' => auth()->id(),
+            'user_id' => $visitPass->user_id,
             'visit_pass_id' => $visitPass->id,
             'status' => 'pending',
             'amount' => $visitPass->amount,
             'deposit_id' => $depositId,
-            'provider' => null,
-            'currency' => 'XAF',
+            'provider' => $data['provider'],
+            'currency' => config('services.pawapay.currency', 'XAF'),
         ]);
 
         $visitPass->update(['transaction_id' => $transaction->transaction_id]);
 
         try {
-            $result = $this->pawapay->createPaymentPage([
-                'depositId' => $depositId,
-                'returnUrl' => route('transactions.callback', $transaction),
-                'customerMessage' => 'Samaritain',
-                'amountDetails' => [
-                    'amount' => (string) $transaction->amount,
-                    'currency' => 'XAF',
-                ],
-                'language' => 'FR',
-                'country' => 'COG',
-                'reason' => 'Achat pass visite - '.$visitPass->reference,
-                'metadata' => [
+            $result = $this->pawapay->initiateDeposit(
+                depositId: $depositId,
+                phoneNumber: $msisdn,
+                provider: $data['provider'],
+                amount: $transaction->amount,
+                currency: $transaction->currency,
+                clientReferenceId: $visitPass->reference,
+                customerMessage: 'Samaritain',
+                metadata: [
                     ['transactionId' => $transaction->transaction_id],
                     ['visitPassId' => (string) $visitPass->id],
                     ['userId' => (string) $transaction->user_id],
                 ],
-            ]);
+            );
 
-            // Store the pawaPay response on the transaction record.
             $transaction->update([
-                'status' => $result['status'] ?? 'pending',
-                'provider' => $result['provider'] ?? null,
+                'status' => strtolower($result['status'] ?? 'pending'),
                 'raw_response' => $result,
             ]);
-
-            return redirect($result['redirectUrl']);
-
         } catch (PawaPayException $e) {
             // Do NOT mark as failed — leave as pending for reconciliation.
             $transaction->update([
                 'raw_response' => ['error' => $e->getMessage(), 'status_code' => $e->getStatusCode()],
             ]);
-
-            return redirect()->route('my-visit-passes.show', $visitPass)
-                ->with('error', 'Une erreur est survenue lors de la création du paiement: '.$e->getMessage());
         }
+
+        return redirect()->route('transactions.pending', $transaction);
     }
 
     /**
@@ -152,7 +188,7 @@ class UserVisitPassController extends Controller
     {
         Gate::authorize('retryPayment', $visitPass);
 
-        return $this->redirectToPayment($visitPass);
+        return redirect()->route('my-visit-passes.pay', $visitPass);
     }
 
     /**

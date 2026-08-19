@@ -56,6 +56,11 @@ return [
         'verify_callback_signature' => (bool) env('PAWAPAY_CALLBACK_VERIFY_SIGNATURE', false),
         'currency' => env('PAWAPAY_CURRENCY', 'XAF'),
         'country' => env('PAWAPAY_COUNTRY', 'COG'),
+        'dial_code' => env('PAWAPAY_DIAL_CODE', '242'),
+        'providers' => [
+            'MTN_MOMO_COG' => 'MTN Mobile Money',
+            'AIRTEL_COG' => 'Airtel Money',
+        ],
     ],
 
 ];

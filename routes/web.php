@@ -472,9 +472,10 @@ Route::middleware('auth')->group(function () {
     Route::delete('/avis/{avis}', [AvisController::class, 'destroy'])->name('avis.destroy');
 });
 
-Route::get('/pay', [TransactionController::class, 'paymentPage'])
+// pawaPay in-app payment tracking (no hosted payment page) — GET, user sees the live status
+Route::get('/transactions/{transaction}/pending', [TransactionController::class, 'pending'])
     ->middleware('auth')
-    ->name('transactions.pay');
+    ->name('transactions.pending');
 
 // pawaPay server-to-server callback (callbackUrl) — POST, CSRF-exempt via bootstrap/app.php
 Route::post('/transactions/{transaction}/webhook', [TransactionController::class, 'handleCallback'])
@@ -518,6 +519,10 @@ Route::middleware(['auth', 'verified'])->group(function () {
         ->name('my-visit-passes.create.parcelle');
     Route::post('/visit-pass', [UserVisitPassController::class, 'store'])
         ->name('my-visit-passes.store');
+    Route::get('/my-visit-passes/{visitPass}/pay', [UserVisitPassController::class, 'pay'])
+        ->name('my-visit-passes.pay');
+    Route::post('/my-visit-passes/{visitPass}/initiate-payment', [UserVisitPassController::class, 'initiatePayment'])
+        ->name('my-visit-passes.initiate-payment');
     Route::get('/my-visit-passes', [UserVisitPassController::class, 'index'])
         ->name('my-visit-passes.index');
     Route::get('/my-visit-passes/{visitPass}', [UserVisitPassController::class, 'show'])
@@ -616,7 +621,8 @@ Route::middleware(['auth', 'verified', 'tenant'])->prefix('tenant')->name('tenan
     Route::post('/contracts/{contract}/sign', [App\Http\Controllers\Tenant\DashboardController::class, 'sign'])->middleware(EnsureUserCanSignContract::class)->name('contracts.sign');
     Route::get('/contracts/{contract}/pdf', [App\Http\Controllers\Tenant\DashboardController::class, 'downloadPdf'])->name('contracts.pdf');
     Route::get('/payments', [App\Http\Controllers\Tenant\DashboardController::class, 'payments'])->name('payments');
-    Route::post('/rent-payments/{rentPayment}/pay', [App\Http\Controllers\Tenant\DashboardController::class, 'payRentPayment'])->name('rent-payments.pay');
+    Route::get('/rent-payments/{rentPayment}/pay', [App\Http\Controllers\Tenant\DashboardController::class, 'payRentPayment'])->name('rent-payments.pay');
+    Route::post('/rent-payments/{rentPayment}/pay', [App\Http\Controllers\Tenant\DashboardController::class, 'initiateRentPayment'])->name('rent-payments.initiate');
     Route::get('/interventions', [App\Http\Controllers\Tenant\DashboardController::class, 'interventions'])->name('interventions');
     Route::get('/documents', [App\Http\Controllers\Tenant\DashboardController::class, 'documents'])->name('documents');
     Route::get('/documents/{document}/download', [App\Http\Controllers\Tenant\DashboardController::class, 'downloadDocument'])->name('documents.download');

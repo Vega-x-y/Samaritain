@@ -70,14 +70,11 @@
                                 @if($payment->isPaid())
                                     <span class="text-xs text-emerald-600 dark:text-emerald-400">—</span>
                                 @else
-                                    <form method="POST" action="{{ route('tenant.rent-payments.pay', $payment) }}" class="inline">
-                                        @csrf
-                                        <button type="submit"
-                                            class="inline-flex items-center gap-1.5 text-xs font-semibold text-white bg-emerald-600 hover:bg-emerald-700 focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:ring-offset-1 dark:focus:ring-offset-gray-800 rounded-lg px-3 py-1.5 transition">
-                                            <i data-lucide="wallet" class="w-3.5 h-3.5"></i>
-                                            Payer
-                                        </button>
-                                    </form>
+                                    <a href="{{ route('tenant.rent-payments.pay', $payment) }}"
+                                        class="inline-flex items-center gap-1.5 text-xs font-semibold text-white bg-emerald-600 hover:bg-emerald-700 focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:ring-offset-1 dark:focus:ring-offset-gray-800 rounded-lg px-3 py-1.5 transition">
+                                        <i data-lucide="wallet" class="w-3.5 h-3.5"></i>
+                                        Payer
+                                    </a>
                                 @endif
                             </td>
                         </tr>

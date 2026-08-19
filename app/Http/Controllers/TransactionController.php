@@ -9,7 +9,6 @@ use App\Services\PawapayService;
 use App\Services\RentPaymentService;
 use App\Services\VisitPassService;
 use Illuminate\Http\Request;
-use Illuminate\Support\Str;
 
 class TransactionController extends Controller
 {
@@ -19,72 +18,22 @@ class TransactionController extends Controller
     ) {}
 
     /**
-     * Initiate a payment via the pawaPay hosted payment page.
+     * Show the in-app payment tracking screen (no hosted payment page).
      *
-     * Flow:
-     *  1. Generate a UUIDv4 (depositId) — the idempotency key and reconciliation anchor.
-     *  2. Persist Transaction as PENDING with the depositId.
-     *  3. Call pawaPay PaymentPage API.
-     *  4. Store the raw response and redirect to the hosted page.
-     *
-     * Critical rule: if the HTTP call fails, do NOT mark the transaction as FAILED.
-     * Leave it as PENDING — the reconciliation job will check the status later.
+     * After a direct deposit is initiated the user is sent here. The page
+     * displays the live status and refreshes via the transaction status
+     * endpoint; the final result is also confirmed by the callback job and the
+     * reconciliation command.
      */
-    public function paymentPage()
+    public function pending(Transaction $transaction)
     {
         $user = auth()->user();
 
-        // 1. Generate the UUIDv4 idempotency key before any API call.
-        $depositId = (string) Str::uuid();
-
-        // 2. Persist the transaction BEFORE calling pawaPay — this is your
-        //    reconciliation anchor if the network call fails or times out.
-        $transaction = Transaction::create([
-            'user_id' => $user->id,
-            'status' => 'pending',
-            'amount' => 5000,
-            'deposit_id' => $depositId,
-            'provider' => null,
-            'currency' => 'XAF',
-        ]);
-
-        // 3. Call pawaPay to create the hosted payment page.
-        try {
-            $result = $this->pawapay->createPaymentPage([
-                'depositId' => $depositId,
-                'returnUrl' => route('transactions.callback', $transaction),
-                'customerMessage' => 'Samaritain',
-                'amountDetails' => [
-                    'amount' => (string) $transaction->amount,
-                    'currency' => 'XAF',
-                ],
-                'language' => 'FR',
-                'country' => 'COG',
-                'reason' => 'Paiement du pass visite',
-                'metadata' => [
-                    ['transactionId' => $transaction->transaction_id],
-                    ['userId' => (string) $transaction->user_id],
-                ],
-            ]);
-        } catch (PawaPayException $e) {
-            // Do NOT mark as failed — leave as pending for reconciliation.
-            $transaction->update([
-                'raw_response' => ['error' => $e->getMessage(), 'status_code' => $e->getStatusCode()],
-            ]);
-
-            return redirect()->back()->with([
-                'error' => 'Une erreur est survenue lors de la création de la page de paiement. Veuillez réessayer.',
-            ]);
+        if ($transaction->user_id !== $user->id) {
+            abort(403, 'Vous n\'êtes pas autorisé à consulter cette transaction.');
         }
 
-        // 4. Store the response and redirect to the hosted payment page.
-        $transaction->update([
-            'status' => strtolower($result['status'] ?? 'pending'),
-            'provider' => $result['provider'] ?? null,
-            'raw_response' => $result,
-        ]);
-
-        return redirect($result['redirectUrl']);
+        return view('transaction.pending', compact('transaction'));
     }
 
     /**

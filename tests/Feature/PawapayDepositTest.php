@@ -204,63 +204,73 @@ test('verify_callback_signature retourne false avec une signature invalide', fun
 
 /*
 |--------------------------------------------------------------------------
-| Tests du flow de paiement (TransactionController)
+| Tests du dépôt direct (PawapayService::initiateDeposit) et de la page pending
 |--------------------------------------------------------------------------
 */
 
-test('payment_page crée une transaction avec deposit_id et redirige vers pawaPay', function () {
+test('initiate_deposit construit le payload payer et appelle /v2/deposits', function () {
     config([
         'services.pawapay.base_url' => 'https://api.sandbox.pawapay.io',
         'services.pawapay.token' => 'test-token',
-        'services.pawapay.callback_secret' => 'secret',
     ]);
 
-    $user = User::factory()->create();
+    $depositId = (string) Str::uuid();
 
     Http::fake([
-        'api.sandbox.pawapay.io/v2/paymentpage' => Http::response([
-            'depositId' => 'some-uuid',
+        'api.sandbox.pawapay.io/v2/deposits' => Http::response([
+            'depositId' => $depositId,
             'status' => 'ACCEPTED',
-            'redirectUrl' => 'https://api.sandbox.pawapay.io/payment-page/xyz',
+            'created' => now()->toIso8601String(),
         ], 200),
     ]);
 
-    $this->actingAs($user)
-        ->get(route('transactions.pay'))
-        ->assertRedirect('https://api.sandbox.pawapay.io/payment-page/xyz');
+    $service = new PawapayService;
+    $result = $service->initiateDeposit(
+        depositId: $depositId,
+        phoneNumber: '24268007138',
+        provider: 'MTN_MOMO_COG',
+        amount: 5000,
+        currency: 'XAF',
+        clientReferenceId: 'V-XXXX',
+    );
 
-    $transaction = Transaction::where('user_id', $user->id)->first();
+    expect($result['status'])->toBe('ACCEPTED')
+        ->and($result['depositId'])->toBe($depositId);
 
-    expect($transaction)->not->toBeNull()
-        ->and($transaction->deposit_id)->not->toBeNull()
-        ->and($transaction->status)->toBe('accepted')
-        ->and($transaction->currency)->toBe('XAF');
+    Http::assertSent(function ($request) use ($depositId) {
+        return $request->hasHeader('Authorization', 'Bearer test-token')
+            && $request['depositId'] === $depositId
+            && $request['amount'] === '5000'
+            && $request['currency'] === 'XAF'
+            && $request['payer']['type'] === 'MMO'
+            && $request['payer']['accountDetails']['phoneNumber'] === '24268007138'
+            && $request['payer']['accountDetails']['provider'] === 'MTN_MOMO_COG';
+    });
 });
 
-test('payment_page laisse la transaction en pending si l\'API pawaPay échoue', function () {
-    config([
-        'services.pawapay.base_url' => 'https://api.sandbox.pawapay.io',
-        'services.pawapay.token' => 'test-token',
-    ]);
+test('normalize_msisdn retire les espaces et ajoute le code pays', function () {
+    config(['services.pawapay.dial_code' => '242']);
 
-    $user = User::factory()->create();
+    $service = new PawapayService;
 
-    Http::fake([
-        'api.sandbox.pawapay.io/v2/paymentpage' => Http::response('Server error', 500),
-    ]);
-
-    $this->actingAs($user)
-        ->get(route('transactions.pay'))
-        ->assertRedirect();
-
-    $transaction = Transaction::where('user_id', $user->id)->first();
-
-    // Critical rule: on HTTP error, do NOT mark as failed — keep as pending
-    expect($transaction->status)->toBe('pending');
+    expect($service->normalizeMsisdn('06 800 71 38'))->toBe('24268007138')
+        ->and($service->normalizeMsisdn('+242068007138'))->toBe('24268007138')
+        ->and($service->normalizeMsisdn('24268007138'))->toBe('24268007138');
 });
 
-test('payment_page nécessite une authentification', function () {
-    $this->get(route('transactions.pay'))
+test('normalize_msisdn refuse un numéro vide', function () {
+    config(['services.pawapay.dial_code' => '242']);
+
+    $service = new PawapayService;
+
+    expect(fn () => $service->normalizeMsisdn('abc'))
+        ->toThrow(PawaPayException::class);
+});
+
+test('la page pending nécessite une authentification', function () {
+    $transaction = Transaction::factory()->create();
+
+    $this->get(route('transactions.pending', $transaction))
         ->assertRedirect(route('login'));
 });
 
@@ -270,18 +280,10 @@ test('payment_page nécessite une authentification', function () {
 |--------------------------------------------------------------------------
 */
 
-test('store visit pass crée le pass et redirige vers la page de paiement pawaPay', function () {
+test('store visit pass crée le pass et redirige vers l\'étape de choix d\'opérateur', function () {
     config([
         'services.pawapay.base_url' => 'https://api.sandbox.pawapay.io',
         'services.pawapay.token' => 'test-token',
-    ]);
-
-    Http::fake([
-        'api.sandbox.pawapay.io/v2/paymentpage' => Http::response([
-            'depositId' => 'some-uuid',
-            'status' => 'ACCEPTED',
-            'redirectUrl' => 'https://api.sandbox.pawapay.io/payment-page/xyz',
-        ], 200),
     ]);
 
     $user = User::factory()->create();
@@ -293,56 +295,127 @@ test('store visit pass crée le pass et redirige vers la page de paiement pawaPa
             'holder_name' => 'Jean Dupont',
             'phone' => '+242061234567',
         ])
-        ->assertRedirect('https://api.sandbox.pawapay.io/payment-page/xyz');
+        ->assertRedirect(route('my-visit-passes.pay'));
 
     $visitPass = VisitPass::where('user_id', $user->id)->first();
 
     expect($visitPass)->not->toBeNull()
         ->and($visitPass->holder_name)->toBe('Jean Dupont')
         ->and($visitPass->payment_status)->toBe('pending')
-        ->and($visitPass->transaction_id)->not->toBeNull();
-
-    $transaction = Transaction::where('user_id', $user->id)->first();
-
-    expect($transaction)->not->toBeNull()
-        ->and($transaction->visit_pass_id)->toBe($visitPass->id)
-        ->and($transaction->deposit_id)->not->toBeNull()
-        ->and($transaction->amount)->toBe(5000);
-
-    // Le depositId persisté est bien celui envoyé à pawaPay (clé d'idempotence),
-    // et aucun callbackUrl n'est transmis car non supporté par l'API paymentpage.
-    Http::assertSent(fn ($request) => str_contains($request->url(), '/v2/paymentpage')
-        && $request['depositId'] === $transaction->deposit_id
-        && ! isset($request['callbackUrl']));
+        ->and($visitPass->transaction_id)->toBeNull();
 });
 
-test('store visit pass laisse la transaction en pending si l\'API pawaPay échoue', function () {
+test('initiate_payment du visit pass initie un dépôt direct et redirige vers pending', function () {
     config([
         'services.pawapay.base_url' => 'https://api.sandbox.pawapay.io',
         'services.pawapay.token' => 'test-token',
     ]);
 
+    $user = User::factory()->create();
+    $property = Property::factory()->create();
+
+    $this->actingAs($user)->post(route('my-visit-passes.store'), [
+        'property_id' => $property->id,
+        'holder_name' => 'Jean Dupont',
+        'phone' => '+242061234567',
+    ]);
+
+    $visitPass = VisitPass::where('user_id', $user->id)->firstOrFail();
+
     Http::fake([
-        'api.sandbox.pawapay.io/v2/paymentpage' => Http::response('Server error', 500),
+        'api.sandbox.pawapay.io/v2/deposits' => Http::response([
+            'depositId' => (string) Str::uuid(),
+            'status' => 'ACCEPTED',
+            'created' => now()->toIso8601String(),
+        ], 200),
+    ]);
+
+    $this->actingAs($user)
+        ->post(route('my-visit-passes.initiate-payment', $visitPass), [
+            'provider' => 'MTN_MOMO_COG',
+            'phone' => '+242 06 800 71 38',
+        ])
+        ->assertRedirect(route('transactions.pending'));
+
+    $transaction = Transaction::where('visit_pass_id', $visitPass->id)->first();
+
+    expect($transaction)->not->toBeNull()
+        ->and($transaction->deposit_id)->not->toBeNull()
+        ->and($transaction->status)->toBe('accepted')
+        ->and($transaction->provider)->toBe('MTN_MOMO_COG')
+        ->and($transaction->amount)->toBe(5000);
+
+    $visitPass->refresh();
+    expect($visitPass->transaction_id)->toBe($transaction->transaction_id);
+
+    // Le numéro est normalisé en MSISDN et le payload est un dépôt direct (payer MMO).
+    Http::assertSent(fn ($request) => str_contains($request->url(), '/v2/deposits')
+        && $request['depositId'] === $transaction->deposit_id
+        && $request['payer']['type'] === 'MMO'
+        && $request['payer']['accountDetails']['phoneNumber'] === '24268007138'
+        && $request['payer']['accountDetails']['provider'] === 'MTN_MOMO_COG');
+});
+
+test('initiate_payment du visit pass laisse la transaction en pending si l\'API pawaPay échoue', function () {
+    config([
+        'services.pawapay.base_url' => 'https://api.sandbox.pawapay.io',
+        'services.pawapay.token' => 'test-token',
     ]);
 
     $user = User::factory()->create();
     $property = Property::factory()->create();
 
-    $this->actingAs($user)
-        ->post(route('my-visit-passes.store'), [
-            'property_id' => $property->id,
-            'holder_name' => 'Jean Dupont',
-            'phone' => '+242061234567',
-        ])
-        ->assertRedirect();
+    $this->actingAs($user)->post(route('my-visit-passes.store'), [
+        'property_id' => $property->id,
+        'holder_name' => 'Jean Dupont',
+        'phone' => '+242061234567',
+    ]);
 
-    $transaction = Transaction::where('user_id', $user->id)->first();
+    $visitPass = VisitPass::where('user_id', $user->id)->firstOrFail();
+
+    Http::fake([
+        'api.sandbox.pawapay.io/v2/deposits' => Http::response('Server error', 500),
+    ]);
+
+    $this->actingAs($user)
+        ->post(route('my-visit-passes.initiate-payment', $visitPass), [
+            'provider' => 'MTN_MOMO_COG',
+            'phone' => '+242068007138',
+        ])
+        ->assertRedirect(route('transactions.pending'));
+
+    $transaction = Transaction::where('visit_pass_id', $visitPass->id)->first();
 
     // Règle critique : en cas d'erreur HTTP, ne JAMAIS marquer failed — rester pending
     expect($transaction)->not->toBeNull()
-        ->and($transaction->status)->toBe('pending')
-        ->and($transaction->visit_pass_id)->not->toBeNull();
+        ->and($transaction->status)->toBe('pending');
+});
+
+test('initiate_payment du visit pass refuse un provider invalide', function () {
+    config([
+        'services.pawapay.base_url' => 'https://api.sandbox.pawapay.io',
+        'services.pawapay.token' => 'test-token',
+    ]);
+
+    $user = User::factory()->create();
+    $property = Property::factory()->create();
+
+    $this->actingAs($user)->post(route('my-visit-passes.store'), [
+        'property_id' => $property->id,
+        'holder_name' => 'Jean Dupont',
+        'phone' => '+242061234567',
+    ]);
+
+    $visitPass = VisitPass::where('user_id', $user->id)->firstOrFail();
+
+    $this->actingAs($user)
+        ->post(route('my-visit-passes.initiate-payment', $visitPass), [
+            'provider' => 'WRONG_PROVIDER',
+            'phone' => '+242068007138',
+        ])
+        ->assertSessionHasErrors('provider');
+
+    expect(Transaction::count())->toBe(0);
 });
 
 /*

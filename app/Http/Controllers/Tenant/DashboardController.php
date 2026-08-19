@@ -19,6 +19,7 @@ use Barryvdh\DomPDF\Facade\Pdf;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Str;
+use Illuminate\Validation\Rule;
 
 class DashboardController extends Controller
 {
@@ -119,16 +120,9 @@ class DashboardController extends Controller
     }
 
     /**
-     * Initiate the pawaPay payment for a rent payment.
-     *
-     * Flow:
-     *  1. Generate a UUIDv4 (depositId) — the idempotency key and reconciliation anchor.
-     *  2. Persist the Transaction as PENDING, linked to the rent payment, BEFORE calling pawaPay.
-     *  3. Call the pawaPay hosted Payment Page API.
-     *  4. Redirect the tenant to the hosted page.
-     *
-     * Critical rule: if the HTTP call fails, do NOT mark the transaction as FAILED.
-     * Leave it as PENDING — the reconciliation job will check the status later.
+     * Dedicated payment step for a rent payment: the tenant picks their operator
+     * (MTN or Airtel) and enters the Mobile Money number that will receive the
+     * USSD push. No hosted payment page.
      */
     public function payRentPayment(RentPayment $rentPayment, PawapayService $pawapay)
     {
@@ -145,60 +139,86 @@ class DashboardController extends Controller
                 ->with('info', 'Ce loyer est déjà payé.');
         }
 
-        // 1. Generate the UUIDv4 idempotency key before any API call.
+        $providers = $pawapay->availableProviders();
+        $currency = config('services.pawapay.currency', 'XAF');
+
+        return view('pages.tenant.rent-pay', compact('rentPayment', 'contract', 'providers', 'currency'));
+    }
+
+    /**
+     * Initiate a direct pawaPay deposit (USSD push) for a rent payment.
+     *
+     * Generate and persist the UUIDv4 depositId BEFORE calling pawaPay. On an
+     * HTTP failure the transaction is kept as pending — never failed.
+     */
+    public function initiateRentPayment(Request $request, RentPayment $rentPayment, PawapayService $pawapay)
+    {
+        $user = auth()->user();
+        $contract = $rentPayment->contract;
+
+        if ($contract->tenant_email !== $user->email || $contract->status !== 'active') {
+            abort(403, 'Vous ne pouvez pas payer ce loyer.');
+        }
+
+        if ($rentPayment->isPaid()) {
+            return redirect()->route('tenant.payments')
+                ->with('info', 'Ce loyer est déjà payé.');
+        }
+
+        $data = $request->validate([
+            'provider' => ['required', 'string', Rule::in(array_keys($pawapay->availableProviders()))],
+            'phone' => ['required', 'string'],
+        ]);
+
+        try {
+            $msisdn = $pawapay->normalizeMsisdn($data['phone']);
+        } catch (PawaPayException $e) {
+            return redirect()->back()->withErrors(['phone' => 'Numéro de téléphone invalide.'])->withInput();
+        }
+
+        // Generate and persist the UUIDv4 idempotency key before any API call.
         $depositId = (string) Str::uuid();
 
-        // 2. Persist the transaction BEFORE calling pawaPay — reconciliation anchor.
         $transaction = Transaction::create([
             'user_id' => $user->id,
             'rent_payment_id' => $rentPayment->id,
             'status' => 'pending',
             'amount' => $rentPayment->amount_due,
             'deposit_id' => $depositId,
-            'provider' => null,
+            'provider' => $data['provider'],
             'currency' => config('services.pawapay.currency', 'XAF'),
         ]);
 
         $rentPayment->update(['transaction_id' => $transaction->transaction_id]);
 
-        // 3. Call pawaPay to create the hosted payment page.
         try {
-            $result = $pawapay->createPaymentPage([
-                'depositId' => $depositId,
-                'returnUrl' => route('transactions.callback', $transaction),
-                'customerMessage' => 'Samaritain',
-                'amountDetails' => [
-                    'amount' => (string) $transaction->amount,
-                    'currency' => config('services.pawapay.currency', 'XAF'),
-                ],
-                'language' => 'FR',
-                'country' => config('services.pawapay.country', 'COG'),
-                'reason' => 'Paiement loyer '.$rentPayment->month.'/'.$rentPayment->year.' - '.$contract->tenant_name,
-                'metadata' => [
+            $result = $pawapay->initiateDeposit(
+                depositId: $depositId,
+                phoneNumber: $msisdn,
+                provider: $data['provider'],
+                amount: $transaction->amount,
+                currency: $transaction->currency,
+                clientReferenceId: $rentPayment->contract_id.'-'.$rentPayment->id,
+                customerMessage: 'Samaritain',
+                metadata: [
                     ['transactionId' => $transaction->transaction_id],
                     ['rentPaymentId' => (string) $rentPayment->id],
                     ['userId' => (string) $transaction->user_id],
                 ],
-            ]);
+            );
 
             $transaction->update([
                 'status' => strtolower($result['status'] ?? 'pending'),
-                'provider' => $result['provider'] ?? null,
                 'raw_response' => $result,
             ]);
-
-            // 4. Redirect to the hosted payment page.
-            return redirect($result['redirectUrl']);
-
         } catch (PawaPayException $e) {
             // Do NOT mark as failed — leave as pending for reconciliation.
             $transaction->update([
                 'raw_response' => ['error' => $e->getMessage(), 'status_code' => $e->getStatusCode()],
             ]);
-
-            return redirect()->route('tenant.payments')
-                ->with('error', 'Une erreur est survenue lors de la création du paiement. Veuillez réessayer.');
         }
+
+        return redirect()->route('transactions.pending', $transaction);
     }
 
     public function interventions()

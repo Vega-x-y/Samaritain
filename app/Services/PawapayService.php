@@ -158,43 +158,102 @@ class PawapayService
     }
 
     /**
-     * Create a hosted payment page (deposit via redirect widget).
+     * List the Mobile Money providers the merchant can offer in-app.
      *
-     * @param  array  $data  Payment page payload (depositId, returnUrl, amountDetails, country, etc.).
-     * @return array The pawaPay response containing status and redirectUrl.
+     * On a dedicated step, the customer picks one of these operators (MTN or
+     * Airtel) and enters their number, then a direct deposit (USSD push) is
+     * initiated — the hosted payment page is intentionally not used.
+     *
+     * @return array<string, string> Provider code => display label.
+     */
+    public function availableProviders(): array
+    {
+        return (array) config('services.pawapay.providers', [
+            'MTN_MOMO_COG' => 'MTN Mobile Money',
+            'AIRTEL_COG' => 'Airtel Money',
+        ]);
+    }
+
+    /**
+     * Normalize a customer-entered phone number to the MSISDN format pawaPay
+     * expects (digits only, country code required, no leading zero).
+     *
+     * Handles inputs like "06 800 71 38", "+242068007138" or "24268007138".
+     *
+     * @param  string  $phone  The raw phone number entered by the customer.
+     * @param  string|null  $dialCode  ISO country prefix (default from config).
+     * @return string The normalized MSISDN.
      *
      * @throws PawaPayException
      */
-    public function createPaymentPage(array $data): array
+    public function normalizeMsisdn(string $phone, ?string $dialCode = null): string
     {
-        // pawaPay V2 hosted payment page does not support callbackUrl in the request body.
-        // Webhooks must be configured globally in the pawaPay Merchant Dashboard.
-        if (array_key_exists('callbackUrl', $data)) {
-            unset($data['callbackUrl']);
+        $dialCode ??= (string) config('services.pawapay.dial_code', '242');
+
+        $digits = preg_replace('/\D+/', '', $phone) ?? '';
+
+        if ($digits === '') {
+            throw new PawaPayException('Numéro de téléphone invalide.');
         }
 
-        // pawaPay API rejects "localhost" in returnUrl. We normalize it to "127.0.0.1" for local testing.
-        if (isset($data['returnUrl'])) {
-            $data['returnUrl'] = str_replace('//localhost', '//127.0.0.1', $data['returnUrl']);
+        // Remove the country prefix first, then any national leading zero, then
+        // re-apply the country code. This makes every input format converge to
+        // the same MSISDN (e.g. "+242 06..", "06.." and "24206.." -> "2426...").
+        if (str_starts_with($digits, $dialCode)) {
+            $digits = (string) substr($digits, strlen($dialCode));
         }
 
-        $response = $this->httpClient()
-            ->post("{$this->baseUrl}/v2/paymentpage", $data);
+        $digits = ltrim($digits, '0');
 
-        if ($response->failed()) {
-            Log::warning('pawaPay payment page creation failed', [
-                'status' => $response->status(),
-                'body' => $response->body(),
-            ]);
+        return $dialCode.$digits;
+    }
 
-            throw new PawaPayException(
-                'Erreur lors de la création de la page de paiement pawaPay.',
-                $response->status(),
-                $response->body(),
-            );
-        }
+    /**
+     * Initiate a direct deposit (USSD push to the customer's phone) without using
+     * the hosted payment page.
+     *
+     * The depositId must be a UUIDv4 generated and persisted by your application
+     * BEFORE calling this method. Reusing a depositId returns DUPLICATE_IGNORED.
+     *
+     * @param  string  $depositId  The UUIDv4 idempotency key.
+     * @param  string  $phoneNumber  The normalized payer MSISDN.
+     * @param  string  $provider  A pawaPay provider code (see availableProviders()).
+     * @param  int  $amount  The amount to collect.
+     * @param  string  $currency  ISO 4217 currency code.
+     * @param  string  $clientReferenceId  Your internal reference (facture, commande...).
+     * @param  string  $customerMessage  Note shown to the customer by some operators.
+     * @param  array<int, array<string, string>>  $metadata  Up to 10 single-key fields.
+     * @return array The pawaPay response (status ACCEPTED/REJECTED/DUPLICATE_IGNORED, ...).
+     *
+     * @throws PawaPayException
+     */
+    public function initiateDeposit(
+        string $depositId,
+        string $phoneNumber,
+        string $provider,
+        int $amount,
+        string $currency,
+        string $clientReferenceId,
+        string $customerMessage = 'Samaritain',
+        array $metadata = []
+    ): array {
+        $payload = [
+            'depositId' => $depositId,
+            'amount' => (string) $amount,
+            'currency' => $currency,
+            'payer' => [
+                'type' => 'MMO',
+                'accountDetails' => [
+                    'phoneNumber' => $phoneNumber,
+                    'provider' => $provider,
+                ],
+            ],
+            'clientReferenceId' => $clientReferenceId,
+            'customerMessage' => $customerMessage,
+            'metadata' => $metadata,
+        ];
 
-        return $response->json();
+        return $this->createDeposit($depositId, $payload);
     }
 
     /**
