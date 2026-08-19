@@ -103,7 +103,7 @@ class PawapayService
     public function getActiveConfiguration(): array
     {
         $response = $this->httpClient()
-            ->get("{$this->baseUrl}/v2/active-configuration");
+            ->get("{$this->baseUrl}/v2/active-conf");
 
         if ($response->failed()) {
             Log::warning('pawaPay active-configuration request failed', [
