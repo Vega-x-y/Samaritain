@@ -54,6 +54,7 @@
                 <x-sidebar.item icon="ticket" label="Passe visite" href="{{ route('passes.index') }}" :active="request()->routeIs('passes.index')" />
                 <x-sidebar.item icon="scan-line" label="Scanner un pass" href="{{ route('scan.index') }}" :active="request()->routeIs('scan.index')" />
                 <x-sidebar.item icon="inbox" label="Inbox" href="{{ route('notifications.all') }}" :active="request()->routeIs('notifications.all')" />
+                    <x-sidebar.item icon="qr-code" label="QR Code" href="{{ route('admin.qrcode.index') }}" :active="request()->routeIs('admin.qrcode.*')" />
                
             </x-sidebar.group>
 

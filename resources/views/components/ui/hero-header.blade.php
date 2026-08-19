@@ -25,7 +25,7 @@
                 <h1 class="text-4xl md:text-6xl font-bold font-display leading-[1.1] text-white">
                     Vivez sereinement
                 </h1>
-                <h1 class="text-4xl md:text-6xl font-bold font-display leading-[1.1] text-white/70 italic">
+                <h1 class="text-4xl md:text-6xl font-bold font-display leading-[1.1] text-white/70">
                     sans commission.
                 </h1>
             </div>
