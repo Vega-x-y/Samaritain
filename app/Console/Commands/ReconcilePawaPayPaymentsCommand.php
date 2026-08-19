@@ -77,7 +77,7 @@ class ReconcilePawaPayPaymentsCommand extends Command
             match ($pawaPayStatus) {
                 'COMPLETED' => $this->reconcileAsCompleted($transaction),
                 'FAILED', 'REJECTED' => $this->reconcileAsFailed($transaction),
-                'ACCEPTED', 'PROCESSING', 'PENDING' => $this->reconcileAsStillPending($transaction),
+                'ACCEPTED', 'PROCESSING', 'PENDING', 'SUBMITTED' => $this->reconcileAsStillPending($transaction),
                 'NOT_FOUND' => $this->reconcileAsNotFound($transaction),
                 default => Log::warning('pawaPay reconciliation encountered unknown status', [
                     'transaction_id' => $transaction->transaction_id,
@@ -143,17 +143,22 @@ class ReconcilePawaPayPaymentsCommand extends Command
     }
 
     /**
-     * Handle NOT_FOUND — the deposit/payout was never created, do not mark as failed.
+     * Handle NOT_FOUND — the deposit/payout was never created by pawaPay.
+     *
+     * In the hosted payment-page flow this happens when the customer abandons
+     * the page (session expires after ~15 minutes). Mark it failed so the pass
+     * or rent payment can be retried, instead of leaving it pending forever.
+     * This is a definitive pawaPay answer, not a network error.
      */
     protected function reconcileAsNotFound(Transaction $transaction): void
     {
-        Log::warning('pawaPay reconciliation: NOT_FOUND — leaving as pending', [
+        Log::warning('pawaPay reconciliation: NOT_FOUND — marking payment as failed', [
             'transaction_id' => $transaction->transaction_id,
             'type' => $transaction->type,
             'deposit_id' => $transaction->deposit_id,
             'payout_id' => $transaction->payout_id,
         ]);
 
-        $transaction->update(['status' => 'pending']);
+        $this->reconcileAsFailed($transaction);
     }
 }

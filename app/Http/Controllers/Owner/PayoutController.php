@@ -64,8 +64,8 @@ class PayoutController extends Controller
                 ->withErrors(['phone_number' => 'Impossible de valider ce numéro de téléphone. Vérifiez le numéro et réessayez.']);
         }
 
-        $provider = $prediction['correspondents'][0]['correspondent'] ?? null;
-        $msisdn = $prediction['msisdn'] ?? $validated['phone_number'];
+        $provider = $prediction['provider'] ?? null;
+        $msisdn = $prediction['phoneNumber'] ?? $validated['phone_number'];
 
         if (! $provider) {
             return back()
@@ -94,8 +94,7 @@ class PayoutController extends Controller
                 'currency' => 'XAF',
                 'country' => 'COG',
                 'recipient' => [
-                    'type' => 'MSISDN',
-                    'address' => ['value' => $msisdn],
+                    'type' => 'MMO',
                     'accountDetails' => [
                         'phoneNumber' => $msisdn,
                         'provider' => $provider,

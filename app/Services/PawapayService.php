@@ -54,7 +54,7 @@ class PawapayService
      * provider — never hand-roll phone validation.
      *
      * @param  string  $msisdn  The phone number in E.164 format.
-     * @return array{predictedProvider?: string, msisdn?: string, ...}
+     * @return array{provider?: string|null, phoneNumber?: string, country?: string|null, raw: array<string, mixed>}
      *
      * @throws PawaPayException
      */
@@ -62,7 +62,7 @@ class PawapayService
     {
         $response = $this->httpClient()
             ->post("{$this->baseUrl}/v2/predict-provider", [
-                'msisdn' => $msisdn,
+                'phoneNumber' => $msisdn,
             ]);
 
         if ($response->failed()) {
@@ -79,7 +79,16 @@ class PawapayService
             );
         }
 
-        return $response->json();
+        $body = $response->json() ?? [];
+
+        // pawaPay returns { country, provider, phoneNumber }. Normalize to a
+        // stable shape so callers never have to guess the response field names.
+        return [
+            'provider' => $body['provider'] ?? null,
+            'phoneNumber' => $body['phoneNumber'] ?? $msisdn,
+            'country' => $body['country'] ?? null,
+            'raw' => $body,
+        ];
     }
 
     /**
@@ -229,7 +238,38 @@ class PawapayService
             );
         }
 
-        return $response->json();
+        return $this->normalizeStatusResponse($depositId, 'depositId', $response->json() ?? []);
+    }
+
+    /**
+     * pawaPay status-check endpoints return an envelope:
+     *
+     *     { "status": "FOUND"|"NOT_FOUND", "data": { "status": "COMPLETED"|..., ... } }
+     *
+     * The outer ``status`` only tells whether the resource exists; the final
+     * transaction state lives in ``data.status``. This flattens the response so
+     * callers can read the final status directly from the ``status`` key.
+     *
+     * @param  string  $id  The depositId / payoutId used for the lookup.
+     * @param  string  $idField  "depositId" or "payoutId".
+     * @param  array  $body  The raw pawaPay JSON body.
+     * @return array<string, mixed>
+     */
+    protected function normalizeStatusResponse(string $id, string $idField, array $body): array
+    {
+        $status = strtoupper((string) ($body['status'] ?? 'UNKNOWN'));
+
+        // The lookup succeeded; unwrap data.* to reach the final transaction status.
+        if ($status === 'FOUND' && isset($body['data']) && is_array($body['data'])) {
+            $data = $body['data'];
+            $status = strtoupper((string) ($data['status'] ?? $status));
+            $body = $data;
+        }
+
+        $body['status'] = $status;
+        $body[$idField] ??= $id;
+
+        return $body;
     }
 
     /**
@@ -331,6 +371,6 @@ class PawapayService
             );
         }
 
-        return $response->json();
+        return $this->normalizeStatusResponse($payoutId, 'payoutId', $response->json() ?? []);
     }
 }

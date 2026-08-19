@@ -100,8 +100,9 @@ describe('store', function () {
             $mock->shouldReceive('predictProvider')
                 ->once()
                 ->andReturn([
-                    'msisdn' => '242065000000',
-                    'correspondents' => [['correspondent' => 'AIRTEL_COG']],
+                    'provider' => 'AIRTEL_COG',
+                    'phoneNumber' => '242065000000',
+                    'country' => 'COG',
                 ]);
 
             $mock->shouldReceive('createPayout')

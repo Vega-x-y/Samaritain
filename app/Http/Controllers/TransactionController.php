@@ -267,7 +267,8 @@ class TransactionController extends Controller
             'FAILED', 'REJECTED' => 'failed',
             'ACCEPTED' => 'accepted',
             'PROCESSING' => 'processing',
-            'PENDING' => 'pending',
+            'PENDING', 'SUBMITTED' => 'pending',
+            'IN_RECONCILIATION' => 'pending',
             default => 'pending',
         };
     }

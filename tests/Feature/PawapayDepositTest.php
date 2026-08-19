@@ -20,22 +20,24 @@ uses(RefreshDatabase::class);
 |--------------------------------------------------------------------------
 */
 
-test('predict_provider retourne le provider et le msisdn normalisés', function () {
+test('predict_provider retourne le provider et le phoneNumber normalisés', function () {
     config(['services.pawapay.base_url' => 'https://api.sandbox.pawapay.io']);
     config(['services.pawapay.token' => 'test-token']);
 
     Http::fake([
         'api.sandbox.pawapay.io/v2/predict-provider' => Http::response([
-            'predictedProvider' => 'MTN_MOMO_COG',
-            'msisdn' => '+242061234567',
+            'country' => 'COG',
+            'provider' => 'MTN_MOMO_COG',
+            'phoneNumber' => '242061234567',
         ], 200),
     ]);
 
     $service = new PawapayService;
     $result = $service->predictProvider('+242061234567');
 
-    expect($result['predictedProvider'])->toBe('MTN_MOMO_COG')
-        ->and($result['msisdn'])->toBe('+242061234567');
+    expect($result['provider'])->toBe('MTN_MOMO_COG')
+        ->and($result['phoneNumber'])->toBe('242061234567')
+        ->and($result['country'])->toBe('COG');
 });
 
 test('predict_provider lance une exception si l\'API échoue', function () {
@@ -137,24 +139,29 @@ test('get_deposit_status retourne NOT_FOUND pour une réponse 404', function () 
         ->and($result['depositId'])->toBe($depositId);
 });
 
-test('get_deposit_status retourne COMPLETED pour une réponse 200', function () {
+test('get_deposit_status retourne le statut final depuis l enveloppe FOUND/data', function () {
     config(['services.pawapay.base_url' => 'https://api.sandbox.pawapay.io']);
     config(['services.pawapay.token' => 'test-token']);
 
     $depositId = (string) Str::uuid();
 
+    // pawaPay status-check endpoints return { status: FOUND, data: { status: ... } }
     Http::fake([
         "api.sandbox.pawapay.io/v2/deposits/{$depositId}" => Http::response([
-            'depositId' => $depositId,
-            'status' => 'COMPLETED',
-            'provider' => 'MTN_MOMO_COG',
+            'status' => 'FOUND',
+            'data' => [
+                'depositId' => $depositId,
+                'status' => 'COMPLETED',
+                'provider' => 'MTN_MOMO_COG',
+            ],
         ], 200),
     ]);
 
     $service = new PawapayService;
     $result = $service->getDepositStatus($depositId);
 
-    expect($result['status'])->toBe('COMPLETED');
+    expect($result['status'])->toBe('COMPLETED')
+        ->and($result['depositId'])->toBe($depositId);
 });
 
 test('verify_callback_signature retourne true sans secret configuré', function () {
@@ -501,9 +508,12 @@ test('process_pawaPay_callback met à jour la transaction à completed', functio
 
     Http::fake([
         "api.sandbox.pawapay.io/v2/deposits/{$depositId}" => Http::response([
-            'depositId' => $depositId,
-            'status' => 'COMPLETED',
-            'provider' => 'MTN_MOMO_COG',
+            'status' => 'FOUND',
+            'data' => [
+                'depositId' => $depositId,
+                'status' => 'COMPLETED',
+                'provider' => 'MTN_MOMO_COG',
+            ],
         ], 200),
     ]);
 
@@ -533,8 +543,11 @@ test('process_pawaPay_callback met à jour la transaction à failed', function (
 
     Http::fake([
         "api.sandbox.pawapay.io/v2/deposits/{$depositId}" => Http::response([
-            'depositId' => $depositId,
-            'status' => 'FAILED',
+            'status' => 'FOUND',
+            'data' => [
+                'depositId' => $depositId,
+                'status' => 'FAILED',
+            ],
         ], 200),
     ]);
 
@@ -602,8 +615,11 @@ test('la commande de réconciliation vérifie les paiements bloqués', function 
 
     Http::fake([
         "api.sandbox.pawapay.io/v2/deposits/{$depositId}" => Http::response([
-            'depositId' => $depositId,
-            'status' => 'COMPLETED',
+            'status' => 'FOUND',
+            'data' => [
+                'depositId' => $depositId,
+                'status' => 'COMPLETED',
+            ],
         ], 200),
     ]);
 
@@ -643,8 +659,9 @@ test('la commande de réconciliation ne marque pas en failed sur NOT_FOUND', fun
         ->assertExitCode(0);
 
     $transaction = Transaction::where('deposit_id', $depositId)->first();
-    // NOT_FOUND should NOT be treated as FAILED — leave as pending
-    expect($transaction->status)->toBe('pending');
+    // NOT_FOUND means the deposit was never created (e.g. abandoned payment page)
+    // — mark it failed so the pass/rent can be retried.
+    expect($transaction->status)->toBe('failed');
 });
 
 test('la commande de réconciliation ignore les paiements récents', function () {
