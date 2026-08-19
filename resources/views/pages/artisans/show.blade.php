@@ -1,4 +1,5 @@
-<x-app-layout title="{{ $artisan->business_name }}">
+@extends('layouts.user')
+@section('content')
     <div class="bg-background min-h-screen pb-16">
         {{-- Bannière décorative --}}
         <div class="relative h-36 md:h-44 overflow-hidden">
@@ -408,4 +409,4 @@
         </div>
         
     </div>
-</x-app-layout>
+@endsection
