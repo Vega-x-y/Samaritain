@@ -67,6 +67,22 @@
                 @can('manage-roles')
                     <x-sidebar.item icon="map" label="Rôles & Permissions" href="{{ route('admin.roles.index') }}" />
                 @endcan
+                @can('manage-settings')
+                    <x-sidebar.item icon="settings" label="Configurations" :active="request()->routeIs('configuration.*')"
+                        :expanded="request()->routeIs('configuration.*')">
+                        <x-sidebar.sub-item label="Catégories de maisons" href="{{ route('configuration.category.index') }}"
+                            :active="request()->routeIs('configuration.category.*')" />
+
+                        <x-sidebar.sub-item label="Équipements" href="{{ route('configuration.amenity.index') }}"
+                            :active="request()->routeIs('configuration.amenity.*')" />
+
+                        <x-sidebar.sub-item label="Catégories d'artisans" href="{{ route('configuration.artisan-category.index') }}"
+                            :active="request()->routeIs('configuration.artisan-category.*')" />
+
+                        <x-sidebar.sub-item label="Catégories de parcelles" href="{{ route('configuration.parcelle-category.index') }}"
+                            :active="request()->routeIs('configuration.parcelle-category.*')" />
+                    </x-sidebar.item>
+                @endcan
             </x-sidebar.group>
 
             <!-- User Profile Footer -->
