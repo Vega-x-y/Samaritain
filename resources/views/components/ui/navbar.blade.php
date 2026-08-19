@@ -251,6 +251,12 @@
                 class="flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-medium text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-800">
                 <i data-lucide="layout-dashboard" class="w-4 h-4 text-gray-400 dark:text-gray-500"></i> Gérer les biens
             </a>
+            @auth
+                <a href="{{ route('client.dashboard') }}" x-on:click="isOpen = false"
+                    class="flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-medium text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-800">
+                    <i data-lucide="layout-dashboard" class="w-4 h-4 text-gray-400 dark:text-gray-500"></i> Tableau de bord
+                </a>
+            @endauth
             <a href="{{ route('property.create') }}" x-on:click="isOpen = false"
                 class="flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-medium text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-800">
                 <i data-lucide="warehouse" class="w-4 h-4 text-gray-400 dark:text-gray-500"></i> Publier un bien
