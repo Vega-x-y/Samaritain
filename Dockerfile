@@ -1,7 +1,7 @@
 # ==========================================
 # Stage 1 : Build des assets Vite
 # ==========================================
-FROM node:22-alpine AS frontend
+FROM node:22-slim AS frontend
 
 WORKDIR /app
 
