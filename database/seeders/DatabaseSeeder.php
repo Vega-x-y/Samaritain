@@ -17,7 +17,7 @@ class DatabaseSeeder extends Seeder
             ParcelleCategorySeeder::class,
             ParcelleSeeder::class,
             PropertyCategorySeeder::class,
-            // PropertySeeder::class,
+            PropertySeeder::class,
             OwnerPortalSeeder::class,
             // ArtisanDemoSeeder::class,
         ]);
