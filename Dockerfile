@@ -40,7 +40,7 @@ RUN php artisan package:discover --ansi
 # ==========================================
 # Stage 3 : Production avec FrankenPHP
 # ==========================================
-FROM dunglas/frankenphp:1-php8.3
+FROM dunglas/frankenphp:1-php8.4
 
 WORKDIR /app
 
