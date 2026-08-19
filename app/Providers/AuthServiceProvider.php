@@ -3,7 +3,9 @@
 namespace App\Providers;
 
 use App\Models\AgencyInvitation;
+use App\Models\OwnerDocument;
 use App\Models\User;
+use App\Policies\DocumentPolicy;
 use App\Policies\InvitationPolicy;
 use App\Policies\MemberPolicy;
 use App\Policies\RolePolicy;
@@ -16,6 +18,7 @@ class AuthServiceProvider extends ServiceProvider
         User::class => MemberPolicy::class,
         Role::class => RolePolicy::class,
         AgencyInvitation::class => InvitationPolicy::class,
+        OwnerDocument::class => DocumentPolicy::class,
     ];
 
     public function boot(): void

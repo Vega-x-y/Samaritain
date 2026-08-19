@@ -60,6 +60,11 @@
                     <i data-lucide="{{ $icon }}" class="w-5 h-5 text-{{ $color }}-600 dark:text-{{ $color }}-400"></i>
                 </div>
                 <div class="flex gap-1 opacity-0 group-hover:opacity-100 transition">
+                    <a href="{{ route('owner.documents.show', $doc) }}"
+                       class="p-1.5 rounded-md text-purple-600 dark:text-purple-400 hover:bg-purple-50 dark:hover:bg-purple-900/20"
+                       title="Consulter">
+                        <i data-lucide="eye" class="w-4 h-4"></i>
+                    </a>
                     <a href="{{ route('owner.documents.download', $doc) }}"
                         class="p-1.5 rounded-md text-blue-600 dark:text-blue-400 hover:bg-blue-50 dark:hover:bg-blue-900/20"
                         title="Télécharger">

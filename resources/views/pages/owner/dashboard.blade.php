@@ -134,7 +134,7 @@
                     $statusColor = $statusColors[$intervention->status] ?? 'gray';
                 @endphp
                 <a href="{{ route('owner.interventions.show', $intervention) }}" class="flex items-center justify-between p-3 bg-gray-50 dark:bg-gray-700/50 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-700 transition">
-                    <div class="flex items-center gap-3">
+                <div class="flex items-center gap-3">
                         <div class="w-10 h-10 bg-{{ $urgencyColor }}-100 dark:bg-{{ $urgencyColor }}-900/30 rounded-lg flex items-center justify-center shrink-0">
                             <i data-lucide="wrench" class="w-5 h-5 text-{{ $urgencyColor }}-600 dark:text-{{ $urgencyColor }}-400"></i>
                         </div>
@@ -238,7 +238,9 @@
                         <i data-lucide="{{ $icon }}" class="w-4 h-4 text-{{ $color }}-600 dark:text-{{ $color }}-400"></i>
                     </div>
                     <div>
-                        <p class="text-sm font-medium text-gray-800 dark:text-white truncate max-w-xs">{{ $doc->name }}</p>
+                        <a href="{{ route('owner.documents.show', $doc) }}" class="text-sm font-medium text-gray-800 dark:text-white truncate max-w-xs hover:text-blue-600 dark:hover:text-blue-400">
+                            {{ $doc->name }}
+                        </a>
                         <p class="text-xs text-gray-400 dark:text-gray-500">{{ $doc->property?->title ?? 'Général' }} · {{ number_format($doc->file_size / 1024, 1) }} Ko</p>
                     </div>
                 </div>

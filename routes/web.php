@@ -548,7 +548,7 @@ Route::get('/conditions', function () {
 })->name('conditions');
 
 Route::get('/apropo_s', function () {
-    return view('apropo_s');
+    return view('apropo_S');
 })->name('apropos_s');
 
 // Owner Portal & Management Routes
@@ -596,8 +596,8 @@ Route::middleware(['auth', 'verified', 'owner'])->prefix('owner')->name('owner.'
     Route::get('/inspections/{inspection}/pdf', [InspectionController::class, 'downloadPdf'])->name('inspections.pdf');
 
     // Documents
-    // Documents
     Route::get('/documents', [OwnerDocumentController::class, 'index'])->name('documents.index');
+    Route::get('/documents/{document}', [OwnerDocumentController::class, 'show'])->name('documents.show');
     Route::post('/documents', [OwnerDocumentController::class, 'store'])->name('documents.store');
     Route::get('/documents/{document}/download', [OwnerDocumentController::class, 'download'])->name('documents.download');
     Route::delete('/documents/{document}', [OwnerDocumentController::class, 'destroy'])->name('documents.destroy');

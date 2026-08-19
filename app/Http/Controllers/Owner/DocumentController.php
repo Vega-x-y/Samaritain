@@ -9,6 +9,7 @@ use App\Models\Property;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Gate;
 use Illuminate\Support\Facades\Storage;
+use Illuminate\View\View;
 
 class DocumentController extends Controller
 {
@@ -44,6 +45,13 @@ class DocumentController extends Controller
         return view('pages.owner.documents.index', compact(
             'documents', 'properties', 'totalSize', 'totalDocuments'
         ));
+    }
+
+    public function show(Request $request, OwnerDocument $document): View
+    {
+        Gate::authorize('view', $document);
+
+        return view('pages.owner.documents.show', compact('document'));
     }
 
     public function store(StoreDocumentRequest $request)
