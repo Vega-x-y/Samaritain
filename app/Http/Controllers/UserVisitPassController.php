@@ -44,7 +44,7 @@ class UserVisitPassController extends Controller
     }
 
     /**
-     * Show the payment summary before opening the hosted payment page.
+     * Open PawaPay's hosted Payment Page for an existing pass.
      */
     public function pay(VisitPass $visitPass)
     {
@@ -55,9 +55,7 @@ class UserVisitPassController extends Controller
                 ->with('info', 'Ce pass visite est déjà payé.');
         }
 
-        $currency = config('services.pawapay.currency', 'XAF');
-
-        return view('visit-passes.pay', compact('visitPass', 'currency'));
+        return $this->initiatePayment(request(), $visitPass);
     }
 
     /**
