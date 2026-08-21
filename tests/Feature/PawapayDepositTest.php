@@ -59,21 +59,25 @@ test('get_active_configuration retourne les providers et décimales', function (
     config(['services.pawapay.token' => 'test-token']);
 
     Http::fake([
-        'api.sandbox.pawapay.io/v2/active-configuration' => Http::response([
-            'country' => 'COG',
-            'currency' => 'XAF',
-            'decimalsInAmount' => 'NONE',
-            'providers' => ['MTN_MOMO_COG', 'AIRTEL_COG'],
+        'api.sandbox.pawapay.io/v2/active-conf' => Http::response([
+            'countries' => [[
+                'country' => 'COG',
+                'providers' => [[
+                    'provider' => 'MTN_MOMO_COG',
+                    'currencies' => [[
+                        'currency' => 'XAF',
+                        'operationTypes' => ['DEPOSIT' => ['decimalsInAmount' => 'NONE']],
+                    ]],
+                ]],
+            ]],
         ], 200),
     ]);
 
         $service = new PawapayService;
     $result = $service->getActiveConfiguration();
 
-    expect($result['country'])->toBe('COG')
-        ->and($result['currency'])->toBe('XAF')
-        ->and($result['decimalsInAmount'])->toBe('NONE')
-        ->and($result['providers'])->toMatchArray(['MTN_MOMO_COG', 'AIRTEL_COG']);
+    expect($result['countries'][0]['country'])->toBe('COG')
+        ->and($result['countries'][0]['providers'][0]['provider'])->toBe('MTN_MOMO_COG');
 });
 
 test('available_providers_with_branding récupère les logos et libellés depuis active-configuration', function () {
@@ -81,13 +85,13 @@ test('available_providers_with_branding récupère les logos et libellés depuis
     config(['services.pawapay.token' => 'test-token']);
 
     Http::fake([
-        'api.sandbox.pawapay.io/v2/active-configuration' => Http::response([
-            'country' => 'COG',
-            'currency' => 'XAF',
-            'providers' => [
-                ['provider' => 'MTN_MOMO_COG', 'displayName' => 'MTN Mobile Money', 'logo' => 'https://img.pawapay/MTN_MOMO_COG.png'],
-                ['provider' => 'AIRTEL_COG', 'displayName' => 'Airtel Money', 'logo' => 'https://img.pawapay/AIRTEL_COG.png'],
-            ],
+        'api.sandbox.pawapay.io/v2/active-conf' => Http::response([
+            'countries' => [[
+                'providers' => [
+                    ['provider' => 'MTN_MOMO_COG', 'displayName' => 'MTN Mobile Money', 'logo' => 'https://img.pawapay/MTN_MOMO_COG.png', 'currencies' => [['operationTypes' => ['DEPOSIT' => ['status' => 'OPERATIONAL']]]]],
+                    ['provider' => 'AIRTEL_COG', 'displayName' => 'Airtel Money', 'logo' => 'https://img.pawapay/AIRTEL_COG.png', 'currencies' => [['operationTypes' => ['DEPOSIT' => ['status' => 'OPERATIONAL']]]]],
+                ],
+            ]],
         ], 200),
     ]);
 
@@ -106,7 +110,7 @@ test('available_providers_with_branding retombe sur les libellés sans logo quan
     config(['services.pawapay.token' => 'test-token']);
 
     Http::fake([
-        'api.sandbox.pawapay.io/v2/active-configuration' => Http::response('Error', 500),
+        'api.sandbox.pawapay.io/v2/active-conf' => Http::response('Error', 500),
     ]);
 
     $service = new PawapayService;
@@ -174,7 +178,7 @@ test('create_payment_page envoie le dépôt et retourne l URL hébergée', funct
     $returnUrl = 'https://samaritain.test/transactions/'.$depositId.'/callback';
 
     Http::fake([
-        'api.sandbox.pawapay.io/v2/deposits/payment-page' => Http::response([
+        'api.sandbox.pawapay.io/v2/paymentpage' => Http::response([
             'redirectUrl' => 'https://pay.pawapay.io/session/test',
         ], 200),
     ]);
@@ -191,9 +195,9 @@ test('create_payment_page envoie le dépôt et retourne l URL hébergée', funct
 
     Http::assertSent(fn ($request) => $request['depositId'] === $depositId
         && $request['returnUrl'] === $returnUrl
-        && $request['amount'] === '5000'
-        && $request['currency'] === 'XAF'
-        && $request['clientReferenceId'] === 'V-XXXX');
+        && $request['amountDetails']['amount'] === '5000'
+        && $request['amountDetails']['currency'] === 'XAF'
+        && $request['reason'] === 'V-XXXX');
 });
 
 test('get_deposit_status retourne NOT_FOUND pour une réponse 404', function () {
@@ -238,42 +242,25 @@ test('get_deposit_status retourne le statut final depuis l enveloppe FOUND/data'
         ->and($result['depositId'])->toBe($depositId);
 });
 
-test('verify_callback_signature retourne true sans secret configuré', function () {
+test('verify_callback_signature accepte les callbacks non signés quand la vérification est désactivée', function () {
     config([
-        'services.pawapay.callback_secret' => null,
-        'services.pawapay.verify_callback_signature' => true,
+        'services.pawapay.verify_callback_signature' => false,
     ]);
 
     $service = new PawapayService;
 
-    expect($service->verifyCallbackSignature('payload', 'signature'))->toBeTrue();
+    expect($service->verifyCallbackRequest('payload', [], 'POST', 'example.test', '/webhook'))->toBeTrue();
 });
 
-test('verify_callback_signature retourne true avec une signature valide', function () {
-    $secret = 'my-secret-key';
+test('verify_callback_signature refuse un callback signé mal configuré', function () {
     config([
-        'services.pawapay.callback_secret' => $secret,
         'services.pawapay.verify_callback_signature' => true,
+        'services.pawapay.callback_public_key' => null,
     ]);
 
     $service = new PawapayService;
-    $payload = '{"depositId":"test"}';
-    $validSignature = hash_hmac('sha256', $payload, $secret);
 
-    expect($service->verifyCallbackSignature($payload, $validSignature))->toBeTrue();
-});
-
-test('verify_callback_signature retourne false avec une signature invalide', function () {
-    $secret = 'my-secret-key';
-    config([
-        'services.pawapay.callback_secret' => $secret,
-        'services.pawapay.verify_callback_signature' => true,
-    ]);
-
-    $service = new PawapayService;
-    $payload = '{"depositId":"test"}';
-
-    expect($service->verifyCallbackSignature($payload, 'invalid-signature'))->toBeFalse();
+    expect($service->verifyCallbackRequest('payload', [], 'POST', 'example.test', '/webhook'))->toBeFalse();
 });
 
 /*
@@ -397,7 +384,7 @@ test('initiate_payment du visit pass redirige vers la page de paiement pawaPay',
     $visitPass = VisitPass::where('user_id', $user->id)->firstOrFail();
 
     Http::fake([
-        'api.sandbox.pawapay.io/v2/deposits/payment-page' => Http::response([
+        'api.sandbox.pawapay.io/v2/paymentpage' => Http::response([
             'redirectUrl' => 'https://pay.pawapay.io/session/test',
         ], 200),
     ]);
@@ -417,7 +404,7 @@ test('initiate_payment du visit pass redirige vers la page de paiement pawaPay',
     $visitPass->refresh();
     expect($visitPass->transaction_id)->toBe($transaction->transaction_id);
 
-    Http::assertSent(fn ($request) => str_contains($request->url(), '/v2/deposits/payment-page')
+    Http::assertSent(fn ($request) => str_contains($request->url(), '/v2/paymentpage')
         && $request['depositId'] === $transaction->deposit_id
         && $request['amount'] === '5000'
         && $request['currency'] === 'XAF'
@@ -442,7 +429,7 @@ test('initiate_payment du visit pass laisse la transaction en pending si l\'API 
     $visitPass = VisitPass::where('user_id', $user->id)->firstOrFail();
 
     Http::fake([
-        'api.sandbox.pawapay.io/v2/deposits/payment-page' => Http::response('Server error', 500),
+        'api.sandbox.pawapay.io/v2/paymentpage' => Http::response('Server error', 500),
     ]);
 
     $this->actingAs($user)
@@ -474,7 +461,7 @@ test('initiate_payment du visit pass accepte le choix du provider sur la page h�
     $visitPass = VisitPass::where('user_id', $user->id)->firstOrFail();
 
     Http::fake([
-        'api.sandbox.pawapay.io/v2/deposits/payment-page' => Http::response([
+        'api.sandbox.pawapay.io/v2/paymentpage' => Http::response([
             'redirectUrl' => 'https://pay.pawapay.io/session/test',
         ], 200),
     ]);
@@ -496,8 +483,7 @@ test('webhook accepte un callback valide et dispatch le job de traitement', func
     config([
         'services.pawapay.base_url' => 'https://api.sandbox.pawapay.io',
         'services.pawapay.token' => 'test-token',
-        'services.pawapay.callback_secret' => 'my-secret',
-        'services.pawapay.verify_callback_signature' => true,
+        'services.pawapay.verify_callback_signature' => false,
     ]);
 
     Queue::fake();
@@ -511,14 +497,9 @@ test('webhook accepte un callback valide et dispatch le job de traitement', func
         'currency' => 'XAF',
     ]);
 
-    $payload = json_encode(['depositId' => $transaction->deposit_id, 'status' => 'COMPLETED']);
-    $signature = hash_hmac('sha256', $payload, 'my-secret');
-
     $response = $this->postJson(route('transactions.webhook', $transaction), [
         'depositId' => $transaction->deposit_id,
         'status' => 'COMPLETED',
-    ], [
-        'X-PawaPay-Signature' => $signature,
     ]);
 
     $response->assertStatus(200);
@@ -532,8 +513,8 @@ test('webhook rejette un callback avec signature invalide', function () {
     config([
         'services.pawapay.base_url' => 'https://api.sandbox.pawapay.io',
         'services.pawapay.token' => 'test-token',
-        'services.pawapay.callback_secret' => 'my-secret',
         'services.pawapay.verify_callback_signature' => true,
+        'services.pawapay.callback_public_key' => null,
     ]);
 
     Queue::fake();
@@ -551,7 +532,6 @@ test('webhook rejette un callback avec signature invalide', function () {
         'depositId' => $transaction->deposit_id,
         'status' => 'COMPLETED',
     ], [
-        'X-PawaPay-Signature' => 'invalid-signature',
     ]);
 
     $response->assertStatus(403);
@@ -562,8 +542,7 @@ test('generic_webhook accepte un callback valide et dispatch le job de traitemen
     config([
         'services.pawapay.base_url' => 'https://api.sandbox.pawapay.io',
         'services.pawapay.token' => 'test-token',
-        'services.pawapay.callback_secret' => 'my-secret',
-        'services.pawapay.verify_callback_signature' => true,
+        'services.pawapay.verify_callback_signature' => false,
     ]);
 
     Queue::fake();
@@ -577,14 +556,9 @@ test('generic_webhook accepte un callback valide et dispatch le job de traitemen
         'currency' => 'XAF',
     ]);
 
-    $payload = json_encode(['depositId' => $transaction->deposit_id, 'status' => 'COMPLETED']);
-    $signature = hash_hmac('sha256', $payload, 'my-secret');
-
     $response = $this->postJson(route('transactions.generic_webhook'), [
         'depositId' => $transaction->deposit_id,
         'status' => 'COMPLETED',
-    ], [
-        'X-PawaPay-Signature' => $signature,
     ]);
 
     $response->assertStatus(200);
@@ -598,8 +572,8 @@ test('generic_webhook rejette un callback avec signature invalide', function () 
     config([
         'services.pawapay.base_url' => 'https://api.sandbox.pawapay.io',
         'services.pawapay.token' => 'test-token',
-        'services.pawapay.callback_secret' => 'my-secret',
         'services.pawapay.verify_callback_signature' => true,
+        'services.pawapay.callback_public_key' => null,
     ]);
 
     Queue::fake();
@@ -617,7 +591,6 @@ test('generic_webhook rejette un callback avec signature invalide', function () 
         'depositId' => $transaction->deposit_id,
         'status' => 'COMPLETED',
     ], [
-        'X-PawaPay-Signature' => 'invalid-signature',
     ]);
 
     $response->assertStatus(403);

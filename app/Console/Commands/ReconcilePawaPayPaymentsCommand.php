@@ -77,7 +77,7 @@ class ReconcilePawaPayPaymentsCommand extends Command
             match ($pawaPayStatus) {
                 'COMPLETED' => $this->reconcileAsCompleted($transaction),
                 'FAILED', 'REJECTED' => $this->reconcileAsFailed($transaction),
-                'ACCEPTED', 'PROCESSING', 'PENDING', 'SUBMITTED' => $this->reconcileAsStillPending($transaction),
+                'ACCEPTED', 'PROCESSING', 'PENDING', 'SUBMITTED', 'IN_RECONCILIATION' => $this->reconcileAsStillPending($transaction),
                 'NOT_FOUND' => $this->reconcileAsNotFound($transaction),
                 default => Log::warning('pawaPay reconciliation encountered unknown status', [
                     'transaction_id' => $transaction->transaction_id,

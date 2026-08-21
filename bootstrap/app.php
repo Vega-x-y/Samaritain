@@ -33,7 +33,7 @@ return Application::configure(basePath: dirname(__DIR__))
         ]);
 
         // pawaPay server-to-server callbacks are unauthenticated POSTs with
-        // HMAC signature verification handled in the controller. Exclude from CSRF.
+        // RFC-9421 signature verification is handled in the controller. Exclude from CSRF.
         $middleware->validateCsrfTokens(except: [
             'transactions/*/webhook',
             'transactions/webhook',

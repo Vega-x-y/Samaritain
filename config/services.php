@@ -52,7 +52,7 @@ return [
             ? env('PAWAPAY_LIVE_URL', 'https://api.pawapay.io')
             : env('PAWAPAY_SANDBOX_URL', 'https://api.sandbox.pawapay.io'),
         'token' => env('PAWAPAY_API_TOKEN'),
-        'callback_secret' => env('PAWAPAY_CALLBACK_SECRET'),
+        'callback_public_key' => env('PAWAPAY_CALLBACK_PUBLIC_KEY'),
         'verify_callback_signature' => (bool) env('PAWAPAY_CALLBACK_VERIFY_SIGNATURE', false),
         'currency' => env('PAWAPAY_CURRENCY', 'XAF'),
         'country' => env('PAWAPAY_COUNTRY', 'COG'),

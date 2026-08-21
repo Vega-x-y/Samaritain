@@ -23,9 +23,7 @@ class PawapayService
 {
     protected string $baseUrl;
 
-    protected string $token;
-
-    protected ?string $callbackSecret;
+    protected ?string $token;
 
     protected bool $verifyCallbackSignature;
 
@@ -33,7 +31,6 @@ class PawapayService
     {
         $this->baseUrl = config('services.pawapay.base_url');
         $this->token = config('services.pawapay.token');
-        $this->callbackSecret = config('services.pawapay.callback_secret');
         $this->verifyCallbackSignature = (bool) config('services.pawapay.verify_callback_signature', false);
     }
 
@@ -184,9 +181,11 @@ class PawapayService
             ->post("{$this->baseUrl}/v2/paymentpage", [
                 'depositId' => $depositId,
                 'returnUrl' => $returnUrl,
-                'amount' => (string) $amount,
-                'currency' => $currency,
-                'clientReferenceId' => $clientReferenceId,
+                'amountDetails' => [
+                    'amount' => (string) $amount,
+                    'currency' => $currency,
+                ],
+                'reason' => $clientReferenceId,
             ]);
 
         if ($response->failed()) {
@@ -269,34 +268,22 @@ class PawapayService
     {
         $out = [];
 
-        $providers = $body['providers'] ?? [];
+        foreach ($body['countries'] ?? [] as $country) {
+            foreach ($country['providers'] ?? [] as $provider) {
+                $code = $provider['provider'] ?? null;
 
-        if (! is_array($providers)) {
-            return $out;
-        }
+                if (! $code) {
+                    continue;
+                }
 
-        foreach ($providers as $entry) {
-            if (is_string($entry)) {
-                $out[$entry] = ['displayName' => $entry, 'logo' => null];
+                $operation = $provider['currencies'][0]['operationTypes']['DEPOSIT'] ?? [];
 
-                continue;
+                $out[$code] = [
+                    'displayName' => $provider['displayName'] ?? $code,
+                    'logo' => $provider['logo'] ?? null,
+                    'status' => $operation['status'] ?? null,
+                ];
             }
-
-            if (! is_array($entry)) {
-                continue;
-            }
-
-            $code = $entry['provider'] ?? $entry['providerId'] ?? $entry['code'] ?? null;
-
-            if (! $code) {
-                continue;
-            }
-
-            $out[$code] = [
-                'displayName' => $entry['displayName'] ?? $code,
-                'logo' => $entry['logo'] ?? null,
-                'status' => $entry['status'] ?? null,
-            ];
         }
 
         return $out;
@@ -487,28 +474,103 @@ class PawapayService
     }
 
     /**
-     * Verify a pawaPay callback signature (HMAC-SHA256 of the request body).
+     * Verify a signed PawaPay callback using RFC-9421 HTTP Message Signatures.
      *
-     * @param  string  $payload  The raw request body.
-     * @param  string  $signature  The signature header value.
-     * @return bool True if the signature is valid (or if no secret is configured).
+     * @param  array<string, string>  $headers  Lowercase request headers.
      */
-    public function verifyCallbackSignature(string $payload, string $signature): bool
-    {
-        // Signature verification is disabled unless explicitly enabled.
+    public function verifyCallbackRequest(
+        string $payload,
+        array $headers,
+        string $method,
+        string $authority,
+        string $path
+    ): bool {
         if (! $this->verifyCallbackSignature) {
             return true;
         }
 
-        if (! $this->callbackSecret) {
-            Log::warning('pawaPay signature verification is enabled but no callback secret is configured — verification skipped.');
+        $publicKey = config('services.pawapay.callback_public_key');
+        $contentDigest = $headers['content-digest'] ?? null;
+        $signature = $headers['signature'] ?? null;
+        $signatureInput = $headers['signature-input'] ?? null;
 
-            return true;
+        if (! is_string($publicKey) || $publicKey === '' || ! $contentDigest || ! $signature || ! $signatureInput) {
+            Log::warning('pawaPay signed callback rejected because signature configuration is incomplete.');
+
+            return false;
         }
 
-        $expected = hash_hmac('sha256', $payload, $this->callbackSecret);
+        if (! $this->verifyContentDigest($payload, $contentDigest)) {
+            return false;
+        }
 
-        return hash_equals($expected, $signature);
+        if (! preg_match('/^(?<label>[A-Za-z0-9_-]+)=(?<params>\([^)]*\);.*)$/', $signatureInput, $inputMatch)) {
+            return false;
+        }
+
+        $label = $inputMatch['label'];
+        $parameters = $inputMatch['params'];
+        $coveredComponents = trim(strtok($parameters, ';'));
+        preg_match_all('/"([^"]+)"/', $coveredComponents, $componentMatches);
+
+        if ($componentMatches[1] === []) {
+            return false;
+        }
+
+        $signatureBase = [];
+
+        foreach ($componentMatches[1] as $component) {
+            $value = match ($component) {
+                '@method' => strtoupper($method),
+                '@authority' => $authority,
+                '@path' => $path,
+                default => $headers[strtolower($component)] ?? null,
+            };
+
+            if (! is_string($value)) {
+                return false;
+            }
+
+            $signatureBase[] = '"'.$component.'": '.$value;
+        }
+
+        $signatureBase[] = '"@signature-params": '.$parameters;
+
+        if (! preg_match('/(?:^|,)'.preg_quote($label, '/').'=:([^:]+):/', $signature, $signatureMatch)) {
+            return false;
+        }
+
+        $algorithm = 'sha256';
+        if (preg_match('/alg="([^"]+)"/', $parameters, $algorithmMatch)) {
+            $algorithm = match ($algorithmMatch[1]) {
+                'rsa-pss-sha512' => 'sha512',
+                'ecdsa-p384-sha384' => 'sha384',
+                default => 'sha256',
+            };
+        }
+
+        $opensslAlgorithm = match ($algorithm) {
+            'sha512' => OPENSSL_ALGO_SHA512,
+            'sha384' => OPENSSL_ALGO_SHA384,
+            default => OPENSSL_ALGO_SHA256,
+        };
+
+        $decodedSignature = base64_decode($signatureMatch[1], true);
+
+        return $decodedSignature !== false
+            && openssl_verify(implode("\n", $signatureBase), $decodedSignature, $publicKey, $opensslAlgorithm) === 1;
+    }
+
+    protected function verifyContentDigest(string $payload, string $contentDigest): bool
+    {
+        if (! preg_match('/^(sha-256|sha-512)=:([^:]+):$/i', $contentDigest, $digestMatch)) {
+            return false;
+        }
+
+        $algorithm = strtolower($digestMatch[1]) === 'sha-512' ? 'sha512' : 'sha256';
+        $expected = base64_encode(hash($algorithm, $payload, true));
+
+        return hash_equals($expected, $digestMatch[2]);
     }
 
     /**

@@ -87,12 +87,16 @@ class TransactionController extends Controller
     public function handleCallback(Request $request, Transaction $transaction)
     {
         $payload = $request->getContent();
-        $signature = $request->header('X-PawaPay-Signature', '');
-
-        if (! $this->pawapay->verifyCallbackSignature($payload, $signature)) {
+        if (! $this->pawapay->verifyCallbackRequest(
+            payload: $payload,
+            headers: $this->pawaPayHeaders($request),
+            method: $request->method(),
+            authority: $request->getHost(),
+            path: $request->getPathInfo(),
+        )) {
             \Log::warning('pawaPay callback signature verification failed', [
                 'transaction_id' => $transaction->transaction_id,
-                'signature' => $signature,
+                'signature' => $request->header('signature'),
             ]);
 
             return response('Invalid signature', 403);
@@ -121,11 +125,15 @@ class TransactionController extends Controller
     public function handleGenericCallback(Request $request)
     {
         $payload = $request->getContent();
-        $signature = $request->header('X-PawaPay-Signature', '');
-
-        if (! $this->pawapay->verifyCallbackSignature($payload, $signature)) {
+        if (! $this->pawapay->verifyCallbackRequest(
+            payload: $payload,
+            headers: $this->pawaPayHeaders($request),
+            method: $request->method(),
+            authority: $request->getHost(),
+            path: $request->getPathInfo(),
+        )) {
             \Log::warning('pawaPay generic callback signature verification failed', [
-                'signature' => $signature,
+                'signature' => $request->header('signature'),
             ]);
 
             return response('Invalid signature', 403);
@@ -242,5 +250,15 @@ class TransactionController extends Controller
             'IN_RECONCILIATION' => 'pending',
             default => 'pending',
         };
+    }
+
+    /**
+     * @return array<string, string>
+     */
+    protected function pawaPayHeaders(Request $request): array
+    {
+        return collect(['content-digest', 'signature', 'signature-input', 'signature-date', 'content-type'])
+            ->mapWithKeys(fn (string $header): array => [$header => (string) $request->header($header, '')])
+            ->all();
     }
 }

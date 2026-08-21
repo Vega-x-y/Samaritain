@@ -88,7 +88,7 @@ test('le locataire arrive sur la page de paiement de son loyer', function () {
 test('le locataire peut ouvrir la page de paiement pawaPay pour son loyer', function () {
     $s = rentPaymentScenario();
     Http::fake([
-        'api.sandbox.pawapay.io/v2/deposits/payment-page' => Http::response([
+        'api.sandbox.pawapay.io/v2/paymentpage' => Http::response([
             'redirectUrl' => 'https://pay.pawapay.io/session/rent',
         ], 200),
     ]);
@@ -111,7 +111,7 @@ test('le locataire peut ouvrir la page de paiement pawaPay pour son loyer', func
     expect($s['rentPayment']->transaction_id)->toBe($transaction->transaction_id);
 
     // Le depositId persisté est bien celui envoyé à pawaPay (clé d'idempotence).
-    Http::assertSent(fn ($request) => str_contains($request->url(), '/v2/deposits/payment-page')
+    Http::assertSent(fn ($request) => str_contains($request->url(), '/v2/paymentpage')
         && $request['depositId'] === $transaction->deposit_id
         && $request['amount'] === '150000'
         && $request['returnUrl'] === route('transactions.callback', $transaction));
@@ -149,7 +149,7 @@ test('si l\'API pawaPay échoue, la transaction reste en pending (jamais failed)
     $s = rentPaymentScenario();
 
     Http::fake([
-        'api.sandbox.pawapay.io/v2/deposits/payment-page' => Http::response('Server error', 500),
+        'api.sandbox.pawapay.io/v2/paymentpage' => Http::response('Server error', 500),
     ]);
 
     $this->actingAs($s['tenant'])

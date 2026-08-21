@@ -41,6 +41,10 @@ class ProcessPawaPayCallback implements ShouldQueue
      */
     public function handle(PawapayService $pawapayService): void
     {
+        if (in_array($this->transaction->status, ['completed', 'failed'], true)) {
+            return;
+        }
+
         $depositId = $callbackData['depositId'] ?? $this->transaction->deposit_id;
 
         if (! $depositId) {
@@ -75,7 +79,7 @@ class ProcessPawaPayCallback implements ShouldQueue
             'COMPLETED' => $this->handleCompleted(),
             'FAILED' => $this->handleFailed(),
             'REJECTED' => $this->handleFailed(),
-            'ACCEPTED', 'PROCESSING', 'PENDING', 'SUBMITTED' => $this->handlePending(),
+            'ACCEPTED', 'PROCESSING', 'PENDING', 'SUBMITTED', 'IN_RECONCILIATION' => $this->handlePending(),
             'NOT_FOUND' => $this->handleNotFound(),
             default => Log::warning('pawaPay callback received unknown status', [
                 'depositId' => $depositId,
