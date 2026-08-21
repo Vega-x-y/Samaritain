@@ -341,7 +341,7 @@ test('la page pending nécessite une authentification', function () {
 |--------------------------------------------------------------------------
 */
 
-test('store visit pass crée le pass et redirige vers l\'étape de choix d\'opérateur', function () {
+test('store visit pass crée le pass et ouvre directement la page pawaPay', function () {
     config([
         'services.pawapay.base_url' => 'https://api.sandbox.pawapay.io',
         'services.pawapay.token' => 'test-token',
@@ -350,20 +350,26 @@ test('store visit pass crée le pass et redirige vers l\'étape de choix d\'opé
     $user = User::factory()->create();
     $property = Property::factory()->create();
 
+    Http::fake([
+        'api.sandbox.pawapay.io/v2/paymentpage' => Http::response([
+            'redirectUrl' => 'https://pay.pawapay.io/session/test',
+        ], 200),
+    ]);
+
     $this->actingAs($user)
         ->post(route('my-visit-passes.store'), [
             'property_id' => $property->id,
             'holder_name' => 'Jean Dupont',
             'phone' => '+242061234567',
         ])
-        ->assertRedirect(route('my-visit-passes.pay'));
+        ->assertRedirect('https://pay.pawapay.io/session/test');
 
     $visitPass = VisitPass::where('user_id', $user->id)->first();
 
     expect($visitPass)->not->toBeNull()
         ->and($visitPass->holder_name)->toBe('Jean Dupont')
         ->and($visitPass->payment_status)->toBe('pending')
-        ->and($visitPass->transaction_id)->toBeNull();
+        ->and($visitPass->transaction_id)->not->toBeNull();
 });
 
 test('initiate_payment du visit pass redirige vers la page de paiement pawaPay', function () {
@@ -374,6 +380,12 @@ test('initiate_payment du visit pass redirige vers la page de paiement pawaPay',
 
     $user = User::factory()->create();
     $property = Property::factory()->create();
+
+    Http::fake([
+        'api.sandbox.pawapay.io/v2/paymentpage' => Http::response([
+            'redirectUrl' => 'https://pay.pawapay.io/session/test',
+        ], 200),
+    ]);
 
     $this->actingAs($user)->post(route('my-visit-passes.store'), [
         'property_id' => $property->id,
@@ -406,8 +418,8 @@ test('initiate_payment du visit pass redirige vers la page de paiement pawaPay',
 
     Http::assertSent(fn ($request) => str_contains($request->url(), '/v2/paymentpage')
         && $request['depositId'] === $transaction->deposit_id
-        && $request['amount'] === '5000'
-        && $request['currency'] === 'XAF'
+        && $request['amountDetails']['amount'] === '5000'
+        && $request['amountDetails']['currency'] === 'XAF'
         && $request['returnUrl'] === route('transactions.callback', $transaction));
 });
 
@@ -419,6 +431,12 @@ test('initiate_payment du visit pass laisse la transaction en pending si l\'API 
 
     $user = User::factory()->create();
     $property = Property::factory()->create();
+
+    Http::fake([
+        'api.sandbox.pawapay.io/v2/paymentpage' => Http::response([
+            'redirectUrl' => 'https://pay.pawapay.io/session/test',
+        ], 200),
+    ]);
 
     $this->actingAs($user)->post(route('my-visit-passes.store'), [
         'property_id' => $property->id,
@@ -451,6 +469,12 @@ test('initiate_payment du visit pass accepte le choix du provider sur la page h�
 
     $user = User::factory()->create();
     $property = Property::factory()->create();
+
+    Http::fake([
+        'api.sandbox.pawapay.io/v2/paymentpage' => Http::response([
+            'redirectUrl' => 'https://pay.pawapay.io/session/test',
+        ], 200),
+    ]);
 
     $this->actingAs($user)->post(route('my-visit-passes.store'), [
         'property_id' => $property->id,

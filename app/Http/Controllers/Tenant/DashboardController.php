@@ -142,7 +142,7 @@ class DashboardController extends Controller
     }
 
     /**
-     * Redirect the tenant to pawaPay's hosted payment page.
+     * Initiate a deposit from the Samaritain payment form.
      *
      * Generate and persist the UUIDv4 depositId BEFORE calling pawaPay. On an
      * HTTP failure the transaction is kept as pending — never failed.
@@ -161,6 +161,27 @@ class DashboardController extends Controller
                 ->with('info', 'Ce loyer est déjà payé.');
         }
 
+        $validated = $request->validate([
+            'phone_number' => ['required', 'string', 'max:20'],
+        ]);
+
+        try {
+            $prediction = $pawapay->predictProvider($validated['phone_number']);
+        } catch (PawaPayException $e) {
+            return back()
+                ->withInput()
+                ->withErrors(['phone_number' => 'Impossible de valider ce numéro Mobile Money.']);
+        }
+
+        $provider = $prediction['provider'] ?? null;
+        $phoneNumber = $prediction['phoneNumber'] ?? null;
+
+        if (! $provider || ! $phoneNumber) {
+            return back()
+                ->withInput()
+                ->withErrors(['phone_number' => 'Aucun opérateur Mobile Money détecté pour ce numéro.']);
+        }
+
         // Generate and persist the UUIDv4 idempotency key before any API call.
         $depositId = (string) Str::uuid();
         $currency = config('services.pawapay.currency', 'XAF');
@@ -171,18 +192,21 @@ class DashboardController extends Controller
             'status' => 'pending',
             'amount' => $rentPayment->amount_due,
             'deposit_id' => $depositId,
+            'provider' => $provider,
             'currency' => $currency,
         ]);
 
         $rentPayment->update(['transaction_id' => $transaction->transaction_id]);
 
         try {
-            $result = $pawapay->createPaymentPage(
+            $result = $pawapay->initiateDeposit(
                 depositId: $depositId,
-                returnUrl: route('transactions.callback', $transaction),
+                phoneNumber: $phoneNumber,
+                provider: $provider,
                 amount: $transaction->amount,
                 currency: $transaction->currency,
                 clientReferenceId: $rentPayment->contract_id.'-'.$rentPayment->id,
+                metadata: [['rentPaymentId' => (string) $rentPayment->id]],
             );
 
             $transaction->update([
@@ -190,7 +214,9 @@ class DashboardController extends Controller
                 'raw_response' => $result,
             ]);
 
-            return redirect()->away($result['redirectUrl']);
+            if (strtoupper($result['status'] ?? '') === 'REJECTED') {
+                $transaction->update(['status' => 'failed']);
+            }
         } catch (PawaPayException $e) {
             // Do NOT mark as failed — leave as pending for reconciliation.
             $transaction->update([

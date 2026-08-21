@@ -82,20 +82,26 @@ test('le locataire arrive sur la page de paiement de son loyer', function () {
     $this->actingAs($s['tenant'])
         ->get(route('tenant.rent-payments.pay', $s['rentPayment']))
         ->assertOk()
-        ->assertSee('page de paiement sécurisée pawaPay');
+        ->assertSee('Saisissez votre numéro Mobile Money');
 });
 
-test('le locataire peut ouvrir la page de paiement pawaPay pour son loyer', function () {
+test('le locataire peut initier un dépôt direct depuis sa page de paiement', function () {
     $s = rentPaymentScenario();
     Http::fake([
-        'api.sandbox.pawapay.io/v2/paymentpage' => Http::response([
-            'redirectUrl' => 'https://pay.pawapay.io/session/rent',
+        'api.sandbox.pawapay.io/v2/predict-provider' => Http::response([
+            'country' => 'COG',
+            'provider' => 'MTN_MOMO_COG',
+            'phoneNumber' => '242061234567',
+        ], 200),
+        'api.sandbox.pawapay.io/v2/deposits' => Http::response([
+            'depositId' => 'some-uuid',
+            'status' => 'ACCEPTED',
         ], 200),
     ]);
 
     $this->actingAs($s['tenant'])
-        ->post(route('tenant.rent-payments.initiate', $s['rentPayment']))
-        ->assertRedirect('https://pay.pawapay.io/session/rent');
+        ->post(route('tenant.rent-payments.initiate', $s['rentPayment']), ['phone_number' => '242061234567'])
+        ->assertRedirect(route('transactions.pending', ['transaction' => Transaction::first()]));
 
     $transaction = Transaction::where('user_id', $s['tenant']->id)->first();
 
@@ -103,7 +109,7 @@ test('le locataire peut ouvrir la page de paiement pawaPay pour son loyer', func
         ->and($transaction->rent_payment_id)->toBe($s['rentPayment']->id)
         ->and($transaction->amount)->toBe(150000)
         ->and($transaction->status)->toBe('pending')
-        ->and($transaction->provider)->toBeNull()
+        ->and($transaction->provider)->toBe('MTN_MOMO_COG')
         ->and($transaction->currency)->toBe('XAF')
         ->and($transaction->deposit_id)->not->toBeNull();
 
@@ -111,10 +117,11 @@ test('le locataire peut ouvrir la page de paiement pawaPay pour son loyer', func
     expect($s['rentPayment']->transaction_id)->toBe($transaction->transaction_id);
 
     // Le depositId persisté est bien celui envoyé à pawaPay (clé d'idempotence).
-    Http::assertSent(fn ($request) => str_contains($request->url(), '/v2/paymentpage')
+    Http::assertSent(fn ($request) => str_contains($request->url(), '/v2/deposits')
         && $request['depositId'] === $transaction->deposit_id
         && $request['amount'] === '150000'
-        && $request['returnUrl'] === route('transactions.callback', $transaction));
+        && $request['currency'] === 'XAF'
+        && $request['payer']['accountDetails']['provider'] === 'MTN_MOMO_COG');
 });
 
 test('un loyer déjà payé ne peut pas être re-payé', function () {
@@ -149,12 +156,16 @@ test('si l\'API pawaPay échoue, la transaction reste en pending (jamais failed)
     $s = rentPaymentScenario();
 
     Http::fake([
-        'api.sandbox.pawapay.io/v2/paymentpage' => Http::response('Server error', 500),
+        'api.sandbox.pawapay.io/v2/predict-provider' => Http::response([
+            'provider' => 'MTN_MOMO_COG',
+            'phoneNumber' => '242061234567',
+        ], 200),
+        'api.sandbox.pawapay.io/v2/deposits' => Http::response('Server error', 500),
     ]);
 
     $this->actingAs($s['tenant'])
-        ->post(route('tenant.rent-payments.initiate', $s['rentPayment']))
-        ->assertRedirect(route('transactions.pending'));
+        ->post(route('tenant.rent-payments.initiate', $s['rentPayment']), ['phone_number' => '242061234567'])
+        ->assertRedirect();
 
     $transaction = Transaction::where('user_id', $s['tenant']->id)->first();
 

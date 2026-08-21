@@ -39,8 +39,8 @@ class UserVisitPassController extends Controller
     {
         $visitPass = $this->visitPassService->createVisitPass($request->validated());
 
-        // Redirect to the in-app payment step (choose operator + enter number).
-        return redirect()->route('my-visit-passes.pay', $visitPass);
+        // Open PawaPay's hosted Payment Page immediately for pass purchases.
+        return $this->initiatePayment($request, $visitPass);
     }
 
     /**
