@@ -164,6 +164,38 @@ test('create_deposit lance une exception en cas d\'erreur API', function () {
     ]))->toThrow(PawaPayException::class);
 });
 
+test('create_payment_page envoie le dépôt et retourne l URL hébergée', function () {
+    config([
+        'services.pawapay.base_url' => 'https://api.sandbox.pawapay.io',
+        'services.pawapay.token' => 'test-token',
+    ]);
+
+    $depositId = (string) Str::uuid();
+    $returnUrl = 'https://samaritain.test/transactions/'.$depositId.'/callback';
+
+    Http::fake([
+        'api.sandbox.pawapay.io/v2/deposits/payment-page' => Http::response([
+            'redirectUrl' => 'https://pay.pawapay.io/session/test',
+        ], 200),
+    ]);
+
+    $result = (new PawapayService)->createPaymentPage(
+        depositId: $depositId,
+        returnUrl: $returnUrl,
+        amount: 5000,
+        currency: 'XAF',
+        clientReferenceId: 'V-XXXX',
+    );
+
+    expect($result['redirectUrl'])->toBe('https://pay.pawapay.io/session/test');
+
+    Http::assertSent(fn ($request) => $request['depositId'] === $depositId
+        && $request['returnUrl'] === $returnUrl
+        && $request['amount'] === '5000'
+        && $request['currency'] === 'XAF'
+        && $request['clientReferenceId'] === 'V-XXXX');
+});
+
 test('get_deposit_status retourne NOT_FOUND pour une réponse 404', function () {
     config(['services.pawapay.base_url' => 'https://api.sandbox.pawapay.io']);
     config(['services.pawapay.token' => 'test-token']);
@@ -347,7 +379,7 @@ test('store visit pass crée le pass et redirige vers l\'étape de choix d\'opé
         ->and($visitPass->transaction_id)->toBeNull();
 });
 
-test('initiate_payment du visit pass initie un dépôt direct et redirige vers pending', function () {
+test('initiate_payment du visit pass redirige vers la page de paiement pawaPay', function () {
     config([
         'services.pawapay.base_url' => 'https://api.sandbox.pawapay.io',
         'services.pawapay.token' => 'test-token',
@@ -365,37 +397,31 @@ test('initiate_payment du visit pass initie un dépôt direct et redirige vers p
     $visitPass = VisitPass::where('user_id', $user->id)->firstOrFail();
 
     Http::fake([
-        'api.sandbox.pawapay.io/v2/deposits' => Http::response([
-            'depositId' => (string) Str::uuid(),
-            'status' => 'ACCEPTED',
-            'created' => now()->toIso8601String(),
+        'api.sandbox.pawapay.io/v2/deposits/payment-page' => Http::response([
+            'redirectUrl' => 'https://pay.pawapay.io/session/test',
         ], 200),
     ]);
 
     $this->actingAs($user)
-        ->post(route('my-visit-passes.initiate-payment', $visitPass), [
-            'provider' => 'MTN_MOMO_COG',
-            'phone' => '+242 06 800 71 38',
-        ])
-        ->assertRedirect(route('transactions.pending'));
+        ->post(route('my-visit-passes.initiate-payment', $visitPass))
+        ->assertRedirect('https://pay.pawapay.io/session/test');
 
     $transaction = Transaction::where('visit_pass_id', $visitPass->id)->first();
 
     expect($transaction)->not->toBeNull()
         ->and($transaction->deposit_id)->not->toBeNull()
-        ->and($transaction->status)->toBe('accepted')
-        ->and($transaction->provider)->toBe('MTN_MOMO_COG')
+        ->and($transaction->status)->toBe('pending')
+        ->and($transaction->provider)->toBeNull()
         ->and($transaction->amount)->toBe(5000);
 
     $visitPass->refresh();
     expect($visitPass->transaction_id)->toBe($transaction->transaction_id);
 
-    // Le numéro est normalisé en MSISDN et le payload est un dépôt direct (payer MMO).
-    Http::assertSent(fn ($request) => str_contains($request->url(), '/v2/deposits')
+    Http::assertSent(fn ($request) => str_contains($request->url(), '/v2/deposits/payment-page')
         && $request['depositId'] === $transaction->deposit_id
-        && $request['payer']['type'] === 'MMO'
-        && $request['payer']['accountDetails']['phoneNumber'] === '24268007138'
-        && $request['payer']['accountDetails']['provider'] === 'MTN_MOMO_COG');
+        && $request['amount'] === '5000'
+        && $request['currency'] === 'XAF'
+        && $request['returnUrl'] === route('transactions.callback', $transaction));
 });
 
 test('initiate_payment du visit pass laisse la transaction en pending si l\'API pawaPay échoue', function () {
@@ -416,14 +442,11 @@ test('initiate_payment du visit pass laisse la transaction en pending si l\'API 
     $visitPass = VisitPass::where('user_id', $user->id)->firstOrFail();
 
     Http::fake([
-        'api.sandbox.pawapay.io/v2/deposits' => Http::response('Server error', 500),
+        'api.sandbox.pawapay.io/v2/deposits/payment-page' => Http::response('Server error', 500),
     ]);
 
     $this->actingAs($user)
-        ->post(route('my-visit-passes.initiate-payment', $visitPass), [
-            'provider' => 'MTN_MOMO_COG',
-            'phone' => '+242068007138',
-        ])
+        ->post(route('my-visit-passes.initiate-payment', $visitPass))
         ->assertRedirect(route('transactions.pending'));
 
     $transaction = Transaction::where('visit_pass_id', $visitPass->id)->first();
@@ -433,7 +456,7 @@ test('initiate_payment du visit pass laisse la transaction en pending si l\'API 
         ->and($transaction->status)->toBe('pending');
 });
 
-test('initiate_payment du visit pass refuse un provider invalide', function () {
+test('initiate_payment du visit pass accepte le choix du provider sur la page hébergée', function () {
     config([
         'services.pawapay.base_url' => 'https://api.sandbox.pawapay.io',
         'services.pawapay.token' => 'test-token',
@@ -450,14 +473,17 @@ test('initiate_payment du visit pass refuse un provider invalide', function () {
 
     $visitPass = VisitPass::where('user_id', $user->id)->firstOrFail();
 
-    $this->actingAs($user)
-        ->post(route('my-visit-passes.initiate-payment', $visitPass), [
-            'provider' => 'WRONG_PROVIDER',
-            'phone' => '+242068007138',
-        ])
-        ->assertSessionHasErrors('provider');
+    Http::fake([
+        'api.sandbox.pawapay.io/v2/deposits/payment-page' => Http::response([
+            'redirectUrl' => 'https://pay.pawapay.io/session/test',
+        ], 200),
+    ]);
 
-    expect(Transaction::count())->toBe(0);
+    $this->actingAs($user)
+        ->post(route('my-visit-passes.initiate-payment', $visitPass))
+        ->assertRedirect('https://pay.pawapay.io/session/test');
+
+    expect(Transaction::count())->toBe(1);
 });
 
 /*

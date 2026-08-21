@@ -14,7 +14,6 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Gate;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Str;
-use Illuminate\Validation\Rule;
 
 class UserVisitPassController extends Controller
 {
@@ -45,8 +44,7 @@ class UserVisitPassController extends Controller
     }
 
     /**
-     * Dedicated payment step: the customer picks their operator (MTN or Airtel)
-     * and enters the Mobile Money number that will receive the USSD push.
+     * Show the payment summary before opening the hosted payment page.
      */
     public function pay(VisitPass $visitPass)
     {
@@ -57,14 +55,13 @@ class UserVisitPassController extends Controller
                 ->with('info', 'Ce pass visite est déjà payé.');
         }
 
-        $providers = $this->pawapay->availableProvidersWithBranding();
         $currency = config('services.pawapay.currency', 'XAF');
 
-        return view('visit-passes.pay', compact('visitPass', 'providers', 'currency'));
+        return view('visit-passes.pay', compact('visitPass', 'currency'));
     }
 
     /**
-     * Initiate a direct pawaPay deposit (USSD push) for the visit pass.
+     * Redirect the customer to pawaPay's hosted payment page.
      *
      * Generate and persist the UUIDv4 depositId BEFORE calling pawaPay so it can
      * serve as the reconciliation anchor. On an HTTP failure the transaction is
@@ -79,18 +76,8 @@ class UserVisitPassController extends Controller
                 ->with('info', 'Ce pass visite est déjà payé.');
         }
 
-        $data = $request->validate([
-            'provider' => ['required', 'string', Rule::in(array_keys($this->pawapay->availableProviders()))],
-            'phone' => ['required', 'string'],
-        ]);
-
-        try {
-            $msisdn = $this->pawapay->normalizeMsisdn($data['phone']);
-        } catch (PawaPayException $e) {
-            return redirect()->back()->withErrors(['phone' => 'Numéro de téléphone invalide.'])->withInput();
-        }
-
         $depositId = (string) Str::uuid();
+        $currency = config('services.pawapay.currency', 'XAF');
 
         $transaction = Transaction::create([
             'user_id' => $visitPass->user_id,
@@ -98,32 +85,26 @@ class UserVisitPassController extends Controller
             'status' => 'pending',
             'amount' => $visitPass->amount,
             'deposit_id' => $depositId,
-            'provider' => $data['provider'],
-            'currency' => config('services.pawapay.currency', 'XAF'),
+            'currency' => $currency,
         ]);
 
         $visitPass->update(['transaction_id' => $transaction->transaction_id]);
 
         try {
-            $result = $this->pawapay->initiateDeposit(
+            $result = $this->pawapay->createPaymentPage(
                 depositId: $depositId,
-                phoneNumber: $msisdn,
-                provider: $data['provider'],
+                returnUrl: route('transactions.callback', $transaction),
                 amount: $transaction->amount,
                 currency: $transaction->currency,
                 clientReferenceId: $visitPass->reference,
-                customerMessage: 'Samaritain',
-                metadata: [
-                    ['transactionId' => $transaction->transaction_id],
-                    ['visitPassId' => (string) $visitPass->id],
-                    ['userId' => (string) $transaction->user_id],
-                ],
             );
 
             $transaction->update([
-                'status' => strtolower($result['status'] ?? 'pending'),
+                'status' => 'pending',
                 'raw_response' => $result,
             ]);
+
+            return redirect()->away($result['redirectUrl']);
         } catch (PawaPayException $e) {
             // Do NOT mark as failed — leave as pending for reconciliation.
             $transaction->update([

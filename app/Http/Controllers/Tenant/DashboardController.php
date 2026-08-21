@@ -19,7 +19,6 @@ use Barryvdh\DomPDF\Facade\Pdf;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Str;
-use Illuminate\Validation\Rule;
 
 class DashboardController extends Controller
 {
@@ -120,9 +119,7 @@ class DashboardController extends Controller
     }
 
     /**
-     * Dedicated payment step for a rent payment: the tenant picks their operator
-     * (MTN or Airtel) and enters the Mobile Money number that will receive the
-     * USSD push. No hosted payment page.
+     * Show the payment summary before opening the hosted payment page.
      */
     public function payRentPayment(RentPayment $rentPayment, PawapayService $pawapay)
     {
@@ -139,14 +136,13 @@ class DashboardController extends Controller
                 ->with('info', 'Ce loyer est déjà payé.');
         }
 
-        $providers = $pawapay->availableProvidersWithBranding();
         $currency = config('services.pawapay.currency', 'XAF');
 
-        return view('pages.tenant.rent-pay', compact('rentPayment', 'contract', 'providers', 'currency'));
+        return view('pages.tenant.rent-pay', compact('rentPayment', 'contract', 'currency'));
     }
 
     /**
-     * Initiate a direct pawaPay deposit (USSD push) for a rent payment.
+     * Redirect the tenant to pawaPay's hosted payment page.
      *
      * Generate and persist the UUIDv4 depositId BEFORE calling pawaPay. On an
      * HTTP failure the transaction is kept as pending — never failed.
@@ -165,19 +161,9 @@ class DashboardController extends Controller
                 ->with('info', 'Ce loyer est déjà payé.');
         }
 
-        $data = $request->validate([
-            'provider' => ['required', 'string', Rule::in(array_keys($pawapay->availableProviders()))],
-            'phone' => ['required', 'string'],
-        ]);
-
-        try {
-            $msisdn = $pawapay->normalizeMsisdn($data['phone']);
-        } catch (PawaPayException $e) {
-            return redirect()->back()->withErrors(['phone' => 'Numéro de téléphone invalide.'])->withInput();
-        }
-
         // Generate and persist the UUIDv4 idempotency key before any API call.
         $depositId = (string) Str::uuid();
+        $currency = config('services.pawapay.currency', 'XAF');
 
         $transaction = Transaction::create([
             'user_id' => $user->id,
@@ -185,32 +171,26 @@ class DashboardController extends Controller
             'status' => 'pending',
             'amount' => $rentPayment->amount_due,
             'deposit_id' => $depositId,
-            'provider' => $data['provider'],
-            'currency' => config('services.pawapay.currency', 'XAF'),
+            'currency' => $currency,
         ]);
 
         $rentPayment->update(['transaction_id' => $transaction->transaction_id]);
 
         try {
-            $result = $pawapay->initiateDeposit(
+            $result = $pawapay->createPaymentPage(
                 depositId: $depositId,
-                phoneNumber: $msisdn,
-                provider: $data['provider'],
+                returnUrl: route('transactions.callback', $transaction),
                 amount: $transaction->amount,
                 currency: $transaction->currency,
                 clientReferenceId: $rentPayment->contract_id.'-'.$rentPayment->id,
-                customerMessage: 'Samaritain',
-                metadata: [
-                    ['transactionId' => $transaction->transaction_id],
-                    ['rentPaymentId' => (string) $rentPayment->id],
-                    ['userId' => (string) $transaction->user_id],
-                ],
             );
 
             $transaction->update([
-                'status' => strtolower($result['status'] ?? 'pending'),
+                'status' => 'pending',
                 'raw_response' => $result,
             ]);
+
+            return redirect()->away($result['redirectUrl']);
         } catch (PawaPayException $e) {
             // Do NOT mark as failed — leave as pending for reconciliation.
             $transaction->update([

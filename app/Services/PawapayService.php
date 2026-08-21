@@ -158,6 +158,65 @@ class PawapayService
     }
 
     /**
+     * Create a hosted payment page for a deposit.
+     *
+     * The payment is only initiated after the customer completes the hosted
+     * page. The depositId remains the idempotency anchor for callbacks and
+     * reconciliation.
+     *
+     * @param  string  $depositId  The UUIDv4 idempotency key.
+     * @param  string  $returnUrl  The server-side return URL.
+     * @param  int  $amount  The amount to collect.
+     * @param  string  $currency  ISO 4217 currency code.
+     * @param  string  $clientReferenceId  Your internal reference.
+     * @return array<string, mixed>
+     *
+     * @throws PawaPayException
+     */
+    public function createPaymentPage(
+        string $depositId,
+        string $returnUrl,
+        int $amount,
+        string $currency,
+        string $clientReferenceId
+    ): array {
+        $response = $this->httpClient()
+            ->post("{$this->baseUrl}/v2/paymentpage", [
+                'depositId' => $depositId,
+                'returnUrl' => $returnUrl,
+                'amount' => (string) $amount,
+                'currency' => $currency,
+                'clientReferenceId' => $clientReferenceId,
+            ]);
+
+        if ($response->failed()) {
+            Log::warning('pawaPay payment page creation failed', [
+                'depositId' => $depositId,
+                'status' => $response->status(),
+                'body' => $response->body(),
+            ]);
+
+            throw new PawaPayException(
+                'Erreur lors de la création de la page de paiement pawaPay.',
+                $response->status(),
+                $response->body(),
+            );
+        }
+
+        $result = $response->json() ?? [];
+
+        if (empty($result['redirectUrl'])) {
+            throw new PawaPayException(
+                'pawaPay n’a pas fourni de lien de paiement.',
+                $response->status(),
+                $response->body(),
+            );
+        }
+
+        return $result;
+    }
+
+    /**
      * List the Mobile Money providers the merchant can offer in-app.
      *
      * On a dedicated step, the customer picks one of these operators (MTN or

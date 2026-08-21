@@ -18,10 +18,10 @@ class TransactionController extends Controller
     ) {}
 
     /**
-     * Show the in-app payment tracking screen (no hosted payment page).
+    * Show the in-app payment tracking screen after the hosted page.
      *
-     * After a direct deposit is initiated the user is sent here. The page
-     * displays the live status and refreshes via the transaction status
+    * After the hosted payment page is opened, the page displays the live status
+    * and refreshes via the transaction status
      * endpoint; the final result is also confirmed by the callback job and the
      * reconciliation command.
      */
@@ -52,19 +52,28 @@ class TransactionController extends Controller
             abort(403, 'Vous n\'êtes pas autorisé à consulter cette transaction.');
         }
 
-        if ($transaction->visit_pass_id && $transaction->visitPass) {
-            $visitPass = $transaction->visitPass;
+        try {
+            $this->syncStatus($transaction);
+        } catch (PawaPayException $e) {
+            return redirect()->route('transactions.pending', $transaction)
+                ->with('error', 'Le statut du paiement sera vérifié automatiquement.');
+        }
 
-            if ($visitPass->isPaid()) {
-                return redirect()->route('my-visit-passes.show', $visitPass)
+        $transaction->refresh();
+
+        if ($transaction->status === 'completed') {
+            if ($transaction->visit_pass_id && $transaction->visitPass) {
+                return redirect()->route('my-visit-passes.show', $transaction->visitPass)
                     ->with('success', 'Paiement confirmé avec succès ! Votre pass visite est disponible.');
+            }
+
+            if ($transaction->rent_payment_id) {
+                return redirect()->route('tenant.payments')
+                    ->with('success', 'Votre paiement de loyer a bien été pris en compte.');
             }
         }
 
-        if ($transaction->rent_payment_id) {
-            return redirect()->route('tenant.payments')
-                ->with('success', 'Votre paiement de loyer a bien été pris en compte.');
-        }
+        return redirect()->route('transactions.pending', $transaction);
     }
 
     /**
@@ -169,11 +178,24 @@ class TransactionController extends Controller
         }
 
         try {
-            $statusResponse = $this->pawapay->getDepositStatus($transaction->deposit_id);
+            $pawaPayStatus = $this->syncStatus($transaction);
         } catch (PawaPayException $e) {
             return redirect()->back()->with('error', 'Impossible de vérifier le statut du paiement auprès de pawaPay.');
         }
 
+        return redirect()->back()->with('status', 'Statut du paiement: '.$pawaPayStatus);
+    }
+
+    /**
+     * Synchronize a deposit status and apply the related business transition.
+     */
+    protected function syncStatus(Transaction $transaction): string
+    {
+        if (! $transaction->deposit_id) {
+            throw new PawaPayException('Aucun identifiant de dépôt associé à la transaction.');
+        }
+
+        $statusResponse = $this->pawapay->getDepositStatus($transaction->deposit_id);
         $pawaPayStatus = strtoupper($statusResponse['status'] ?? 'UNKNOWN');
 
         $transaction->update([
@@ -203,7 +225,7 @@ class TransactionController extends Controller
             app(RentPaymentService::class)->handleFailedPayment($transaction->rentPayment);
         }
 
-        return redirect()->back()->with('status', 'Statut du paiement: '.$pawaPayStatus);
+        return $pawaPayStatus;
     }
 
     /**
