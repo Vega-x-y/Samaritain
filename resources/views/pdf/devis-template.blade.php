@@ -327,7 +327,7 @@
         </div>
         <div class="footer">
             <p>Document généré le {{ now()->format('d/m/Y à H:i') }}</p>
-            <p>Merci de retourner ce devis accepté pour accord. </p>
+            <p>Merci de retourner ce devis signé pour accord.</p>
         </div>
     </div>
 </body>

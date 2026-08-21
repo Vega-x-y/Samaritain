@@ -3,8 +3,9 @@
 @section('title', 'Parcelles en vente')
 
 @section('content')
-    <!-- Hero Header with gradient background -->
-    <div class="relative bg-primary text-primary-foreground min-h-[60vh] md:min-h-[70vh] flex items-center">
+    <!-- Hero Header -->
+    <div class="relative min-h-[60vh] md:min-h-[70vh] flex items-center bg-primary text-primary-foreground bg-cover bg-center"
+        style="background-image: linear-gradient(rgba(20, 83, 45, 0.78), rgba(20, 83, 45, 0.78)), url('/images/header-wave.png');">
         <div class="relative container mx-auto px-4 sm:px-6 lg:px-8 py-12 md:py-16 text-center">
             <h1 class="text-3xl sm:text-4xl md:text-5xl lg:text-6xl font-bold mb-4 md:mb-6">
                 Trouvez votre <span class="text-secondary">parcelle idéale</span>
@@ -17,7 +18,7 @@
 
     <div class="container mx-auto px-4 sm:px-6 lg:px-8 py-6 md:py-8">
         <!-- Search and Filters Section -->
-        <div class="bg-card rounded-lg shadow-lg -mt-16 md:-mt-20 relative z-10 p-4 sm:p-6 mb-8 md:mb-12">
+        <div class="bg-white dark:bg-gray-800 border border-primary/10 dark:border-gray-700 rounded-lg shadow-lg -mt-16 md:-mt-20 relative z-10 p-4 sm:p-6 mb-8 md:mb-12">
             <form action="{{ route('parcelles.index') }}" method="GET" id="filterForm">
                 <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
                     <!-- Search by title -->

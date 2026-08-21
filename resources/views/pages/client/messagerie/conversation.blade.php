@@ -14,8 +14,8 @@
 @endsection
 
 @section('content')
-<div class="container mx-auto px-4 py-8" x-data="conversationApp({{ $conversation->id }})">
-    <div class="flex flex-col h-[calc(100vh-200px)]">
+<div class="container mx-auto px-3 sm:px-4 py-4 sm:py-8" x-data="conversationApp({{ $conversation->id }})">
+    <div class="flex flex-col h-[calc(100vh-160px)] sm:h-[calc(100vh-200px)]">
         <!-- En-tête de la conversation -->
         <div class="flex items-center justify-between mb-4 pb-4 border-b border-gray-200 dark:border-gray-700">
             <div class="flex items-center gap-4">
@@ -41,7 +41,7 @@
         <div class="flex-1 overflow-y-auto mb-4 space-y-3" id="messages-container">
             @foreach ($conversation->messages as $message)
                 <div class="flex {{ $message->expediteur_type === 'client' ? 'justify-end' : 'justify-start' }}">
-                    <div class="max-w-[70%] {{ $message->expediteur_type === 'client' ? 'bg-orange-500 text-white' : 'bg-gray-200 dark:bg-gray-700 text-gray-900 dark:text-white' }} rounded-lg px-4 py-2">
+                    <div class="max-w-[85%] sm:max-w-[70%] {{ $message->expediteur_type === 'client' ? 'bg-orange-500 text-white' : 'bg-gray-200 dark:bg-gray-700 text-gray-900 dark:text-white' }} rounded-lg px-4 py-2">
                         <div class="text-xs font-medium mb-1 {{ $message->expediteur_type === 'client' ? 'text-orange-100' : 'text-gray-500 dark:text-gray-400' }}">
                             {{ $message->expediteur_nom }}
                         </div>
@@ -96,14 +96,14 @@
         <!-- Formulaire d'envoi -->
         <form method="POST" action="{{ route('client.messagerie.message', $conversation) }}" class="flex flex-col gap-2" enctype="multipart/form-data" x-data="{ fileName: '' }">
             @csrf
-            <div class="flex gap-2">
+            <div class="flex min-w-0 gap-2">
                 <input type="text" name="contenu" placeholder="Écrivez votre message..."
-                    class="flex-1 px-4 py-2.5 border border-gray-200 dark:border-gray-600 rounded-lg focus:border-orange-500 focus:ring-2 focus:ring-orange-100 dark:focus:ring-orange-900 outline-none transition bg-white dark:bg-gray-700 text-gray-900 dark:text-white">
+                    class="flex-1 min-w-0 px-3 sm:px-4 py-2.5 border border-gray-200 dark:border-gray-600 rounded-lg focus:border-orange-500 focus:ring-2 focus:ring-orange-100 dark:focus:ring-orange-900 outline-none transition bg-white dark:bg-gray-700 text-gray-900 dark:text-white">
                 <input type="file" name="fichier" class="hidden" id="file-input" accept=".pdf,.doc,.docx,.jpg,.jpeg,.png" @change="fileName = $event.target.files[0]?.name || ''">
-                <button type="button" onclick="document.getElementById('file-input').click()" class="bg-gray-200 dark:bg-gray-700 hover:bg-gray-300 dark:hover:bg-gray-600 text-gray-700 dark:text-gray-300 px-4 py-2.5 rounded-lg transition">
+                <button type="button" aria-label="Joindre un fichier" onclick="document.getElementById('file-input').click()" class="shrink-0 bg-gray-200 dark:bg-gray-700 hover:bg-gray-300 dark:hover:bg-gray-600 text-gray-700 dark:text-gray-300 px-3 sm:px-4 py-2.5 rounded-lg transition">
                     <i data-lucide="paperclip" class="w-5 h-5"></i>
                 </button>
-                <button type="submit" class="bg-orange-500 hover:bg-orange-600 text-white px-6 py-2.5 rounded-lg font-medium transition">
+                <button type="submit" class="shrink-0 bg-orange-500 hover:bg-orange-600 text-white px-4 sm:px-6 py-2.5 rounded-lg font-medium transition">
                     Envoyer
                 </button>
             </div>

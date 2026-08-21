@@ -6,9 +6,9 @@
     <x-ui.user-dashboard-nav />
     <x-blade-components::layout.container>
         <div class="container mx-auto px-4 py-8">
-            <div class="flex justify-between items-center mb-6">
+            <div class="flex flex-col sm:flex-row sm:justify-between sm:items-center gap-3 mb-6">
                 <h1 class="text-2xl font-bold text-gray-900 dark:text-white">Messagerie</h1>
-                <a href="{{ route('client.messagerie.create') }}" class="bg-orange-500 hover:bg-orange-600 text-white px-4 py-2 rounded-lg font-medium transition flex items-center gap-2">
+                <a href="{{ route('client.messagerie.create') }}" class="w-full sm:w-auto justify-center bg-orange-500 hover:bg-orange-600 text-white px-4 py-2 rounded-lg font-medium transition flex items-center gap-2">
                     <i data-lucide="plus" class="w-4 h-4"></i>
                     Nouveau message
                 </a>
@@ -49,7 +49,7 @@
                         </a>
                         <form method="POST" action="{{ route('client.messagerie.destroy', $conversation) }}" onsubmit="return confirm('Supprimer cette conversation ?')" class="mr-3">
                             @csrf @method('DELETE')
-                            <button type="submit" class="text-gray-400 hover:text-red-500 dark:text-gray-500 dark:hover:text-red-400 p-2 rounded-lg hover:bg-red-50 dark:hover:bg-red-900/20 transition opacity-0 group-hover:opacity-100">
+                            <button type="submit" aria-label="Supprimer la conversation" class="text-gray-400 hover:text-red-500 dark:text-gray-500 dark:hover:text-red-400 p-2 rounded-lg hover:bg-red-50 dark:hover:bg-red-900/20 transition opacity-100 sm:opacity-0 sm:group-hover:opacity-100">
                                 <i data-lucide="trash-2" class="w-4 h-4"></i>
                             </button>
                         </form>

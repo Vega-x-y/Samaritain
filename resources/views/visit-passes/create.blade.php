@@ -106,11 +106,15 @@
                     <div class="p-5">
                         <h3 class="font-display font-semibold text-lg dark:text-white mb-2">{{ $visitPassable->title ?? $visitPassable->titre }}</h3>
 
-                        @php $cityName = optional($visitPassable->city ?? \App\Models\City::find($visitPassable->city_id ?? null))->name; @endphp
-                        @if($cityName)
+                        @php
+                            $location = $visitPassable instanceof \App\Models\Parcelle
+                                ? collect([$visitPassable->quartier, $visitPassable->ville])->filter()->implode(', ')
+                                : optional($visitPassable->city ?? \App\Models\City::find($visitPassable->city_id ?? null))->name;
+                        @endphp
+                        @if($location)
                             <div class="flex items-center gap-1.5 text-sm text-gray-500 dark:text-gray-400 mb-3">
                                 <i data-lucide="map-pin" class="w-3.5 h-3.5"></i>
-                                {{ $cityName }}
+                                {{ $location }}
                             </div>
                         @endif
 

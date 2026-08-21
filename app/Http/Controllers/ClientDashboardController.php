@@ -6,6 +6,7 @@ use App\Models\Chantier;
 use App\Models\Document;
 use App\Models\Message;
 use App\Models\User;
+use App\Models\VisitPass;
 use Illuminate\Http\Request;
 use Illuminate\View\View;
 
@@ -31,6 +32,13 @@ class ClientDashboardController extends Controller
             ->take(5)
             ->get();
 
+        $visitPasses = VisitPass::query()
+            ->where('user_id', $user->id)
+            ->with('visitPassable')
+            ->latest()
+            ->take(3)
+            ->get();
+
         $stats = [
             'total_chantiers' => Chantier::whereIn('client_id', $clientIds)->count(),
             'total_documents' => Document::whereIn('client_id', $clientIds)->count(),
@@ -45,7 +53,7 @@ class ClientDashboardController extends Controller
             ->where('expediteur_type', '!=', 'client')
             ->count();
 
-        return view('pages.client.dashboard', compact('chantiers', 'documents', 'stats', 'messagesNonLus'));
+        return view('pages.client.dashboard', compact('chantiers', 'documents', 'stats', 'messagesNonLus', 'visitPasses'));
     }
 
     public function chantiers(Request $request): View

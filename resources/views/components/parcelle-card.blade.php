@@ -50,20 +50,37 @@
             @if (auth()->check())
                 <div x-data="{
                     favorited: {{ $parcelle->isFavorited() ? 'true' : 'false' }},
+                    loading: false,
                     async toggle() {
-                        const response = await fetch('{{ route('parcel.favorite', $parcelle) }}', {
-                            method: 'POST',
-                            headers: {
-                                'X-CSRF-TOKEN': document.querySelector('meta[name=csrf-token]').content,
-                                'Accept': 'application/json'
+                        if (this.loading) {
+                            return;
+                        }
+
+                        this.loading = true;
+
+                        try {
+                            const response = await fetch('{{ route('parcel.favorite', $parcelle) }}', {
+                                method: 'POST',
+                                headers: {
+                                    'X-CSRF-TOKEN': document.querySelector('meta[name=csrf-token]').content,
+                                    'Accept': 'application/json'
+                                }
+                            });
+
+                            if (!response.ok) {
+                                throw new Error('Favorite request failed');
                             }
-                        });
-                        const data = await response.json();
-                        this.favorited = data.favorited;
+
+                            const data = await response.json();
+                            this.favorited = data.favorited;
+                        } finally {
+                            this.loading = false;
+                        }
                     }
                 }" class="absolute top-3 right-3 z-20">
-                    <button x-on:click.prevent="toggle"
-                        class="bg-white/90 backdrop-blur-sm p-2 rounded-full shadow-md hover:scale-110 transition">
+                    <button type="button" x-on:click.stop.prevent="toggle" x-bind:disabled="loading"
+                        x-bind:aria-pressed="favorited" aria-label="Ajouter aux favoris"
+                        class="bg-white/90 backdrop-blur-sm p-2 rounded-full shadow-md hover:scale-110 transition disabled:opacity-60 disabled:cursor-wait">
                         <i data-lucide="heart" class="w-5 h-5"
                             :class="favorited ? 'fill-red-500 text-red-500' : 'text-gray-500'"></i>
                     </button>

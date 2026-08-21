@@ -37,7 +37,7 @@ class Parcelle extends Model
     ];
 
     protected $casts = [
-        // 'viabilisee' => 'boolean',
+        'viabilisee' => 'boolean',
         'prix' => 'float',
         'superficie' => 'float',
         'conditions_accepted_at' => 'datetime',

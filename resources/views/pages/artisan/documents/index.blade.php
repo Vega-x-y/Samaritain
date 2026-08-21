@@ -63,14 +63,14 @@
                 'devis' => 'Nouveau devis',
                 'facture' => 'Nouvelle facture',
                 'attestation' => 'Nouvelle attestation',
-                'compte_rendu' => 'Nouveau compte rendu ',
+                'compte_rendu' => 'Nouveau compte rendu',
             ];
         @endphp
-        @foreach(['devis' => 'Devis', 'facture' => 'Facture', 'attestation' => 'Attestation', 'compte_rendu' => 'Compte rendu'] as $typeKey => $typeLabel)
+        @foreach($metierTypes as $typeKey)
             <a href="{{ route('artisan.documents.create', ['type' => $typeKey]) }}"
                class="{{ $typeColors[$typeKey] ?? 'bg-gray-500 hover:bg-gray-600' }} text-white px-4 py-2 rounded-lg text-sm font-medium transition flex items-center gap-2">
                 <i data-lucide="{{ \App\Models\Document::ICONS[$typeKey] }}" class="w-4 h-4"></i>
-                {{ $createLabels[$typeKey] ?? 'Nouvelle '.$typeLabel }}
+                {{ $createLabels[$typeKey] ?? 'Nouveau '.($types[$typeKey] ?? $typeKey) }}
             </a>
         @endforeach
     </div>

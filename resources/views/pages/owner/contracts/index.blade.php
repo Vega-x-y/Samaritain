@@ -9,7 +9,7 @@
         <p class="text-gray-500 dark:text-gray-400 mt-1">Gérez vos contrats de location.</p>
     </div>
     <a href="{{ route('owner.contracts.create') }}"
-        class="flex items-center gap-2 px-4 py-2 bg-primary text-white rounded-lg text-sm font-medium hover:bg-primary/90 transition shrink-0">
+        class="w-full sm:w-auto flex items-center justify-center gap-2 px-4 py-3 sm:py-2 bg-primary text-white rounded-lg text-sm font-medium hover:bg-primary/90 transition shrink-0">
         <i data-lucide="plus" class="w-4 h-4"></i>
         Nouveau contrat
     </a>

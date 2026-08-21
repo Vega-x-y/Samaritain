@@ -30,7 +30,7 @@
                     Contacter l'entreprise
                 </h1>
                 <p class="text-[#6B6660] dark:text-gray-400 mt-2 text-sm">
-                    Remplissez le formulaire ci-dessous pour nous envoyer un message concernant ce bien.
+                    Remplissez le formulaire ci-dessous pour nous envoyer votre demande concernant ce bien.
                 </p>
             </header>
 
@@ -72,7 +72,7 @@
                             name="subject"
                             label="Sujet"
                             placeholder="Sujet de votre message"
-                            :value="old('subject', $type === 'property' ? 'Question à propos de '.$contactable->title : 'Question à propos de '.$contactable->titre)"
+                            :value="old('subject', $type === 'property' ? 'Demande concernant '.$contactable->title : 'Demande concernant '.$contactable->titre)"
                             required
                         />
 

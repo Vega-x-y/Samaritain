@@ -106,8 +106,8 @@
     <div class="flex-1 flex flex-col min-h-0 overflow-hidden transition-all duration-300">
 
         <!-- Header / Top-bar -->
-        <header class="h-14 border-b border-sidebar-border flex items-center px-4 justify-between shrink-0 bg-sidebar">
-            <div class="flex items-center gap-2">
+        <header class="h-14 border-b border-sidebar-border flex items-center gap-2 px-2 sm:px-4 justify-between shrink-0 bg-sidebar">
+            <div class="flex items-center gap-2 min-w-0">
                 <!-- Sidebar Toggle Button -->
                 <button x-on:click="toggleSidebar()"
                     class="p-1.5 rounded-md text-sidebar-foreground hover:text-foreground hover:bg-accent transition-colors"
@@ -123,12 +123,12 @@
             </div>
 
             <!-- Right-side actions -->
-            <div class="flex items-center gap-3">
+            <div class="flex items-center gap-1 sm:gap-3 shrink-0">
                 <!-- Dynamic Badges (powered by controller) -->
                 @if ($pendingVerification)
                     <div class="flex items-center gap-1.5 px-2.5 py-1 rounded-md bg-amber-100 dark:bg-amber-900/30 text-amber-800 dark:text-amber-300">
                         <i data-lucide="clock" class="w-3.5 h-3.5"></i>
-                        <span class="text-xs font-medium">En attente de validation</span>
+                        <span class="hidden sm:inline text-xs font-medium">En attente de validation</span>
                     </div>
                 @endif
 
@@ -162,7 +162,7 @@
                                 {{ strtoupper(substr(auth()->user()->name, 0, 2)) }}
                             </div>
                         @endif
-                        <span x-show="sidebarOpen" class="text-sm font-medium truncate max-w-32"
+                        <span x-show="sidebarOpen" class="hidden sm:inline text-sm font-medium truncate max-w-32"
                             x-cloak>{{ auth()->user()->name }}</span>
                         <i data-lucide="chevrons-up-down" class="h-4 w-4 shrink-0"></i>
                     </button>

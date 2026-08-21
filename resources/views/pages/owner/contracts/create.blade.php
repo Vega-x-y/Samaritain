@@ -188,7 +188,7 @@
         </div>
 
         <button type="submit"
-            class="w-full flex items-center justify-center gap-2 px-5 py-3 bg-primary text-white rounded-lg font-medium hover:bg-primary/90 transition">
+            class="w-full min-h-12 flex items-center justify-center gap-2 px-5 py-3 bg-primary text-white rounded-lg font-medium hover:bg-primary/90 transition touch-manipulation">
             <i data-lucide="save" class="w-4 h-4"></i>
             Créer le contrat
         </button>

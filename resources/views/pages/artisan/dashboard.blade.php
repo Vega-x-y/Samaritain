@@ -2,9 +2,20 @@
 
 @section('content')
     <div class="space-y-6">
-        <div>
-            <h1 class="text-2xl font-bold text-foreground">Dashboard</h1>
-            <p class="text-sm text-muted-foreground mt-1">Bienvenue, {{ $artisan->business_name }}</p>
+        <div class="flex items-center gap-4">
+            @if($artisan->avatar)
+                <img src="{{ asset('storage/' . $artisan->avatar) }}"
+                     alt="{{ $artisan->business_name }}"
+                     class="w-14 h-14 rounded-full object-cover border border-border">
+            @else
+                <div class="w-14 h-14 rounded-full bg-orange-500 flex items-center justify-center text-white text-lg font-bold">
+                    {{ strtoupper(substr($artisan->business_name, 0, 2)) }}
+                </div>
+            @endif
+            <div>
+                <h1 class="text-2xl font-bold text-foreground">Dashboard</h1>
+                <p class="text-sm text-muted-foreground mt-1">Bienvenue, {{ $artisan->business_name }}</p>
+            </div>
         </div>
         <!-- Stat Cards -->
         <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">

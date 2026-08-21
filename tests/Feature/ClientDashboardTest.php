@@ -6,6 +6,7 @@ use App\Models\Artisan;
 use App\Models\Chantier;
 use App\Models\Client;
 use App\Models\User;
+use App\Models\VisitPass;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 
 uses(RefreshDatabase::class);
@@ -52,6 +53,24 @@ test('client dashboard shows chantiers linked to user', function () {
         ->get(route('client.dashboard'))
         ->assertOk()
         ->assertSee('Rénovation cuisine');
+});
+
+test('client dashboard shows the user visit passes dynamically', function () {
+    $visitPass = VisitPass::create([
+        'user_id' => $this->user->id,
+        'reference' => 'VP-DASHBOARD',
+        'holder_name' => 'Dupont Jean',
+        'phone' => '+33612345678',
+        'amount' => 5000,
+        'payment_status' => 'pending',
+        'status' => 'pending_payment',
+    ]);
+
+    $this->actingAs($this->user)
+        ->get(route('client.dashboard'))
+        ->assertOk()
+        ->assertSee('Pass visite')
+        ->assertSee('VP-DASHBOARD');
 });
 
 test('client chantiers index page loads successfully', function () {
