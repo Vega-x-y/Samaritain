@@ -11,6 +11,9 @@
     $isFailed = in_array($transaction->status, ['failed', 'rejected'])
         || ($transaction->visitPass && $transaction->visitPass->isPaymentFailed());
 
+    $providerStatus = strtoupper((string) data_get($transaction->raw_response, 'status', $transaction->status));
+    $isReconciliation = $providerStatus === 'IN_RECONCILIATION';
+
     $currency = $transaction->currency ?? config('services.pawapay.currency', 'XAF');
 
     $successRoute = null;
@@ -53,7 +56,7 @@
             </div>
             <h1 class="font-display font-semibold text-2xl mb-3">Le paiement n'a pas abouti</h1>
             <p class="text-sm text-gray-500 dark:text-gray-400 mb-6">
-                La transaction n'a pas été confirmée. Vous pouvez réessayer avec une autre opérateur ou un autre numéro.
+                La transaction n'a pas été confirmée. Vous pouvez réessayer avec un autre opérateur ou un autre numéro.
             </p>
             @if ($retryRoute)
                 <a href="{{ $retryRoute }}"
@@ -72,15 +75,19 @@
             </div>
             <h1 class="font-display font-semibold text-2xl mb-3">Validez depuis votre téléphone</h1>
             <p class="text-sm text-gray-500 dark:text-gray-400 mb-6">
-                Votre paiement de {{ number_format($transaction->amount, 0, ',', ' ') }} {{ $currency }} est en cours de confirmation par pawaPay.
-                Le statut sera vérifié automatiquement après votre retour de la page de paiement.
+                @if ($isReconciliation)
+                    pawaPay vérifie encore cette transaction. Le statut final sera actualisé automatiquement.
+                @else
+                    Votre paiement de {{ number_format($transaction->amount, 0, ',', ' ') }} {{ $currency }} est en cours de confirmation par pawaPay.
+                    Le statut sera vérifié automatiquement après votre retour de la page de paiement.
+                @endif
             </p>
             <a href="{{ route('transactions.status', $transaction) }}"
                 class="inline-flex items-center justify-center gap-2 rounded-xl border border-gray-200 dark:border-gray-600 px-6 py-3 text-sm font-medium text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors">
                 <i data-lucide="refresh-cw" class="w-4 h-4"></i>
                 Vérifier le statut
             </a>
-            <p class="text-xs text-gray-400 dark:text-gray-500 mt-4">La page se met à jour automatiquement.</p>
+            <p class="text-xs text-gray-400 dark:text-gray-500 mt-4">Référence : {{ $transaction->transaction_id }}</p>
 
             <script>
                 (function () {

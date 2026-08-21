@@ -55,6 +55,8 @@
                             'pending'    => 'amber',
                             'accepted'   => 'blue',
                             'processing' => 'blue',
+                            'enqueued'   => 'amber',
+                            'in_reconciliation' => 'amber',
                             'completed'  => 'success',
                             'failed'     => 'red',
                             'rejected'   => 'red',
@@ -63,6 +65,8 @@
                             'pending'    => 'En attente',
                             'accepted'   => 'Accepté',
                             'processing' => 'En cours',
+                            'enqueued'   => "En file d'attente",
+                            'in_reconciliation' => 'En vérification',
                             'completed'  => 'Complété',
                             'failed'     => 'Échoué',
                             'rejected'   => 'Refusé',
@@ -80,7 +84,7 @@
                             {{ $payout->provider ?? '—' }}
                         </td>
                         <td class="px-5 py-3 text-right font-semibold text-gray-800 dark:text-white">
-                            {{ number_format($payout->amount, 0, ',', ' ') }}
+                            {{ number_format($payout->amount, 0, ',', ' ') }} {{ $payout->currency ?? config('services.pawapay.currency', 'XAF') }}
                         </td>
                         <td class="px-5 py-3 text-center">
                             @if($sc === 'success')
