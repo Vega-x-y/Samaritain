@@ -31,6 +31,7 @@ use App\Http\Controllers\AvisController;
 use App\Http\Controllers\ClientDashboardController;
 use App\Http\Controllers\ClientDocumentController;
 use App\Http\Controllers\ClientMessagerieController;
+use App\Http\Controllers\ContactController;
 use App\Http\Controllers\FavoriteController;
 use App\Http\Controllers\HomeController;
 use App\Http\Controllers\HotelController;
@@ -59,6 +60,9 @@ use App\Http\Middleware\StaffMiddleware;
 use Illuminate\Support\Facades\Route;
 
 Route::get('/', [HomeController::class, 'index'])->name('index');
+
+// Route de contact
+Route::get('contact', [ContactController::class, 'index'])->name('contact');
 
 // Routes publiques pour les biens (utilisateur)
 Route::get('properties', [PropertyController::class, 'index'])->name('property.index');

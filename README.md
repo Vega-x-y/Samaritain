@@ -1,3 +1,44 @@
+# 🏥 Samaritain
+
+Plateforme de gestion pour artisans et clients.
+
+## 🎨 Branding PDF
+
+Tous les PDFs générés par l'application suivent un branding cohérent et professionnel.
+
+- ✅ **14 templates** : Devis, Factures, Attestations, Comptes-rendus, Documents signés, Passes visite, Contrats de bail, Quittances, États des lieux
+- ✅ **Composants réutilisables** : Header, Footer, Client-info, Styles partagés
+- ✅ **Configuration centralisée** : `config/branding.php`
+- ✅ **Helper** : `App\Support\BrandingHelper`
+- ✅ **Tests unitaires** : 4 tests, 17 assertions
+- ✅ **9 services/contrôleurs** utilisant le branding
+
+### 📚 Documentation
+
+- **Quick Start** : [`resources/views/pdf/QUICKSTART.md`](resources/views/pdf/QUICKSTART.md)
+- **Guide complet** : [`resources/views/pdf/README.md`](resources/views/pdf/README.md)
+- **Architecture** : [`BRANDING.md`](BRANDING.md)
+- **Résumé** : [`BRANDING_SUMMARY.md`](BRANDING_SUMMARY.md)
+- **Extension** : [`BRANDING_EXTENSION.md`](BRANDING_EXTENSION.md)
+- **Changelog** : [`CHANGELOG_BRANDING.md`](CHANGELOG_BRANDING.md)
+
+### 🚀 Utilisation rapide
+
+```php
+use App\Support\BrandingHelper;
+
+// Récupérer les données de branding
+$brandingData = BrandingHelper::getEncodedImages();
+
+// Générer un PDF
+$html = view('pdf.devis-template', compact(
+    'document', 'client', 'artisan',
+    'logoBase64', 'waveBase64'
+))->render();
+```
+
+---
+
 <p align="center"><a href="https://laravel.com" target="_blank"><img src="https://raw.githubusercontent.com/laravel/art/master/logo-lockup/5%20SVG/2%20CMYK/1%20Full%20Color/laravel-logolockup-cmyk-red.svg" width="400" alt="Laravel Logo"></a></p>
 
 <p align="center">

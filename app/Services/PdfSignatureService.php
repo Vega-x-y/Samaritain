@@ -3,6 +3,7 @@
 namespace App\Services;
 
 use App\Models\Document;
+use App\Support\BrandingHelper;
 use Barryvdh\DomPDF\Facade\Pdf;
 use Symfony\Component\HttpFoundation\StreamedResponse;
 
@@ -23,8 +24,19 @@ class PdfSignatureService
         $signatureDate = $document->signed_at?->format('d/m/Y H:i') ?? 'N/A';
         $clientName = $document->client->nom ?? 'Client';
 
+        // Récupérer les données de branding
+        $brandingData = BrandingHelper::getEncodedImages();
+        extract($brandingData); // $logoBase64, $waveBase64
+
         // Créer une vue HTML pour le PDF
-        $html = view('pdf.signed-devis', compact('document', 'signatureImage', 'signatureDate', 'clientName'))->render();
+        $html = view('pdf.signed-devis', compact(
+            'document',
+            'signatureImage',
+            'signatureDate',
+            'clientName',
+            'logoBase64',
+            'waveBase64'
+        ))->render();
 
         // Générer le PDF
         $pdf = Pdf::loadHTML($html);

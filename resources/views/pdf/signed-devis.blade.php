@@ -4,62 +4,22 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>{{ $document->nom }} - Signé</title>
+    @include('pdf.partials.styles', ['accentColor' => '#10b981', 'accentBgColor' => '#f0fdf4'])
     <style>
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-        }
-
-        body {
-            font-family: Arial, sans-serif;
-            font-size: 12px;
-            line-height: 1.6;
-            color: #333;
-            padding: 20px;
-        }
-
-        .container {
-            max-width: 800px;
-            margin: 0 auto;
-            background: white;
-        }
-
-        .header {
-            text-align: center;
-            border-bottom: 2px solid #333;
-            padding-bottom: 20px;
-            margin-bottom: 30px;
-        }
-
-        .header h1 {
-            font-size: 24px;
-            margin-bottom: 10px;
-        }
-
-        .header .badge {
-            display: inline-block;
-            background: #10b981;
-            color: white;
-            padding: 5px 15px;
-            border-radius: 20px;
-            font-size: 11px;
-            font-weight: bold;
-            margin-top: 10px;
-        }
-
+        /* Styles spécifiques au devis signé */
         .info-section {
             margin-bottom: 25px;
-            padding: 15px;
-            background: #f9f9f9;
-            border-left: 3px solid #3b82f6;
+            padding: 15px 35px;
+            background: #f0fdf4;
+            border-left: 4px solid #10b981;
         }
 
         .info-section h2 {
-            font-size: 14px;
-            color: #3b82f6;
+            font-size: 13px;
+            color: #10b981;
             margin-bottom: 10px;
             text-transform: uppercase;
+            font-weight: bold;
         }
 
         .info-grid {
@@ -75,45 +35,16 @@
         .info-item .label {
             font-weight: bold;
             color: #666;
-            font-size: 11px;
+            font-size: 10px;
         }
 
         .info-item .value {
             color: #333;
-            font-size: 12px;
-        }
-
-        table {
-            width: 100%;
-            border-collapse: collapse;
-            margin-top: 15px;
-        }
-
-        table thead {
-            background: #f3f4f6;
-        }
-
-        table th {
-            padding: 10px;
-            text-align: left;
-            font-weight: bold;
-            border-bottom: 2px solid #333;
-            font-size: 11px;
-        }
-
-        table td {
-            padding: 10px;
-            border-bottom: 1px solid #e5e7eb;
-            font-size: 11px;
-        }
-
-        table tbody tr:last-child {
-            font-weight: bold;
-            background: #f9f9f9;
+            font-size: 10.5px;
         }
 
         .signature-section {
-            margin-top: 40px;
+            margin: 30px 35px;
             padding: 20px;
             background: #f0fdf4;
             border: 2px solid #10b981;
@@ -122,11 +53,9 @@
 
         .signature-section h2 {
             color: #10b981;
-            font-size: 16px;
+            font-size: 14px;
             margin-bottom: 15px;
-            display: flex;
-            align-items: center;
-            gap: 10px;
+            font-weight: bold;
         }
 
         .signature-content {
@@ -152,7 +81,7 @@
         }
 
         .signature-image .label {
-            font-size: 10px;
+            font-size: 9px;
             color: #666;
             margin-top: 5px;
         }
@@ -170,45 +99,20 @@
         .signature-info .info-item:last-child {
             border-bottom: none;
         }
-
-        .footer {
-            margin-top: 40px;
-            padding-top: 20px;
-            border-top: 1px solid #e5e7eb;
-            text-align: center;
-            font-size: 10px;
-            color: #666;
-        }
-
-        .total-section {
-            margin-top: 20px;
-            padding: 15px;
-            background: #f3f4f6;
-            border-radius: 4px;
-            text-align: right;
-        }
-
-        .total-section .total-label {
-            font-size: 14px;
-            font-weight: bold;
-            color: #666;
-        }
-
-        .total-section .total-value {
-            font-size: 18px;
-            font-weight: bold;
-            color: #333;
-            margin-left: 10px;
-        }
     </style>
 </head>
 <body>
     <div class="container">
         <!-- En-tête -->
-        <div class="header">
-            <h1>{{ $document->nom }}</h1>
-            <p>Document signé électroniquement</p>
-            <span class="badge">✓ SIGNÉ</span>
+        @include('pdf.partials.header', [
+            'title' => $document->nom,
+            'waveBase64' => $waveBase64 ?? null,
+            'logoBase64' => $logoBase64 ?? null
+        ])
+
+        <!-- Badge de signature -->
+        <div style="text-align: center; padding: 15px 35px;">
+            <span class="status-badge">✓ DOCUMENT SIGNÉ</span>
         </div>
 
         <!-- Informations du document -->
@@ -318,12 +222,10 @@
         </div>
 
         <!-- Pied de page -->
-        <div class="footer">
-            <p>Document généré le {{ now()->format('d/m/Y H:i') }}</p>
+        @include('pdf.partials.footer')
+        <div style="text-align: center; padding: 5px 35px 15px; font-size: 8px; color: #999;">
             <p>Ce document a été signé électroniquement conformément aux dispositions légales en vigueur.</p>
-            <p style="margin-top: 10px; font-size: 9px; color: #999;">
-                La signature électronique a la même valeur juridique qu'une signature manuscrite.
-            </p>
+            <p style="margin-top: 5px;">La signature électronique a la même valeur juridique qu'une signature manuscrite.</p>
         </div>
     </div>
 </body>

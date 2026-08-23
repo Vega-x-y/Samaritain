@@ -6,6 +6,7 @@ use App\Http\Controllers\Controller;
 use App\Http\Requests\Owner\StoreInvoiceRequest;
 use App\Models\Invoice;
 use App\Models\Property;
+use App\Support\BrandingHelper;
 use Barryvdh\DomPDF\Facade\Pdf;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Gate;
@@ -85,7 +86,13 @@ class InvoiceController extends Controller
         $invoice->load('property.city');
         $property = $invoice->property;
 
-        $pdf = Pdf::loadView('pages.owner.pdf.invoice', compact('invoice', 'property'));
+        // Récupérer les données de branding
+        $brandingData = BrandingHelper::getEncodedImages();
+
+        $pdf = Pdf::loadView('pages.owner.pdf.invoice', array_merge(
+            compact('invoice', 'property'),
+            $brandingData
+        ));
         $fileName = 'facture_'.str_pad($invoice->id, 6, '0', STR_PAD_LEFT).'.pdf';
 
         return response()->streamDownload(fn () => print ($pdf->output()), $fileName);

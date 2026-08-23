@@ -17,6 +17,7 @@ use App\Notifications\ContractCompletedNotification;
 use App\Notifications\ContractSignedNotification;
 use App\Services\ContractSignatureService;
 use App\Services\PawapayService;
+use App\Support\BrandingHelper;
 use Barryvdh\DomPDF\Facade\Pdf;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Storage;
@@ -308,7 +309,13 @@ class DashboardController extends Controller
         $contract->load('property.city', 'signatures.user');
         $property = $contract->property;
 
-        $pdf = Pdf::loadView('pages.owner.pdf.lease-contract', compact('contract', 'property'));
+        // Récupérer les données de branding
+        $brandingData = BrandingHelper::getEncodedImages();
+
+        $pdf = Pdf::loadView('pages.owner.pdf.lease-contract', array_merge(
+            compact('contract', 'property'),
+            $brandingData
+        ));
         $fileName = 'contrat_bail_'.$contract->id.'_'.$contract->tenant_name.'.pdf';
 
         return response()->streamDownload(fn () => print ($pdf->output()), $fileName);

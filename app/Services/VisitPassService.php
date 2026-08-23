@@ -5,6 +5,7 @@ namespace App\Services;
 use App\Models\Parcelle;
 use App\Models\Property;
 use App\Models\VisitPass;
+use App\Support\BrandingHelper;
 use Barryvdh\DomPDF\Facade\Pdf;
 use Endroid\QrCode\Builder\Builder;
 use Endroid\QrCode\Color\Color;
@@ -90,7 +91,13 @@ class VisitPassService
     {
         $this->generateQrCode($visitPass);
 
-        $pdf = Pdf::loadView('visit-passes.pdf', ['visitPass' => $visitPass]);
+        // Récupérer les données de branding
+        $brandingData = BrandingHelper::getEncodedImages();
+
+        $pdf = Pdf::loadView('visit-passes.pdf', array_merge(
+            ['visitPass' => $visitPass],
+            $brandingData
+        ));
 
         $fileName = 'visit-passes/pdfs/'.$visitPass->uuid.'.pdf';
         Storage::put($fileName, $pdf->output());

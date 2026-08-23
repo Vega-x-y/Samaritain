@@ -7,6 +7,7 @@ use App\Http\Requests\Owner\StoreInspectionRequest;
 use App\Models\Contract;
 use App\Models\Inspection;
 use App\Models\Property;
+use App\Support\BrandingHelper;
 use Barryvdh\DomPDF\Facade\Pdf;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Gate;
@@ -123,8 +124,14 @@ class InspectionController extends Controller
 
         $inspection->load('property:id,title,address', 'contract:id,tenant_name');
 
+        // Récupérer les données de branding
+        $brandingData = BrandingHelper::getEncodedImages();
+
         // Generate or regenerate PDF
-        $pdf = Pdf::loadView('pages.owner.pdf.inspection', compact('inspection'));
+        $pdf = Pdf::loadView('pages.owner.pdf.inspection', array_merge(
+            compact('inspection'),
+            $brandingData
+        ));
         $fileName = 'etat_des_lieux_'.$inspection->id.'.pdf';
         $path = 'documents/inspections/'.$fileName;
 

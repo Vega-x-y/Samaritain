@@ -3,6 +3,7 @@
 namespace App\Services;
 
 use App\Models\Document;
+use App\Support\BrandingHelper;
 use Barryvdh\DomPDF\Facade\Pdf;
 use Illuminate\Support\Facades\Storage;
 
@@ -27,15 +28,15 @@ class DocumentPdfGenerator
             'metadata' => $metadata,
         ]);
 
-        // Encoder les images en base64 (plus fiable que public_path() avec DomPDF)
-        $logoBase64 = $this->encodeImage(public_path('images/logo-samaritain.png'));
-        $waveBase64 = $this->encodeImage(public_path('images/header-wave.png'));
+        // Récupérer les données de branding
+        $brandingData = BrandingHelper::getEncodedImages();
+        extract($brandingData); // $logoBase64, $waveBase64
 
         if (! $logoBase64) {
-            \Log::warning('Logo introuvable pour le PDF', ['path' => public_path('images/logo-samaritain.png')]);
+            \Log::warning('Logo introuvable pour le PDF');
         }
         if (! $waveBase64) {
-            \Log::warning('Image de vague introuvable pour le PDF', ['path' => public_path('images/header-wave.png')]);
+            \Log::warning('Image de vague introuvable pour le PDF');
         }
 
         // Encoder les photos avant/après pour les comptes rendus

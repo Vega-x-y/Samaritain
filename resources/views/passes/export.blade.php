@@ -4,144 +4,40 @@
 <head>
     <meta charset="utf-8">
     <title>Pass - {{ $pass->holder_name }}</title>
+    @include('pdf.partials.styles', ['accentColor' => '#10b981', 'accentBgColor' => '#f0fdf4'])
     <style>
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-        }
-
-        body {
-            font-family: 'DejaVu Sans', 'Segoe UI', Arial, sans-serif;
-            padding: 50px;
-            background: #fff;
-            color: #111827;
-        }
-
-        .container {
-            max-width: 560px;
-            margin: 0 auto;
-        }
-
-        /* En-tête */
-        .header {
-            display: flex;
-            justify-content: space-between;
-            align-items: flex-start;
-            padding-bottom: 24px;
-            border-bottom: 2px solid #111827;
-            margin-bottom: 32px;
-        }
-
-        .header-brand {
-            display: flex;
-            align-items: center;
-            gap: 10px;
-        }
-
-        .header-brand img {
-            height: 28px;
-            width: auto;
-        }
-
-        .header h1 {
-            font-size: 18px;
-            font-weight: 700;
-            letter-spacing: -0.2px;
-        }
-
-        .header p {
-            font-size: 11px;
-            color: #6b7280;
-            margin-top: 2px;
-        }
-        
-        .logo-container {
-            display: flex;
-            gap: 8px;
-            align-items: center;
-        }
-
-        .image-logo {
-            height: 78px;
-            width: 78px;
-        }
-
-        .title {
-            color: #111827;
-        }
-
-        .status {
-            font-size: 10px;
-            font-weight: 600;
-            text-transform: uppercase;
-            letter-spacing: 0.5px;
-            padding: 3px 10px;
-            border: 1px solid #111827;
-            border-radius: 2px;
-        }
-
-        .status-actif { border-color: #111827; color: #111827; }
-        .status-expiré { border-color: #9ca3af; color: #9ca3af; }
-        .status-utilisé { border-color: #9ca3af; color: #9ca3af; }
-        .status-suspendu { border-color: #9ca3af; color: #9ca3af; }
-
-        /* QR Code */
+        /* Styles spécifiques au pass */
         .qr-section {
             text-align: center;
-            margin-bottom: 32px;
+            margin: 30px 35px;
+            padding: 20px;
+            background: #f0fdf4;
+            border-radius: 8px;
         }
 
         .qr-section img {
             width: 160px;
             height: 160px;
+            border: 3px solid #10b981;
+            border-radius: 8px;
         }
 
         .qr-label {
             margin-top: 10px;
             font-size: 10px;
-            color: #9ca3af;
-            text-transform: uppercase;
-            letter-spacing: 1px;
-        }
-
-        /* Infos */
-        .info-grid {
-            display: grid;
-            grid-template-columns: 1fr 1fr;
-            gap: 18px 24px;
-            padding-bottom: 24px;
-            margin-bottom: 24px;
-            border-bottom: 1px solid #e5e7eb;
-        }
-
-        .info-item {
-            min-width: 0;
-        }
-
-        .info-label {
-            font-size: 10px;
-            color: #9ca3af;
-            text-transform: uppercase;
-            letter-spacing: 0.5px;
-            margin-bottom: 3px;
-        }
-
-        .info-value {
-            font-size: 13px;
-            font-weight: 500;
+            color: #065f46;
+            font-weight: bold;
         }
 
         .info-value.mono {
             font-family: monospace;
-            font-size: 12px;
+            font-size: 11px;
         }
 
-        .info-item.full {
-            grid-column: 1 / -1;
+        .progress-wrapper {
+            padding: 20px 35px;
         }
 
-        /* Visites */
         .visits {
             display: flex;
             justify-content: space-between;
@@ -151,7 +47,7 @@
 
         .visits .label {
             font-size: 11px;
-            color: #6b7280;
+            color: #666;
         }
 
         .visits .value {
@@ -161,88 +57,81 @@
 
         .progress-bar {
             background: #e5e7eb;
-            height: 3px;
+            height: 4px;
             border-radius: 2px;
             overflow: hidden;
         }
 
         .progress-fill {
-            background: #111827;
+            background: #10b981;
             height: 100%;
             width: {{ ($pass->remaining_visits / $pass->allowed_visits) * 100 }}%;
-        }
-
-        /* Pied de page */
-        .footer {
-            margin-top: 36px;
-            padding-top: 16px;
-            border-top: 1px solid #e5e7eb;
-            font-size: 10px;
-            color: #9ca3af;
-            line-height: 1.6;
-        }
-
-        @media print {
-            body { padding: 0; }
         }
     </style>
 </head>
 
 <body>
     <div class="container">
-        <div class="header">
-            <div class="header-brand">
-                <div class="logo-container">
-                    <img class="image-logo" src="{{ public_path('light_logo.svg') }}" alt="Logo">
-                </div>
-                <div>
-                    <h1>Pass de Visite</h1>
-                    <p>Document officiel d'accès</p>
-                </div>
-            </div>
-            <span class="status status-{{ $pass->status }}">{{ ucfirst($pass->status) }}</span>
+        <!-- En-tête -->
+        @include('pdf.partials.header', [
+            'title' => 'Pass de Visite',
+            'waveBase64' => $waveBase64 ?? null,
+            'logoBase64' => $logoBase64 ?? null
+        ])
+
+        <!-- Statut -->
+        <div style="text-align: center; padding: 10px 35px;">
+            @php
+                $statusColor = match($pass->status) {
+                    'actif' => '#10b981',
+                    default => '#9ca3af'
+                };
+            @endphp
+            <span style="display: inline-block; padding: 5px 15px; background: {{ $statusColor }}; color: white; border-radius: 20px; font-size: 11px; font-weight: bold; text-transform: uppercase;">
+                {{ ucfirst($pass->status) }}
+            </span>
         </div>
 
+        <!-- QR Code -->
         <div class="qr-section">
             <img src="{{ $pass->getQrCodeBase64() }}" alt="QR Code">
             <div class="qr-label">Présentez ce QR Code à l'entrée</div>
         </div>
 
-        <div class="info-grid">
-            <div class="info-item">
-                <div class="info-label">Titulaire</div>
-                <div class="info-value">{{ $pass->holder_name }}</div>
-            </div>
-
-            <div class="info-item">
-                <div class="info-label">Téléphone</div>
-                <div class="info-value">{{ $pass->phone }}</div>
-            </div>
-
-            @if ($pass->email)
-            <div class="info-item">
-                <div class="info-label">Email</div>
-                <div class="info-value">{{ $pass->email }}</div>
-            </div>
-            @endif
-
-            <div class="info-item">
-                <div class="info-label">Date d'émission</div>
-                <div class="info-value">{{ $pass->created_at->format('d/m/Y') }}</div>
-            </div>
-
-            <div class="info-item full">
-                <div class="info-label">Période de validité</div>
-                <div class="info-value">Du {{ $pass->start_date->format('d/m/Y') }} au {{ $pass->expiration_date->format('d/m/Y') }}</div>
-            </div>
-
-            <div class="info-item full">
-                <div class="info-label">UUID</div>
-                <div class="info-value mono">{{ $pass->uuid }}</div>
-            </div>
+        <!-- Informations -->
+        <div class="table-wrapper">
+            <table>
+                <tr>
+                    <th style="width: 30%;">Titulaire</th>
+                    <td>{{ $pass->holder_name }}</td>
+                </tr>
+                <tr>
+                    <th>Téléphone</th>
+                    <td>{{ $pass->phone }}</td>
+                </tr>
+                @if ($pass->email)
+                <tr>
+                    <th>Email</th>
+                    <td>{{ $pass->email }}</td>
+                </tr>
+                @endif
+                <tr>
+                    <th>Date d'émission</th>
+                    <td>{{ $pass->created_at->format('d/m/Y') }}</td>
+                </tr>
+                <tr>
+                    <th>Période de validité</th>
+                    <td>Du {{ $pass->start_date->format('d/m/Y') }} au {{ $pass->expiration_date->format('d/m/Y') }}</td>
+                </tr>
+                <tr>
+                    <th>UUID</th>
+                    <td><span class="info-value mono">{{ $pass->uuid }}</span></td>
+                </tr>
+            </table>
         </div>
 
-        <div>
+        <!-- Visites restantes -->
+        <div class="progress-wrapper">
             <div class="visits">
                 <span class="label">Visites restantes</span>
                 <span class="value">{{ $pass->remaining_visits }} / {{ $pass->allowed_visits }}</span>
@@ -252,9 +141,11 @@
             </div>
         </div>
 
-        <div class="footer">
+        <!-- Pied de page -->
+        @include('pdf.partials.footer')
+        <div style="text-align: center; padding: 5px 35px 15px; font-size: 8px; color: #999;">
             <p>Ce document est généré automatiquement. Toute falsification est interdite.</p>
-            <p>Émis le {{ now()->format('d/m/Y à H:i:s') }} — Réf. {{ substr($pass->uuid, 0, 13) }}…</p>
+            <p>Réf. {{ substr($pass->uuid, 0, 13) }}…</p>
         </div>
     </div>
 </body>

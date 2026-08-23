@@ -6,6 +6,7 @@ use App\Http\Requests\PassRequest;
 use App\Models\Pass;
 use App\Services\PassScanService;
 use App\Services\PassService;
+use App\Support\BrandingHelper;
 use Barryvdh\DomPDF\Facade\Pdf;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Gate;
@@ -85,8 +86,14 @@ class PassController extends Controller
     {
         Gate::authorize('view', $pass);
 
+        // Récupérer les données de branding
+        $brandingData = BrandingHelper::getEncodedImages();
+
         // Export PDF logic
-        $pdf = Pdf::loadView('passes.export', compact('pass'));
+        $pdf = Pdf::loadView('passes.export', array_merge(
+            compact('pass'),
+            $brandingData
+        ));
 
         return $pdf->download('pass-'.$pass->uuid.'.pdf');
     }

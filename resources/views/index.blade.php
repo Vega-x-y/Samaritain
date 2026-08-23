@@ -116,7 +116,7 @@
                         <i data-lucide="home" class="md:w-4 md:h-4 h-6 w-6"></i>
                         Parcourir les biens
                     </a>
-                    <a href="#"
+                    <a href="{{ route('contact') }}"
                         class="inline-flex items-center gap-2 bg-primary text-white text-xs md:text-sm font-semibold px-5 py-2.5 rounded-full hover:opacity-90 transition">
                         <i data-lucide="phone" class="md:w-4 md:h-4 h-6 w-6"></i>
                         Nous contacter

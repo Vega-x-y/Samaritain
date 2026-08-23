@@ -5,6 +5,7 @@ namespace App\Services\Owner;
 use App\Models\Contract;
 use App\Models\OwnerDocument;
 use App\Models\RentPayment;
+use App\Support\BrandingHelper;
 use Barryvdh\DomPDF\Facade\Pdf;
 use Illuminate\Support\Facades\Storage;
 
@@ -70,7 +71,13 @@ class ContractService
         $contract = $rentPayment->contract;
         $property = $contract->property;
 
-        $pdf = Pdf::loadView('pages.owner.pdf.receipt', compact('rentPayment', 'contract', 'property'));
+        // Récupérer les données de branding
+        $brandingData = BrandingHelper::getEncodedImages();
+
+        $pdf = Pdf::loadView('pages.owner.pdf.receipt', array_merge(
+            compact('rentPayment', 'contract', 'property'),
+            $brandingData
+        ));
 
         $folder = 'documents/receipts';
         $fileName = 'recu_'.$rentPayment->id.'_'.time().'.pdf';

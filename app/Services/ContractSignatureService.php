@@ -2,11 +2,11 @@
 
 namespace App\Services;
 
-use App\Enums\Owner\ContractStatus;
 use App\Models\Contract;
 use App\Models\ContractSignature;
 use App\Models\OwnerDocument;
 use App\Models\User;
+use App\Support\BrandingHelper;
 use Barryvdh\DomPDF\Facade\Pdf;
 use Illuminate\Support\Facades\Storage;
 
@@ -185,7 +185,13 @@ class ContractSignatureService
         $contract->load('property.city', 'signatures.user');
         $property = $contract->property;
 
-        $pdf = Pdf::loadView('pages.owner.pdf.lease-contract', compact('contract', 'property'));
+        // Récupérer les données de branding
+        $brandingData = BrandingHelper::getEncodedImages();
+
+        $pdf = Pdf::loadView('pages.owner.pdf.lease-contract', array_merge(
+            compact('contract', 'property'),
+            $brandingData
+        ));
 
         $folder = 'documents/contracts';
         $fileName = 'contrat_bail_'.$contract->id.'_v'.$contract->contract_version.'_'.time().'.pdf';

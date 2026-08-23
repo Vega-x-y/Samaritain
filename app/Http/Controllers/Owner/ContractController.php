@@ -20,6 +20,7 @@ use App\Notifications\ContractCompletedNotification;
 use App\Notifications\ContractSignedNotification;
 use App\Notifications\ContractSigningRequestNotification;
 use App\Services\ContractSignatureService;
+use App\Support\BrandingHelper;
 use Barryvdh\DomPDF\Facade\Pdf;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Gate;
@@ -199,7 +200,13 @@ class ContractController extends Controller
         $contract->load('property.city', 'signatures.user');
         $property = $contract->property;
 
-        $pdf = Pdf::loadView('pages.owner.pdf.lease-contract', compact('contract', 'property'));
+        // Récupérer les données de branding
+        $brandingData = BrandingHelper::getEncodedImages();
+
+        $pdf = Pdf::loadView('pages.owner.pdf.lease-contract', array_merge(
+            compact('contract', 'property'),
+            $brandingData
+        ));
         $fileName = 'contrat_bail_'.$contract->id.'_'.$contract->tenant_name.'.pdf';
 
         return response()->streamDownload(fn () => print ($pdf->output()), $fileName);
@@ -331,12 +338,18 @@ class ContractController extends Controller
         });
     }
 
-    protected function generateSignedPdf(Contract $contract): void
+    private function generateSignedPdf(Contract $contract)
     {
         $contract->load('property.city', 'signatures.user');
         $property = $contract->property;
 
-        $pdf = Pdf::loadView('pages.owner.pdf.lease-contract', compact('contract', 'property'));
+        // Récupérer les données de branding
+        $brandingData = BrandingHelper::getEncodedImages();
+
+        $pdf = Pdf::loadView('pages.owner.pdf.lease-contract', array_merge(
+            compact('contract', 'property'),
+            $brandingData
+        ));
 
         $folder = 'documents/contracts';
         $fileName = 'contrat_bail_'.$contract->id.'_v'.$contract->contract_version.'_'.time().'.pdf';
@@ -356,12 +369,18 @@ class ContractController extends Controller
         ]);
     }
 
-    protected function generateReceiptPdf(RentPayment $rentPayment)
+    private function generateReceiptPdf(RentPayment $rentPayment)
     {
         $contract = $rentPayment->contract;
         $property = $contract->property;
 
-        $pdf = Pdf::loadView('pages.owner.pdf.receipt', compact('rentPayment', 'contract', 'property'));
+        // Récupérer les données de branding
+        $brandingData = BrandingHelper::getEncodedImages();
+
+        $pdf = Pdf::loadView('pages.owner.pdf.receipt', array_merge(
+            compact('rentPayment', 'contract', 'property'),
+            $brandingData
+        ));
 
         $folder = 'documents/receipts';
         $fileName = 'recu_'.$rentPayment->id.'_'.time().'.pdf';

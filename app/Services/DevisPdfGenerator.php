@@ -3,6 +3,7 @@
 namespace App\Services;
 
 use App\Models\Document;
+use App\Support\BrandingHelper;
 use Barryvdh\DomPDF\Facade\Pdf;
 use Illuminate\Support\Facades\Storage;
 
@@ -33,23 +34,15 @@ class DevisPdfGenerator
             $grandTotal += ($ligne['quantite'] ?? 0) * ($ligne['prix_unitaire'] ?? 0);
         }
 
-        // Encoder les images en base64 (plus fiable que public_path() avec DomPDF)
-        $logoPath = public_path('images/logo-samaritain.png');
-        $wavePath = public_path('images/header-wave.png');
-
-        $logoBase64 = file_exists($logoPath)
-            ? 'data:image/png;base64,'.base64_encode(file_get_contents($logoPath))
-            : null;
-
-        $waveBase64 = file_exists($wavePath)
-            ? 'data:image/png;base64,'.base64_encode(file_get_contents($wavePath))
-            : null;
+        // Récupérer les données de branding
+        $brandingData = BrandingHelper::getEncodedImages();
+        extract($brandingData); // $logoBase64, $waveBase64
 
         if (! $logoBase64) {
-            \Log::warning('Logo introuvable pour le PDF', ['path' => $logoPath]);
+            \Log::warning('Logo introuvable pour le PDF');
         }
         if (! $waveBase64) {
-            \Log::warning('Image de vague introuvable pour le PDF', ['path' => $wavePath]);
+            \Log::warning('Image de vague introuvable pour le PDF');
         }
 
         // Créer la vue HTML pour le PDF
