@@ -2,6 +2,8 @@
 
 namespace App\Http\Controllers\Owner;
 
+use App\Enums\TransactionStatus;
+use App\Enums\TransactionType;
 use App\Exceptions\PawaPayException;
 use App\Http\Controllers\Controller;
 use App\Models\Property;
@@ -22,7 +24,7 @@ class PayoutController extends Controller
         $propertyIds = Property::where('created_by', auth()->id())->pluck('id');
 
         $payouts = Transaction::where('user_id', auth()->id())
-            ->where('type', 'payout')
+            ->where('type', TransactionType::PAYOUT)
             ->latest()
             ->paginate(20);
 
@@ -79,8 +81,8 @@ class PayoutController extends Controller
         // 3. Persist the transaction as PENDING — reconciliation anchor.
         $transaction = Transaction::create([
             'user_id' => auth()->id(),
-            'type' => 'payout',
-            'status' => 'pending',
+            'type' => TransactionType::PAYOUT,
+            'status' => TransactionStatus::PENDING,
             'amount' => $validated['amount'],
             'payout_id' => $payoutId,
             'provider' => $provider,
@@ -108,8 +110,10 @@ class PayoutController extends Controller
                 ],
             ]);
 
+            // Map PawaPay status to our enum (uppercase)
+            $status = strtoupper($result['status'] ?? 'PENDING');
             $transaction->update([
-                'status' => strtolower($result['status'] ?? 'pending'),
+                'status' => TransactionStatus::tryFrom($status) ?? TransactionStatus::PENDING,
                 'raw_response' => $result,
             ]);
         } catch (PawaPayException $e) {

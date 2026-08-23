@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Enums\TransactionStatus;
 use App\Exceptions\PawaPayException;
 use App\Jobs\ProcessPawaPayCallback;
 use App\Models\Transaction;
@@ -61,7 +62,7 @@ class TransactionController extends Controller
 
         $transaction->refresh();
 
-        if ($transaction->status === 'completed') {
+        if ($transaction->status === TransactionStatus::COMPLETED) {
             if ($transaction->visit_pass_id && $transaction->visitPass) {
                 return redirect()->route('my-visit-passes.show', $transaction->visitPass)
                     ->with('success', 'Paiement confirmé avec succès ! Votre pass visite est disponible.');
@@ -239,16 +240,19 @@ class TransactionController extends Controller
     /**
      * Map pawaPay statuses to local transaction statuses.
      */
-    protected function mapPawaPayStatus(string $status): string
+    protected function mapPawaPayStatus(string $status): TransactionStatus
     {
         return match ($status) {
-            'COMPLETED' => 'completed',
-            'FAILED', 'REJECTED' => 'failed',
-            'ACCEPTED' => 'accepted',
-            'PROCESSING' => 'processing',
-            'PENDING', 'SUBMITTED' => 'pending',
-            'IN_RECONCILIATION' => 'pending',
-            default => 'pending',
+            'COMPLETED' => TransactionStatus::COMPLETED,
+            'FAILED' => TransactionStatus::FAILED,
+            'REJECTED' => TransactionStatus::REJECTED,
+            'ACCEPTED' => TransactionStatus::ACCEPTED,
+            'SUBMITTED' => TransactionStatus::SUBMITTED,
+            'PENDING' => TransactionStatus::PENDING,
+            'ENQUEUED' => TransactionStatus::ENQUEUED,
+            'CANCELLED' => TransactionStatus::CANCELLED,
+            'DUPLICATE_IGNORED' => TransactionStatus::DUPLICATE_IGNORED,
+            default => TransactionStatus::PENDING,
         };
     }
 

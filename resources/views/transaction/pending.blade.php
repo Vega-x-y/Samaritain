@@ -4,14 +4,16 @@
 
 @section('content')
 @php
-    $isCompleted = $transaction->status === 'completed'
+    use App\Enums\TransactionStatus;
+    
+    $isCompleted = $transaction->status === TransactionStatus::COMPLETED
         || ($transaction->visitPass && $transaction->visitPass->isPaid())
         || ($transaction->rentPayment && $transaction->rentPayment->isPaid());
 
-    $isFailed = in_array($transaction->status, ['failed', 'rejected'])
+    $isFailed = in_array($transaction->status, [TransactionStatus::FAILED, TransactionStatus::REJECTED], true)
         || ($transaction->visitPass && $transaction->visitPass->isPaymentFailed());
 
-    $providerStatus = strtoupper((string) data_get($transaction->raw_response, 'status', $transaction->status));
+    $providerStatus = strtoupper((string) data_get($transaction->raw_response, 'status', $transaction->status->value ?? 'PENDING'));
     $isReconciliation = $providerStatus === 'IN_RECONCILIATION';
 
     $currency = $transaction->currency ?? config('services.pawapay.currency', 'XAF');

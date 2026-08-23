@@ -2,6 +2,8 @@
 
 namespace App\Http\Controllers;
 
+use App\Enums\TransactionStatus;
+use App\Enums\TransactionType;
 use App\Exceptions\PawaPayException;
 use App\Http\Requests\StoreVisitPassRequest;
 use App\Models\Parcelle;
@@ -80,7 +82,8 @@ class UserVisitPassController extends Controller
         $transaction = Transaction::create([
             'user_id' => $visitPass->user_id,
             'visit_pass_id' => $visitPass->id,
-            'status' => 'pending',
+            'type' => TransactionType::DEPOSIT,
+            'status' => TransactionStatus::PENDING,
             'amount' => $visitPass->amount,
             'deposit_id' => $depositId,
             'currency' => $currency,
@@ -98,7 +101,7 @@ class UserVisitPassController extends Controller
             );
 
             $transaction->update([
-                'status' => 'pending',
+                'status' => TransactionStatus::PENDING,
                 'raw_response' => $result,
             ]);
 

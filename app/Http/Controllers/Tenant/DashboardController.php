@@ -2,6 +2,8 @@
 
 namespace App\Http\Controllers\Tenant;
 
+use App\Enums\TransactionStatus;
+use App\Enums\TransactionType;
 use App\Events\ContractFullySigned;
 use App\Events\ContractSigned;
 use App\Exceptions\PawaPayException;
@@ -189,7 +191,8 @@ class DashboardController extends Controller
         $transaction = Transaction::create([
             'user_id' => $user->id,
             'rent_payment_id' => $rentPayment->id,
-            'status' => 'pending',
+            'type' => TransactionType::DEPOSIT,
+            'status' => TransactionStatus::PENDING,
             'amount' => $rentPayment->amount_due,
             'deposit_id' => $depositId,
             'provider' => $provider,
@@ -210,12 +213,12 @@ class DashboardController extends Controller
             );
 
             $transaction->update([
-                'status' => 'pending',
+                'status' => TransactionStatus::PENDING,
                 'raw_response' => $result,
             ]);
 
             if (strtoupper($result['status'] ?? '') === 'REJECTED') {
-                $transaction->update(['status' => 'failed']);
+                $transaction->update(['status' => TransactionStatus::REJECTED]);
             }
         } catch (PawaPayException $e) {
             // Do NOT mark as failed — leave as pending for reconciliation.
