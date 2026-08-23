@@ -73,7 +73,7 @@ test('get_active_configuration retourne les providers et décimales', function (
         ], 200),
     ]);
 
-        $service = new PawapayService;
+    $service = new PawapayService;
     $result = $service->getActiveConfiguration();
 
     expect($result['countries'][0]['country'])->toBe('COG')

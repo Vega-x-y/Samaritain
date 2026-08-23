@@ -44,6 +44,7 @@ use App\Http\Controllers\Owner\InvoiceController;
 use App\Http\Controllers\Owner\PayoutController;
 use App\Http\Controllers\ParcelleWebController;
 use App\Http\Controllers\PassController;
+use App\Http\Controllers\PawapayCallbackController;
 use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\PropertyController;
 use App\Http\Controllers\QrCodeController;
@@ -632,3 +633,16 @@ Route::middleware(['auth', 'verified', 'tenant'])->prefix('tenant')->name('tenan
         return view('pages.tenant.messenger');
     })->name('messenger');
 });
+
+/*
+|--------------------------------------------------------------------------
+| PawaPay Webhook Routes
+|--------------------------------------------------------------------------
+|
+| These routes handle callbacks from PawaPay for deposit, payout, and refund
+| status updates. Must be publicly accessible.
+|
+*/
+Route::post('/webhooks/pawapay/callback', [PawapayCallbackController::class, 'handle'])
+    ->name('pawapay.callback')
+    ->withoutMiddleware(['web', 'csrf']); // Webhooks don't send CSRF tokens

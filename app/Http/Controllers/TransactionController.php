@@ -18,10 +18,10 @@ class TransactionController extends Controller
     ) {}
 
     /**
-    * Show the in-app payment tracking screen after the hosted page.
+     * Show the in-app payment tracking screen after the hosted page.
      *
-    * After the hosted payment page is opened, the page displays the live status
-    * and refreshes via the transaction status
+     * After the hosted payment page is opened, the page displays the live status
+     * and refreshes via the transaction status
      * endpoint; the final result is also confirmed by the callback job and the
      * reconciliation command.
      */

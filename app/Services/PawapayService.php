@@ -2,22 +2,33 @@
 
 namespace App\Services;
 
+use App\DataTransferObjects\Pawapay\DepositRequest;
+use App\DataTransferObjects\Pawapay\PayoutRequest;
+use App\DataTransferObjects\Pawapay\RefundRequest;
+use App\Enums\TransactionStatus;
+use App\Enums\TransactionType;
 use App\Exceptions\PawaPayException;
+use App\Models\Transaction;
 use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Str;
 
 /**
- * Service for interacting with the pawaPay mobile money API.
+ * Service for interacting with the PawaPay mobile money API (v2).
  *
- * pawaPay is an asynchronous payment gateway: you initiate a deposit/payout,
+ * PawaPay is an asynchronous payment gateway: you initiate a deposit/payout,
  * get an ACCEPTED/REJECTED response immediately, then the final status
- * (COMPLETED/FAILED) arrives later via a callback.
+ * (COMPLETED/FAILED) arrives later via a callback or polling.
  *
  * Key rules:
- *  - depositId/payoutId must be a UUIDv4 generated and persisted BEFORE calling the API.
+ *  - depositId/payoutId/refundId must be a UUIDv4 generated and persisted BEFORE calling the API.
+ *  - Always check 'status' in the response, even on HTTP 200 (can be ACCEPTED or REJECTED).
  *  - Never mark a payment FAILED just because the HTTP call errored or timed out.
- *    Only trust NOT_FOUND from a status-check call for that.
- *  - Amounts are strings, not floats.
+ *    Only trust the status from a callback or GET status endpoint.
+ *  - Amounts are strings, not floats or integers.
+ *  - Phone numbers: digits only, no +, no spaces, country code required, no leading zero.
+ *
+ * @see https://docs.pawapay.io/v2/docs/welcome
  */
 class PawapayService
 {
@@ -27,11 +38,17 @@ class PawapayService
 
     protected bool $verifyCallbackSignature;
 
+    protected int $timeout;
+
+    protected int $retryTimes;
+
     public function __construct()
     {
-        $this->baseUrl = config('services.pawapay.base_url');
-        $this->token = config('services.pawapay.token');
-        $this->verifyCallbackSignature = (bool) config('services.pawapay.verify_callback_signature', false);
+        $this->baseUrl = config('pawapay.base_url');
+        $this->token = config('pawapay.token');
+        $this->verifyCallbackSignature = (bool) config('pawapay.verify_callback_signature', false);
+        $this->timeout = (int) config('pawapay.timeout', 30);
+        $this->retryTimes = (int) config('pawapay.retry_times', 2);
     }
 
     /**
@@ -41,30 +58,418 @@ class PawapayService
     {
         return Http::withToken($this->token)
             ->acceptJson()
-            ->timeout(30);
+            ->timeout($this->timeout)
+            ->retry($this->retryTimes, 100);
     }
 
     /**
-     * Predict the mobile money provider for a given MSISDN.
+     * Initiate a deposit (collect payment from customer).
+     *
+     * @throws PawaPayException
+     */
+    public function initiateDeposit(DepositRequest $request): array
+    {
+        $response = $this->httpClient()
+            ->post("{$this->baseUrl}/v2/deposits", $request->toArray());
+
+        if ($response->failed()) {
+            Log::warning('PawaPay deposit initiation failed', [
+                'depositId' => $request->depositId,
+                'status' => $response->status(),
+                'body' => $response->body(),
+            ]);
+
+            throw new PawaPayException(
+                'Erreur lors de l\'initiation du dépôt PawaPay.',
+                $response->status(),
+                $response->body(),
+            );
+        }
+
+        $data = $response->json() ?? [];
+
+        // Even on HTTP 200, check the status field
+        if (isset($data['status']) && $data['status'] === 'REJECTED') {
+            Log::warning('PawaPay deposit rejected', [
+                'depositId' => $request->depositId,
+                'failureReason' => $data['failureReason'] ?? null,
+            ]);
+        }
+
+        return $data;
+    }
+
+    /**
+     * Get the status of a deposit.
+     *
+     * @return array{status: string, data: array|null}
+     *
+     * @throws PawaPayException
+     */
+    public function getDepositStatus(string $depositId): array
+    {
+        $response = $this->httpClient()
+            ->get("{$this->baseUrl}/v2/deposits/{$depositId}");
+
+        if ($response->failed()) {
+            Log::warning('PawaPay deposit status check failed', [
+                'depositId' => $depositId,
+                'status' => $response->status(),
+                'body' => $response->body(),
+            ]);
+
+            throw new PawaPayException(
+                'Impossible de récupérer le statut du dépôt.',
+                $response->status(),
+                $response->body(),
+            );
+        }
+
+        return $response->json() ?? [];
+    }
+
+    /**
+     * Initiate a payout (send money to customer).
+     *
+     * @throws PawaPayException
+     */
+    public function initiatePayout(PayoutRequest $request): array
+    {
+        $response = $this->httpClient()
+            ->post("{$this->baseUrl}/v2/payouts", $request->toArray());
+
+        if ($response->failed()) {
+            Log::warning('PawaPay payout initiation failed', [
+                'payoutId' => $request->payoutId,
+                'status' => $response->status(),
+                'body' => $response->body(),
+            ]);
+
+            throw new PawaPayException(
+                'Erreur lors de l\'initiation du retrait PawaPay.',
+                $response->status(),
+                $response->body(),
+            );
+        }
+
+        $data = $response->json() ?? [];
+
+        if (isset($data['status']) && $data['status'] === 'REJECTED') {
+            Log::warning('PawaPay payout rejected', [
+                'payoutId' => $request->payoutId,
+                'failureReason' => $data['failureReason'] ?? null,
+            ]);
+        }
+
+        return $data;
+    }
+
+    /**
+     * Get the status of a payout.
+     *
+     * @return array{status: string, data: array|null}
+     *
+     * @throws PawaPayException
+     */
+    public function getPayoutStatus(string $payoutId): array
+    {
+        $response = $this->httpClient()
+            ->get("{$this->baseUrl}/v2/payouts/{$payoutId}");
+
+        if ($response->failed()) {
+            Log::warning('PawaPay payout status check failed', [
+                'payoutId' => $payoutId,
+                'status' => $response->status(),
+                'body' => $response->body(),
+            ]);
+
+            throw new PawaPayException(
+                'Impossible de récupérer le statut du retrait.',
+                $response->status(),
+                $response->body(),
+            );
+        }
+
+        return $response->json() ?? [];
+    }
+
+    /**
+     * Initiate bulk payouts (send money to multiple customers).
+     *
+     * @param  PayoutRequest[]  $payouts  Array of payout requests
+     * @return array Response with accepted/rejected payouts
+     *
+     * @throws PawaPayException
+     */
+    public function initiateBulkPayout(array $payouts): array
+    {
+        $payload = array_map(fn (PayoutRequest $payout) => $payout->toArray(), $payouts);
+
+        $response = $this->httpClient()
+            ->post("{$this->baseUrl}/v2/payouts/bulk", $payload);
+
+        if ($response->failed()) {
+            Log::warning('PawaPay bulk payout initiation failed', [
+                'count' => count($payouts),
+                'status' => $response->status(),
+                'body' => $response->body(),
+            ]);
+
+            throw new PawaPayException(
+                'Erreur lors de l\'initiation des retraits groupés PawaPay.',
+                $response->status(),
+                $response->body(),
+            );
+        }
+
+        return $response->json() ?? [];
+    }
+
+    /**
+     * Cancel an enqueued payout.
+     *
+     * Only works if the payout is still ENQUEUED and hasn't been processed yet.
+     *
+     * @throws PawaPayException
+     */
+    public function cancelPayout(string $payoutId): array
+    {
+        $response = $this->httpClient()
+            ->post("{$this->baseUrl}/v2/payouts/{$payoutId}/cancel");
+
+        if ($response->failed()) {
+            Log::warning('PawaPay payout cancellation failed', [
+                'payoutId' => $payoutId,
+                'status' => $response->status(),
+                'body' => $response->body(),
+            ]);
+
+            throw new PawaPayException(
+                'Impossible d\'annuler le retrait.',
+                $response->status(),
+                $response->body(),
+            );
+        }
+
+        return $response->json() ?? [];
+    }
+
+    /**
+     * Initiate a refund for a completed deposit.
+     *
+     * @throws PawaPayException
+     */
+    public function initiateRefund(RefundRequest $request): array
+    {
+        $response = $this->httpClient()
+            ->post("{$this->baseUrl}/v2/refunds", $request->toArray());
+
+        if ($response->failed()) {
+            Log::warning('PawaPay refund initiation failed', [
+                'refundId' => $request->refundId,
+                'depositId' => $request->depositId,
+                'status' => $response->status(),
+                'body' => $response->body(),
+            ]);
+
+            throw new PawaPayException(
+                'Erreur lors de l\'initiation du remboursement PawaPay.',
+                $response->status(),
+                $response->body(),
+            );
+        }
+
+        $data = $response->json() ?? [];
+
+        if (isset($data['status']) && $data['status'] === 'REJECTED') {
+            Log::warning('PawaPay refund rejected', [
+                'refundId' => $request->refundId,
+                'depositId' => $request->depositId,
+                'failureReason' => $data['failureReason'] ?? null,
+            ]);
+        }
+
+        return $data;
+    }
+
+    /**
+     * Get the status of a refund.
+     *
+     * @return array{status: string, data: array|null}
+     *
+     * @throws PawaPayException
+     */
+    public function getRefundStatus(string $refundId): array
+    {
+        $response = $this->httpClient()
+            ->get("{$this->baseUrl}/v2/refunds/{$refundId}");
+
+        if ($response->failed()) {
+            Log::warning('PawaPay refund status check failed', [
+                'refundId' => $refundId,
+                'status' => $response->status(),
+                'body' => $response->body(),
+            ]);
+
+            throw new PawaPayException(
+                'Impossible de récupérer le statut du remboursement.',
+                $response->status(),
+                $response->body(),
+            );
+        }
+
+        return $response->json() ?? [];
+    }
+
+    /**
+     * Create a hosted payment page for a deposit.
+     *
+     * The payment is only initiated after the customer completes the hosted page.
+     * Always verify final status via callback or GET status endpoint.
+     *
+     * @param  string  $depositId  UUIDv4 idempotency key
+     * @param  string  $returnUrl  URL to redirect after payment
+     * @param  string  $amount  Amount as string
+     * @param  string  $currency  ISO 4217 currency code
+     * @param  string|null  $clientReferenceId  Your internal reference
+     * @return array{redirectUrl: string, ...}
+     *
+     * @throws PawaPayException
+     */
+    public function createPaymentPage(
+        string $depositId,
+        string $returnUrl,
+        string $amount,
+        string $currency,
+        ?string $clientReferenceId = null
+    ): array {
+        $payload = [
+            'depositId' => $depositId,
+            'returnUrl' => $returnUrl,
+            'amount' => $amount,
+            'currency' => $currency,
+        ];
+
+        if ($clientReferenceId !== null) {
+            $payload['clientReferenceId'] = $clientReferenceId;
+        }
+
+        $response = $this->httpClient()
+            ->post("{$this->baseUrl}/v2/deposits/payment-page", $payload);
+
+        if ($response->failed()) {
+            Log::warning('PawaPay payment page creation failed', [
+                'depositId' => $depositId,
+                'status' => $response->status(),
+                'body' => $response->body(),
+            ]);
+
+            throw new PawaPayException(
+                'Erreur lors de la création de la page de paiement PawaPay.',
+                $response->status(),
+                $response->body(),
+            );
+        }
+
+        $result = $response->json() ?? [];
+
+        if (empty($result['redirectUrl'])) {
+            throw new PawaPayException(
+                'PawaPay n\'a pas fourni de lien de redirection.',
+                $response->status(),
+                $response->body(),
+            );
+        }
+
+        return $result;
+    }
+
+    /**
+     * Resend the callback for a deposit.
+     *
+     * Useful if a callback was missed or needs to be reprocessed.
+     *
+     * @throws PawaPayException
+     */
+    public function resendDepositCallback(string $depositId): array
+    {
+        $response = $this->httpClient()
+            ->post("{$this->baseUrl}/v2/deposits/{$depositId}/resend-callback");
+
+        if ($response->failed()) {
+            throw new PawaPayException(
+                'Impossible de renvoyer le callback du dépôt.',
+                $response->status(),
+                $response->body(),
+            );
+        }
+
+        return $response->json() ?? [];
+    }
+
+    /**
+     * Resend the callback for a payout.
+     *
+     * @throws PawaPayException
+     */
+    public function resendPayoutCallback(string $payoutId): array
+    {
+        $response = $this->httpClient()
+            ->post("{$this->baseUrl}/v2/payouts/{$payoutId}/resend-callback");
+
+        if ($response->failed()) {
+            throw new PawaPayException(
+                'Impossible de renvoyer le callback du retrait.',
+                $response->status(),
+                $response->body(),
+            );
+        }
+
+        return $response->json() ?? [];
+    }
+
+    /**
+     * Resend the callback for a refund.
+     *
+     * @throws PawaPayException
+     */
+    public function resendRefundCallback(string $refundId): array
+    {
+        $response = $this->httpClient()
+            ->post("{$this->baseUrl}/v2/refunds/{$refundId}/resend-callback");
+
+        if ($response->failed()) {
+            throw new PawaPayException(
+                'Impossible de renvoyer le callback du remboursement.',
+                $response->status(),
+                $response->body(),
+            );
+        }
+
+        return $response->json() ?? [];
+    }
+
+    /**
+     * Predict the mobile money provider for a given phone number.
      *
      * Always use this endpoint to normalize phone numbers and detect the
      * provider — never hand-roll phone validation.
      *
-     * @param  string  $msisdn  The phone number in E.164 format.
-     * @return array{provider?: string|null, phoneNumber?: string, country?: string|null, raw: array<string, mixed>}
+     * @param  string  $phoneNumber  Phone number (with country code, no + or spaces)
+     * @return array{provider: string|null, phoneNumber: string, country: string|null}
      *
      * @throws PawaPayException
      */
-    public function predictProvider(string $msisdn): array
+    public function predictProvider(string $phoneNumber): array
     {
         $response = $this->httpClient()
-            ->post("{$this->baseUrl}/v2/predict-provider", [
-                'phoneNumber' => $msisdn,
+            ->post("{$this->baseUrl}/v2/toolkit/predict-provider", [
+                'phoneNumber' => $phoneNumber,
             ]);
 
         if ($response->failed()) {
-            Log::warning('pawaPay predict-provider failed', [
-                'msisdn' => $msisdn,
+            Log::warning('PawaPay predict-provider failed', [
+                'phoneNumber' => $phoneNumber,
                 'status' => $response->status(),
                 'body' => $response->body(),
             ]);
@@ -78,20 +483,18 @@ class PawapayService
 
         $body = $response->json() ?? [];
 
-        // pawaPay returns { country, provider, phoneNumber }. Normalize to a
-        // stable shape so callers never have to guess the response field names.
         return [
             'provider' => $body['provider'] ?? null,
-            'phoneNumber' => $body['phoneNumber'] ?? $msisdn,
+            'phoneNumber' => $body['phoneNumber'] ?? $phoneNumber,
             'country' => $body['country'] ?? null,
-            'raw' => $body,
         ];
     }
 
     /**
-     * Retrieve active configuration (supported providers, currency, decimals, etc.).
+     * Get active configuration (supported providers, currencies, limits).
      *
-     * Check decimalsInAmount (NONE vs TWO_PLACES) before rounding/formatting amounts.
+     * This is the source of truth for which providers are actually
+     * configured on your PawaPay account.
      *
      * @return array<string, mixed>
      *
@@ -100,553 +503,146 @@ class PawapayService
     public function getActiveConfiguration(): array
     {
         $response = $this->httpClient()
-            ->get("{$this->baseUrl}/v2/active-conf");
+            ->get("{$this->baseUrl}/v2/toolkit/active-configuration");
 
         if ($response->failed()) {
-            Log::warning('pawaPay active-configuration request failed', [
+            Log::warning('PawaPay active-configuration request failed', [
                 'status' => $response->status(),
                 'body' => $response->body(),
             ]);
 
             throw new PawaPayException(
-                'Impossible de récupérer la configuration pawaPay.',
+                'Impossible de récupérer la configuration PawaPay.',
                 $response->status(),
                 $response->body(),
             );
         }
 
-        return $response->json();
+        return $response->json() ?? [];
     }
 
     /**
-     * Create a deposit (collect money from a customer).
+     * Get real-time availability status for providers.
      *
-     * The depositId must be a UUIDv4 generated and persisted by your application
-     * BEFORE calling this method. Reusing a depositId returns DUPLICATE_IGNORED.
+     * Use this to check if a provider is down or in maintenance.
      *
-     * @param  string  $depositId  The UUIDv4 idempotency key.
-     * @param  array  $data  The deposit payload (payer, amountDetails, provider, etc.).
-     * @return array The pawaPay response containing status, provider, etc.
-     *
-     * @throws PawaPayException
-     */
-    public function createDeposit(string $depositId, array $data): array
-    {
-        $payload = array_merge($data, ['depositId' => $depositId]);
-
-        $response = $this->httpClient()
-            ->post("{$this->baseUrl}/v2/deposits", $payload);
-
-        if ($response->failed()) {
-            Log::warning('pawaPay deposit creation failed', [
-                'depositId' => $depositId,
-                'status' => $response->status(),
-                'body' => $response->body(),
-            ]);
-
-            throw new PawaPayException(
-                'Erreur lors de la création du dépôt pawaPay.',
-                $response->status(),
-                $response->body(),
-            );
-        }
-
-        return $response->json();
-    }
-
-    /**
-     * Create a hosted payment page for a deposit.
-     *
-     * The payment is only initiated after the customer completes the hosted
-     * page. The depositId remains the idempotency anchor for callbacks and
-     * reconciliation.
-     *
-     * @param  string  $depositId  The UUIDv4 idempotency key.
-     * @param  string  $returnUrl  The server-side return URL.
-     * @param  int  $amount  The amount to collect.
-     * @param  string  $currency  ISO 4217 currency code.
-     * @param  string  $clientReferenceId  Your internal reference.
      * @return array<string, mixed>
      *
      * @throws PawaPayException
      */
-    public function createPaymentPage(
-        string $depositId,
-        string $returnUrl,
-        int $amount,
-        string $currency,
-        string $clientReferenceId
-    ): array {
+    public function getAvailability(): array
+    {
         $response = $this->httpClient()
-            ->post("{$this->baseUrl}/v2/paymentpage", [
-                'depositId' => $depositId,
-                'returnUrl' => $returnUrl,
-                'amountDetails' => [
-                    'amount' => (string) $amount,
-                    'currency' => $currency,
-                ],
-                'reason' => $clientReferenceId,
-            ]);
+            ->get("{$this->baseUrl}/v2/toolkit/availability");
 
         if ($response->failed()) {
-            Log::warning('pawaPay payment page creation failed', [
-                'depositId' => $depositId,
+            Log::warning('PawaPay availability request failed', [
                 'status' => $response->status(),
                 'body' => $response->body(),
             ]);
 
             throw new PawaPayException(
-                'Erreur lors de la création de la page de paiement pawaPay.',
+                'Impossible de récupérer la disponibilité des fournisseurs.',
                 $response->status(),
                 $response->body(),
             );
         }
 
-        $result = $response->json() ?? [];
-
-        if (empty($result['redirectUrl'])) {
-            throw new PawaPayException(
-                'pawaPay n’a pas fourni de lien de paiement.',
-                $response->status(),
-                $response->body(),
-            );
-        }
-
-        return $result;
+        return $response->json() ?? [];
     }
 
     /**
-     * List the Mobile Money providers the merchant can offer in-app.
+     * List the Mobile Money providers configured in this application.
      *
-     * On a dedicated step, the customer picks one of these operators (MTN or
-     * Airtel) and enters their number, then a direct deposit (USSD push) is
-     * initiated — the hosted payment page is intentionally not used.
+     * This is a static list from config/pawapay.php.
+     * For the real-time list, use getActiveConfiguration().
      *
-     * @return array<string, string> Provider code => display label.
+     * @return array<string, string> Provider code => display label
      */
     public function availableProviders(): array
     {
-        return (array) config('services.pawapay.providers', [
-            'MTN_MOMO_COG' => 'MTN Mobile Money',
-            'AIRTEL_COG' => 'Airtel Money',
-        ]);
+        return (array) config('pawapay.providers', []);
     }
 
     /**
-     * Fetch provider branding (display name + logo) from the pawaPay toolkit so
-     * the in-app payment step can show the operator's real logo.
+     * Normalize a phone number to PawaPay format (digits only, no + or spaces).
      *
-     * Returns an empty array when the toolkit is unreachable.
-     *
-     * @return array<string, array{displayName?: string, logo?: string|null, status?: string|null}>
+     * @param  string  $phoneNumber  Raw phone number
+     * @return string Normalized phone number
      */
-    public function getProviderDetails(): array
+    public function normalizePhoneNumber(string $phoneNumber): string
     {
-        try {
-            $config = $this->getActiveConfiguration();
-        } catch (PawaPayException $e) {
-            Log::warning('pawaPay active-configuration unavailable for branding', [
-                'error' => $e->getMessage(),
+        // Remove all non-digit characters
+        $normalized = preg_replace('/\D/', '', $phoneNumber);
+
+        // Remove leading + if present
+        $normalized = ltrim($normalized, '+');
+
+        // Remove leading 0 if present (country code should already be there)
+        // But be careful: some numbers legitimately start with 0 after country code
+        // For safety, only remove leading 0 if the number is long enough
+        if (Str::startsWith($normalized, '0') && strlen($normalized) > 10) {
+            $normalized = substr($normalized, 1);
+        }
+
+        return $normalized;
+    }
+
+    /**
+     * Handle an incoming callback from PawaPay.
+     *
+     * Automatically determines the transaction type (deposit, payout, refund)
+     * and updates the corresponding Transaction model.
+     *
+     * @param  array  $payload  The callback payload from PawaPay
+     */
+    public function handleCallback(array $payload): ?Transaction
+    {
+        // Determine transaction type based on which ID is present
+        $transactionId = $payload['depositId'] ?? $payload['payoutId'] ?? $payload['refundId'] ?? null;
+        $type = isset($payload['depositId'])
+            ? TransactionType::DEPOSIT
+            : (isset($payload['payoutId']) ? TransactionType::PAYOUT : TransactionType::REFUND);
+
+        if (! $transactionId) {
+            Log::warning('PawaPay callback missing transaction ID', ['payload' => $payload]);
+
+            return null;
+        }
+
+        // Find the transaction (by deposit_id, payout_id, refund_id, or transaction_id)
+        $transaction = Transaction::where('deposit_id', $transactionId)
+            ->orWhere('payout_id', $transactionId)
+            ->orWhere('refund_id', $transactionId)
+            ->orWhere('transaction_id', $transactionId)
+            ->first();
+
+        if (! $transaction) {
+            Log::warning('PawaPay callback for unknown transaction', [
+                'transactionId' => $transactionId,
+                'type' => $type->value,
             ]);
 
-            return [];
+            return null;
         }
 
-        return $this->normalizeProviderDetails($config);
-    }
+        // Update transaction status
+        $status = TransactionStatus::tryFrom($payload['status'] ?? '') ?? TransactionStatus::PENDING;
 
-    /**
-     * Normalize the active-configuration response into a map keyed by provider code.
-     *
-     * The toolkit returns per-provider arrays containing `logo` and `displayName`.
-     * When a provider is just a string (no branding available) it is preserved.
-     *
-     * @param  array<string, mixed>  $body
-     * @return array<string, array{displayName?: string, logo?: string|null, status?: string|null}>
-     */
-    protected function normalizeProviderDetails(array $body): array
-    {
-        $out = [];
-
-        foreach ($body['countries'] ?? [] as $country) {
-            foreach ($country['providers'] ?? [] as $provider) {
-                $code = $provider['provider'] ?? null;
-
-                if (! $code) {
-                    continue;
-                }
-
-                $operation = $provider['currencies'][0]['operationTypes']['DEPOSIT'] ?? [];
-
-                $out[$code] = [
-                    'displayName' => $provider['displayName'] ?? $code,
-                    'logo' => $provider['logo'] ?? null,
-                    'status' => $operation['status'] ?? null,
-                ];
-            }
-        }
-
-        return $out;
-    }
-
-    /**
-     * Build the list of providers with branding (label + logo) for the in-app
-     * payment step, falling back to the configured labels when pawaPay cannot
-     * be reached.
-     *
-     * @return array<string, array{label: string, logo: string|null, status: string|null}>
-     */
-    public function availableProvidersWithBranding(): array
-    {
-        $labels = $this->availableProviders();
-        $details = $this->getProviderDetails();
-
-        $out = [];
-
-        foreach ($labels as $code => $label) {
-            $detail = $details[$code] ?? [];
-
-            $out[$code] = [
-                'label' => $detail['displayName'] ?? $label,
-                'logo' => $detail['logo'] ?? null,
-                'status' => $detail['status'] ?? null,
-            ];
-        }
-
-        return $out;
-    }
-
-    /**
-     * Normalize a customer-entered phone number to the MSISDN format pawaPay
-     * expects (digits only, country code required, no leading zero).
-     *
-     * Handles inputs like "06 800 71 38", "+242068007138" or "24268007138".
-     *
-     * @param  string  $phone  The raw phone number entered by the customer.
-     * @param  string|null  $dialCode  ISO country prefix (default from config).
-     * @return string The normalized MSISDN.
-     *
-     * @throws PawaPayException
-     */
-    public function normalizeMsisdn(string $phone, ?string $dialCode = null): string
-    {
-        $dialCode ??= (string) config('services.pawapay.dial_code', '242');
-
-        $digits = preg_replace('/\D+/', '', $phone) ?? '';
-
-        if ($digits === '') {
-            throw new PawaPayException('Numéro de téléphone invalide.');
-        }
-
-        // Remove the country prefix first, then any national leading zero, then
-        // re-apply the country code. This makes every input format converge to
-        // the same MSISDN (e.g. "+242 06..", "06.." and "24206.." -> "2426...").
-        if (str_starts_with($digits, $dialCode)) {
-            $digits = (string) substr($digits, strlen($dialCode));
-        }
-
-        $digits = ltrim($digits, '0');
-
-        return $dialCode.$digits;
-    }
-
-    /**
-     * Initiate a direct deposit (USSD push to the customer's phone) without using
-     * the hosted payment page.
-     *
-     * The depositId must be a UUIDv4 generated and persisted by your application
-     * BEFORE calling this method. Reusing a depositId returns DUPLICATE_IGNORED.
-     *
-     * @param  string  $depositId  The UUIDv4 idempotency key.
-     * @param  string  $phoneNumber  The normalized payer MSISDN.
-     * @param  string  $provider  A pawaPay provider code (see availableProviders()).
-     * @param  int  $amount  The amount to collect.
-     * @param  string  $currency  ISO 4217 currency code.
-     * @param  string  $clientReferenceId  Your internal reference (facture, commande...).
-     * @param  string  $customerMessage  Note shown to the customer by some operators.
-     * @param  array<int, array<string, string>>  $metadata  Up to 10 single-key fields.
-     * @return array The pawaPay response (status ACCEPTED/REJECTED/DUPLICATE_IGNORED, ...).
-     *
-     * @throws PawaPayException
-     */
-    public function initiateDeposit(
-        string $depositId,
-        string $phoneNumber,
-        string $provider,
-        int $amount,
-        string $currency,
-        string $clientReferenceId,
-        string $customerMessage = 'Samaritain',
-        array $metadata = []
-    ): array {
-        $payload = [
-            'depositId' => $depositId,
-            'amount' => (string) $amount,
-            'currency' => $currency,
-            'payer' => [
-                'type' => 'MMO',
-                'accountDetails' => [
-                    'phoneNumber' => $phoneNumber,
-                    'provider' => $provider,
-                ],
-            ],
-            'clientReferenceId' => $clientReferenceId,
-            'customerMessage' => $customerMessage,
-            'metadata' => $metadata,
-        ];
-
-        return $this->createDeposit($depositId, $payload);
-    }
-
-    /**
-     * Check the status of a deposit.
-     *
-     * The final status (COMPLETED/FAILED) arrives via callback. This endpoint
-     * is primarily used for reconciliation of payments stuck in
-     * PENDING/PROCESSING. NOT_FOUND means the deposit was never created —
-     * do NOT treat it as FAILED.
-     *
-     * @param  string  $depositId  The UUIDv4 deposit identifier.
-     * @return array The pawaPay status response.
-     *
-     * @throws PawaPayException Only for HTTP-level failures; NOT_FOUND is returned as a status array.
-     */
-    public function getDepositStatus(string $depositId): array
-    {
-        $response = $this->httpClient()
-            ->get("{$this->baseUrl}/v2/deposits/{$depositId}");
-
-        // NOT_FOUND is a legitimate result — the deposit may not have been created
-        if ($response->status() === 404) {
-            return [
-                'depositId' => $depositId,
-                'status' => 'NOT_FOUND',
-                'reason' => 'Deposit not found',
-            ];
-        }
-
-        if ($response->failed()) {
-            Log::warning('pawaPay status check failed', [
-                'depositId' => $depositId,
-                'status' => $response->status(),
-                'body' => $response->body(),
+        // Only update if the new status is different (idempotency)
+        if ($transaction->status !== $status->value) {
+            $transaction->update([
+                'status' => $status->value,
+                'raw_response' => array_merge($transaction->raw_response ?? [], $payload),
             ]);
 
-            throw new PawaPayException(
-                'Erreur lors de la vérification du statut du dépôt.',
-                $response->status(),
-                $response->body(),
-            );
-        }
-
-        return $this->normalizeStatusResponse($depositId, 'depositId', $response->json() ?? []);
-    }
-
-    /**
-     * pawaPay status-check endpoints return an envelope:
-     *
-     *     { "status": "FOUND"|"NOT_FOUND", "data": { "status": "COMPLETED"|..., ... } }
-     *
-     * The outer ``status`` only tells whether the resource exists; the final
-     * transaction state lives in ``data.status``. This flattens the response so
-     * callers can read the final status directly from the ``status`` key.
-     *
-     * @param  string  $id  The depositId / payoutId used for the lookup.
-     * @param  string  $idField  "depositId" or "payoutId".
-     * @param  array  $body  The raw pawaPay JSON body.
-     * @return array<string, mixed>
-     */
-    protected function normalizeStatusResponse(string $id, string $idField, array $body): array
-    {
-        $status = strtoupper((string) ($body['status'] ?? 'UNKNOWN'));
-
-        // The lookup succeeded; unwrap data.* to reach the final transaction status.
-        if ($status === 'FOUND' && isset($body['data']) && is_array($body['data'])) {
-            $data = $body['data'];
-            $status = strtoupper((string) ($data['status'] ?? $status));
-            $body = $data;
-        }
-
-        $body['status'] = $status;
-        $body[$idField] ??= $id;
-
-        return $body;
-    }
-
-    /**
-     * Verify a signed PawaPay callback using RFC-9421 HTTP Message Signatures.
-     *
-     * @param  array<string, string>  $headers  Lowercase request headers.
-     */
-    public function verifyCallbackRequest(
-        string $payload,
-        array $headers,
-        string $method,
-        string $authority,
-        string $path
-    ): bool {
-        if (! $this->verifyCallbackSignature) {
-            return true;
-        }
-
-        $publicKey = config('services.pawapay.callback_public_key');
-        $contentDigest = $headers['content-digest'] ?? null;
-        $signature = $headers['signature'] ?? null;
-        $signatureInput = $headers['signature-input'] ?? null;
-
-        if (! is_string($publicKey) || $publicKey === '' || ! $contentDigest || ! $signature || ! $signatureInput) {
-            Log::warning('pawaPay signed callback rejected because signature configuration is incomplete.');
-
-            return false;
-        }
-
-        if (! $this->verifyContentDigest($payload, $contentDigest)) {
-            return false;
-        }
-
-        if (! preg_match('/^(?<label>[A-Za-z0-9_-]+)=(?<params>\([^)]*\);.*)$/', $signatureInput, $inputMatch)) {
-            return false;
-        }
-
-        $label = $inputMatch['label'];
-        $parameters = $inputMatch['params'];
-        $coveredComponents = trim(strtok($parameters, ';'));
-        preg_match_all('/"([^"]+)"/', $coveredComponents, $componentMatches);
-
-        if ($componentMatches[1] === []) {
-            return false;
-        }
-
-        $signatureBase = [];
-
-        foreach ($componentMatches[1] as $component) {
-            $value = match ($component) {
-                '@method' => strtoupper($method),
-                '@authority' => $authority,
-                '@path' => $path,
-                default => $headers[strtolower($component)] ?? null,
-            };
-
-            if (! is_string($value)) {
-                return false;
-            }
-
-            $signatureBase[] = '"'.$component.'": '.$value;
-        }
-
-        $signatureBase[] = '"@signature-params": '.$parameters;
-
-        if (! preg_match('/(?:^|,)'.preg_quote($label, '/').'=:([^:]+):/', $signature, $signatureMatch)) {
-            return false;
-        }
-
-        $algorithm = 'sha256';
-        if (preg_match('/alg="([^"]+)"/', $parameters, $algorithmMatch)) {
-            $algorithm = match ($algorithmMatch[1]) {
-                'rsa-pss-sha512' => 'sha512',
-                'ecdsa-p384-sha384' => 'sha384',
-                default => 'sha256',
-            };
-        }
-
-        $opensslAlgorithm = match ($algorithm) {
-            'sha512' => OPENSSL_ALGO_SHA512,
-            'sha384' => OPENSSL_ALGO_SHA384,
-            default => OPENSSL_ALGO_SHA256,
-        };
-
-        $decodedSignature = base64_decode($signatureMatch[1], true);
-
-        return $decodedSignature !== false
-            && openssl_verify(implode("\n", $signatureBase), $decodedSignature, $publicKey, $opensslAlgorithm) === 1;
-    }
-
-    protected function verifyContentDigest(string $payload, string $contentDigest): bool
-    {
-        if (! preg_match('/^(sha-256|sha-512)=:([^:]+):$/i', $contentDigest, $digestMatch)) {
-            return false;
-        }
-
-        $algorithm = strtolower($digestMatch[1]) === 'sha-512' ? 'sha512' : 'sha256';
-        $expected = base64_encode(hash($algorithm, $payload, true));
-
-        return hash_equals($expected, $digestMatch[2]);
-    }
-
-    /**
-     * Initiate a payout (send money to a recipient via Mobile Money).
-     *
-     * The payoutId must be a UUIDv4 generated and persisted by your application
-     * BEFORE calling this method. Reusing a payoutId returns DUPLICATE_IGNORED.
-     *
-     * @param  string  $payoutId  The UUIDv4 idempotency key.
-     * @param  array  $data  The payout payload (recipient, amountDetails, provider, etc.)
-     * @return array The pawaPay response containing status, provider, etc.
-     *
-     * @throws PawaPayException
-     */
-    public function createPayout(string $payoutId, array $data): array
-    {
-        $payload = array_merge($data, ['payoutId' => $payoutId]);
-
-        $response = $this->httpClient()
-            ->post("{$this->baseUrl}/v2/payouts", $payload);
-
-        if ($response->failed()) {
-            Log::warning('pawaPay payout creation failed', [
-                'payoutId' => $payoutId,
-                'status' => $response->status(),
-                'body' => $response->body(),
+            Log::info('PawaPay callback processed', [
+                'transactionId' => $transactionId,
+                'oldStatus' => $transaction->status,
+                'newStatus' => $status->value,
             ]);
-
-            throw new PawaPayException(
-                'Erreur lors de la création du paiement sortant pawaPay.',
-                $response->status(),
-                $response->body(),
-            );
         }
 
-        return $response->json();
-    }
-
-    /**
-     * Check the status of a payout.
-     *
-     * Used for reconciliation of payouts stuck in PENDING/PROCESSING.
-     * NOT_FOUND means the payout was never created — do NOT treat as FAILED.
-     *
-     * @param  string  $payoutId  The UUIDv4 payout identifier.
-     * @return array The pawaPay status response.
-     *
-     * @throws PawaPayException Only for HTTP-level failures; NOT_FOUND is returned as a status array.
-     */
-    public function getPayoutStatus(string $payoutId): array
-    {
-        $response = $this->httpClient()
-            ->get("{$this->baseUrl}/v2/payouts/{$payoutId}");
-
-        if ($response->status() === 404) {
-            return [
-                'payoutId' => $payoutId,
-                'status' => 'NOT_FOUND',
-                'reason' => 'Payout not found',
-            ];
-        }
-
-        if ($response->failed()) {
-            Log::warning('pawaPay payout status check failed', [
-                'payoutId' => $payoutId,
-                'status' => $response->status(),
-                'body' => $response->body(),
-            ]);
-
-            throw new PawaPayException(
-                'Erreur lors de la vérification du statut du paiement sortant.',
-                $response->status(),
-                $response->body(),
-            );
-        }
-
-        return $this->normalizeStatusResponse($payoutId, 'payoutId', $response->json() ?? []);
+        return $transaction;
     }
 }
