@@ -109,7 +109,7 @@ class UserVisitPassController extends Controller
         } catch (PawaPayException $e) {
             // Do NOT mark as failed — leave as pending for reconciliation.
             $transaction->update([
-                'raw_response' => ['error' => $e->getMessage(), 'status_code' => $e->getStatusCode()],
+                'raw_response' => ['error' => $e->getMessage(), 'status_code' => $e->statusCode],
             ]);
         }
 
