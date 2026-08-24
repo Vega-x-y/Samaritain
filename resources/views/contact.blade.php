@@ -30,36 +30,85 @@
         <section class="max-w-5xl mx-auto px-6 pb-16">
             <div class="grid md:grid-cols-2 gap-6">
 
-                {{-- Email Contact Card --}}
-                <div class="bg-white dark:bg-gray-800 rounded-2xl border border-gray-200 dark:border-gray-700 p-8 hover:shadow-xl transition group">
-                    <div class="w-14 h-14 bg-blue-100 dark:bg-blue-900/30 rounded-2xl flex items-center justify-center mb-5 group-hover:scale-110 transition">
+                {{-- Contact Form Card --}}
+                <div class="bg-white dark:bg-gray-800 rounded-2xl border border-gray-200 dark:border-gray-700 p-8 md:col-span-1">
+                    <div class="w-14 h-14 bg-blue-100 dark:bg-blue-900/30 rounded-2xl flex items-center justify-center mb-5">
                         <i data-lucide="mail" class="w-7 h-7 text-blue-600 dark:text-blue-400"></i>
                     </div>
 
                     <h2 class="text-2xl font-bold text-gray-900 dark:text-white mb-3">
-                        Contactez-nous par Email
+                        Envoyez-nous un message
                     </h2>
 
                     <p class="text-gray-600 dark:text-gray-400 text-sm mb-6 leading-relaxed">
-                        Envoyez-nous un email détaillé avec votre demande. Nous vous répondons sous 24h avec toutes les informations nécessaires.
+                        Remplissez le formulaire ci-dessous. Nous vous répondrons sous 24h avec toutes les informations nécessaires.
                     </p>
 
-                    <div class="bg-gray-50 dark:bg-gray-900/50 rounded-xl p-4 mb-6">
-                        <p class="text-xs text-gray-500 dark:text-gray-400 mb-1">Notre adresse email</p>
-                        <p class="text-base font-semibold text-gray-900 dark:text-white break-all">
-                            {{ $email }}
-                        </p>
-                    </div>
+                    @if(session('success'))
+                        <div class="mb-6 p-4 bg-green-50 dark:bg-green-900/20 border border-green-200 dark:border-green-800 rounded-xl">
+                            <div class="flex items-start gap-3">
+                                <i data-lucide="check-circle" class="w-5 h-5 text-green-600 dark:text-green-400 flex-shrink-0 mt-0.5"></i>
+                                <p class="text-sm text-green-700 dark:text-green-400">{{ session('success') }}</p>
+                            </div>
+                        </div>
+                    @endif
 
-                    <a href="mailto:{{ $email }}?subject=Demande de renseignements&body=Bonjour,%0D%0A%0D%0AJe souhaiterais obtenir des informations concernant..."
-                        class="inline-flex items-center justify-center gap-2 w-full bg-blue-600 hover:bg-blue-700 text-white font-semibold px-6 py-3.5 rounded-xl transition">
-                        <i data-lucide="send" class="w-4 h-4"></i>
-                        Envoyer un email
-                    </a>
+                    <form action="{{ route('contact.store') }}" method="POST" class="space-y-4">
+                        @csrf
 
-                    <div class="flex items-start gap-2 mt-4 text-xs text-gray-500 dark:text-gray-400">
-                        <i data-lucide="info" class="w-3.5 h-3.5 mt-0.5 flex-shrink-0"></i>
-                        <p>Idéal pour les demandes détaillées nécessitant des pièces jointes</p>
+                        <x-form.input
+                            name="name"
+                            label="Nom complet"
+                            icon="user"
+                            placeholder="Votre nom"
+                            required
+                        />
+
+                        <x-form.input
+                            name="email"
+                            type="email"
+                            label="Adresse email"
+                            icon="mail"
+                            placeholder="votre.email@exemple.com"
+                            required
+                        />
+
+                        <x-form.input
+                            name="phone"
+                            type="tel"
+                            label="Numéro de téléphone (optionnel)"
+                            icon="phone"
+                            placeholder="+243 XX XXX XXXX"
+                        />
+
+                        <x-form.input
+                            name="subject"
+                            label="Sujet"
+                            icon="tag"
+                            placeholder="L'objet de votre message"
+                            required
+                        />
+
+                        <x-form.textarea
+                            name="message"
+                            label="Votre message"
+                            rows="5"
+                            placeholder="Décrivez votre demande en détail..."
+                            required
+                        />
+
+                        <button
+                            type="submit"
+                            class="inline-flex items-center justify-center gap-2 w-full bg-blue-600 hover:bg-blue-700 text-white font-semibold px-6 py-3.5 rounded-xl transition"
+                        >
+                            <i data-lucide="send" class="w-4 h-4"></i>
+                            Envoyer le message
+                        </button>
+                    </form>
+
+                    <div class="flex items-start gap-2 mt-6 text-xs text-gray-500 dark:text-gray-400">
+                        <i data-lucide="shield-check" class="w-3.5 h-3.5 mt-0.5 flex-shrink-0"></i>
+                        <p>Vos informations sont confidentielles et ne seront pas partagées avec des tiers.</p>
                     </div>
                 </div>
 

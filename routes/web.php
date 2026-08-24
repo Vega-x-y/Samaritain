@@ -63,6 +63,7 @@ Route::get('/', [HomeController::class, 'index'])->name('index');
 
 // Route de contact
 Route::get('contact', [ContactController::class, 'index'])->name('contact');
+Route::post('contact', [ContactController::class, 'store'])->middleware('throttle:5,1')->name('contact.store');
 
 // Routes publiques pour les biens (utilisateur)
 Route::get('properties', [PropertyController::class, 'index'])->name('property.index');
