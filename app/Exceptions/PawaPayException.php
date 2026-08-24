@@ -3,47 +3,36 @@
 namespace App\Exceptions;
 
 use Exception;
+use Illuminate\Http\JsonResponse;
+use Illuminate\Http\Request;
+use Throwable;
 
+/**
+ * Exception thrown when PawaPay API calls fail.
+ *
+ * Stores the HTTP status code and full response body for debugging.
+ */
 class PawaPayException extends Exception
 {
-    /**
-     * The HTTP status code from the pawaPay response, if any.
-     */
-    protected ?int $statusCode;
-
-    /**
-     * The raw response body from pawaPay, if any.
-     */
-    protected ?string $responseBody;
-
-    /**
-     * Create a new pawaPay exception.
-     */
     public function __construct(
-        string $message = '',
-        ?int $statusCode = null,
-        ?string $responseBody = null,
-        ?Throwable $previous = null,
+        string $message = 'Une erreur est survenue lors du traitement du paiement.',
+        public ?int $statusCode = null,
+        public ?string $responseBody = null,
+        int $code = 0,
+        ?Throwable $previous = null
     ) {
-        parent::__construct($message, 0, $previous);
-
-        $this->statusCode = $statusCode;
-        $this->responseBody = $responseBody;
+        parent::__construct($message, $code, $previous);
     }
 
     /**
-     * Get the HTTP status code from pawaPay, if available.
+     * Render the exception as an HTTP response.
      */
-    public function getStatusCode(): ?int
+    public function render(Request $request): JsonResponse
     {
-        return $this->statusCode;
-    }
-
-    /**
-     * Get the raw response body from pawaPay, if available.
-     */
-    public function getResponseBody(): ?string
-    {
-        return $this->responseBody;
+        return response()->json([
+            'error' => $this->getMessage(),
+            'status_code' => $this->statusCode,
+            'details' => config('app.debug') ? $this->responseBody : null,
+        ], $this->statusCode ?? 500);
     }
 }

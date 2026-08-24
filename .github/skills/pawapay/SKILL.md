@@ -139,10 +139,10 @@ Codes de rejet spécifiques : `DEPOSIT_NOT_FOUND`, `DEPOSIT_NOT_COMPLETED` (on n
 
 ## Étape 5 — Page de paiement hébergée (sans gérer le formulaire toi-même)
 
-`POST /v2/deposits/payment-page` — PawaPay héberge la page où le client choisit son opérateur et son numéro.
+`POST /v2/paymentpage` — PawaPay héberge la page où le client choisit son opérateur et son numéro.
 
 ```javascript
-const res = await fetch("https://api.sandbox.pawapay.io/v2/deposits/payment-page", {
+const res = await fetch("https://api.sandbox.pawapay.io/v2/paymentpage", {
   method: "POST",
   headers: {
     "Authorization": `Bearer ${process.env.PAWAPAY_API_TOKEN}`,
@@ -201,9 +201,9 @@ PawaPay signe les requêtes financières sortantes (callbacks) et peut exiger qu
 
 ## Étape 7 — Providers et numéros de téléphone
 
-- Utiliser `GET /v2/toolkit/predict-provider?phoneNumber=...` pour valider/normaliser un numéro et prédire l'opérateur avant d'initier un paiement, plutôt que de deviner.
-- `GET /v2/toolkit/active-configuration` liste les providers réellement activés sur ton compte, avec devises supportées et limites de transaction (source de vérité — plus fiable qu'une liste statique).
-- `GET /v2/toolkit/availability` donne la disponibilité en temps réel par provider (pannes, maintenance).
+- Utiliser `POST /v2/predict-provider` (avec `{"phoneNumber": "..."}` dans le corps JSON — pas un GET, pas de query param) pour valider/normaliser un numéro et prédire l'opérateur avant d'initier un paiement, plutôt que de deviner.
+- `GET /v2/active-conf` liste les providers réellement activés sur ton compte, avec devises supportées et limites de transaction (source de vérité — plus fiable qu'une liste statique). Paramètres optionnels : `country`, `operationType`.
+- `GET /v2/availability` donne la disponibilité en temps réel par provider (pannes, maintenance).
 - Format du numéro : uniquement des chiffres, sans `+` ni espace, sans zéro initial, code pays obligatoire.
 
 Voir `references/providers-and-test-numbers.md` pour le catalogue des principaux codes provider (MTN, Airtel, Orange, M-Pesa, Vodacom, Moov, Zamtel...) par pays.

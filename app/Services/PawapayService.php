@@ -59,7 +59,8 @@ class PawapayService
         return Http::withToken($this->token)
             ->acceptJson()
             ->timeout($this->timeout)
-            ->retry($this->retryTimes, 100);
+            ->connectTimeout(5)
+            ->retry($this->retryTimes, 100, throw: false);
     }
 
     /**
@@ -355,7 +356,7 @@ class PawapayService
         }
 
         $response = $this->httpClient()
-            ->post("{$this->baseUrl}/v2/deposits/payment-page", $payload);
+            ->post("{$this->baseUrl}/v2/paymentpage", $payload);
 
         if ($response->failed()) {
             Log::warning('PawaPay payment page creation failed', [

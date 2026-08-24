@@ -22,7 +22,12 @@ return [
     | IMPORTANT: These URLs are different between environments.
     | Never hardcode - always use environment variables.
     */
-    'base_url' => env('PAWAPAY_BASE_URL', 'https://api.sandbox.pawapay.io'),
+    'base_url' => env(
+        'PAWAPAY_BASE_URL',
+        env('PAWAPAY_ENV', 'sandbox') === 'production'
+            ? env('PAWAPAY_LIVE_URL', 'https://api.pawapay.io')
+            : env('PAWAPAY_SANDBOX_URL', 'https://api.sandbox.pawapay.io'),
+    ),
 
     /*
     | API Token
@@ -31,7 +36,7 @@ return [
     | Sandbox and production tokens are different and not interchangeable.
     | NEVER expose this token client-side.
     */
-    'token' => env('PAWAPAY_TOKEN'),
+    'token' => env('PAWAPAY_TOKEN', env('PAWAPAY_API_TOKEN')),
 
     /*
     | Verify Callback Signatures (RFC-9421)
@@ -40,7 +45,10 @@ return [
     | Requires public key exchange via the PawaPay dashboard.
     | Recommended for production.
     */
-    'verify_callback_signature' => env('PAWAPAY_VERIFY_CALLBACK_SIGNATURE', false),
+    'verify_callback_signature' => env(
+        'PAWAPAY_VERIFY_CALLBACK_SIGNATURE',
+        env('PAWAPAY_CALLBACK_VERIFY_SIGNATURE', false),
+    ),
 
     /*
     | Default Currency
@@ -49,7 +57,7 @@ return [
     | Common codes: ZMW (Zambia), KES (Kenya), UGX (Uganda),
     | CDF (DRC), XAF (Cameroon), GHS (Ghana), NGN (Nigeria)
     */
-    'default_currency' => env('PAWAPAY_DEFAULT_CURRENCY', 'CDF'),
+    'default_currency' => env('PAWAPAY_DEFAULT_CURRENCY', env('PAWAPAY_CURRENCY', 'XAF')),
 
     /*
     | Available Providers

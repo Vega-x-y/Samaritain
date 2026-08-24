@@ -19,6 +19,27 @@ class TransactionController extends Controller
     ) {}
 
     /**
+     * Display a listing of the user's transactions.
+     */
+    public function index()
+    {
+        return view('pages.tenant.transactions.index');
+    }
+
+    /**
+     * Display the specified transaction.
+     */
+    public function show(Transaction $transaction)
+    {
+        // Authorization: only the transaction owner can view it
+        if ($transaction->user_id !== auth()->id()) {
+            abort(403, 'Vous n\'êtes pas autorisé à consulter cette transaction.');
+        }
+
+        return view('pages.tenant.transactions.show', compact('transaction'));
+    }
+
+    /**
      * Show the in-app payment tracking screen after the hosted page.
      *
      * After the hosted payment page is opened, the page displays the live status

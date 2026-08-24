@@ -637,6 +637,10 @@ Route::middleware(['auth', 'verified', 'tenant'])->prefix('tenant')->name('tenan
     Route::get('/messenger', function () {
         return view('pages.tenant.messenger');
     })->name('messenger');
+
+    // Transactions & Payments (PawaPay)
+    Route::get('/transactions', [TransactionController::class, 'index'])->name('transactions.index');
+    Route::get('/transactions/{transaction}', [TransactionController::class, 'show'])->name('transactions.show');
 });
 
 /*
