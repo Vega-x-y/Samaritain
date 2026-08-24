@@ -12,7 +12,7 @@ use Illuminate\View\ComponentAttributeBag;
     'text-[var(--warning-foreground)] bg-[color-mix(in_oklab,var(--warning)_10%,transparent)] border-[color-mix(in_oklab,var(--warning)_50%,transparent)]' => $style === 'warning',
     'text-[var(--danger-foreground)] bg-[color-mix(in_oklab,var(--danger)_10%,transparent)] border-[color-mix(in_oklab,var(--danger)_50%,transparent)]' => $style === 'danger',
 ]) }} role="alert">
-    @if(! is_null($icon) && \Illuminate\Support\Arr::has(\Blade::getCustomComponents(), $icon))
+    @if(! is_null($icon))
         <div {{ (new ComponentAttributeBag)->class([
             'h-full my-1 p-2 flex-shrink-0 inline-block',
             'text-[var(--success)]' => $style === 'success',
