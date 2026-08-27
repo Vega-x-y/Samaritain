@@ -81,6 +81,12 @@
 
                         <x-sidebar.sub-item label="Catégories de parcelles" href="{{ route('admin.configuration.parcelle-category.index') }}"
                             :active="request()->routeIs('admin.configuration.parcelle-category.*')" />
+
+                        <x-sidebar.sub-item label="Villes" href="{{ route('admin.configuration.city.index') }}"
+                            :active="request()->routeIs('admin.configuration.city.*')" />
+
+                        <x-sidebar.sub-item label="Arrondissements" href="{{ route('admin.configuration.arrondissement.index') }}"
+                            :active="request()->routeIs('admin.configuration.arrondissement.*')" />
                     </x-sidebar.item>
                 @endcan
             </x-sidebar.group>

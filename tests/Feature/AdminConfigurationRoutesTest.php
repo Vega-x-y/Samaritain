@@ -54,6 +54,20 @@ it('registers admin configuration route names with the configuration segment', f
         'admin.configuration.parcelle-category.destroy',
         'admin.configuration.parcelle-category.toggle-active',
         'admin.configuration.parcelle-category.update-sort',
+
+        // Localités
+        'admin.configuration.city.index',
+        'admin.configuration.city.create',
+        'admin.configuration.city.store',
+        'admin.configuration.city.edit',
+        'admin.configuration.city.update',
+        'admin.configuration.city.destroy',
+        'admin.configuration.arrondissement.index',
+        'admin.configuration.arrondissement.create',
+        'admin.configuration.arrondissement.store',
+        'admin.configuration.arrondissement.edit',
+        'admin.configuration.arrondissement.update',
+        'admin.configuration.arrondissement.destroy',
     ];
 
     foreach ($expectedRoutes as $name) {

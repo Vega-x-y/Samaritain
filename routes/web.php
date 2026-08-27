@@ -1,10 +1,12 @@
 <?php
 
 use App\Http\Controllers\Admin\AmenityController;
+use App\Http\Controllers\Admin\ArrondissementController;
 use App\Http\Controllers\Admin\ArtisanCategoryController;
 use App\Http\Controllers\Admin\ArtisanController as AdminArtisanController;
 use App\Http\Controllers\Admin\ArtisanProjectController as AdminArtisanProjectController;
 use App\Http\Controllers\Admin\CategoryController;
+use App\Http\Controllers\Admin\CityController;
 use App\Http\Controllers\Admin\CommercialPropertyController as AdminCommercialPropertyController;
 use App\Http\Controllers\Admin\DashboardController;
 use App\Http\Controllers\Admin\HotelController as AdminHotelController;
@@ -256,6 +258,9 @@ Route::prefix('/admin/dashboard')->middleware(['auth', 'verified', StaffMiddlewa
         Route::resource('parcelle-category', ParcelleCategoryController::class);
         Route::patch('parcelle-category/{category}/toggle-active', [ParcelleCategoryController::class, 'toggleActive'])->name('parcelle-category.toggle-active');
         Route::post('parcelle-category/update-sort', [ParcelleCategoryController::class, 'updateSort'])->name('parcelle-category.update-sort');
+
+        Route::resource('city', CityController::class)->except('show');
+        Route::resource('arrondissement', ArrondissementController::class)->except('show');
     });
 });
 
