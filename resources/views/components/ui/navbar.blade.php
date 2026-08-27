@@ -4,15 +4,15 @@
     class="sticky top-0 z-50 backdrop-blur-md border-b border-gray-100 dark:border-gray-800 transition-all duration-200">
 
     {{-- Desktop --}}
-    <div class="hidden md:flex justify-between items-center max-w-7xl mx-auto px-6 h-16">
+    <div class="hidden xl:flex justify-between items-center max-w-7xl mx-auto px-6 h-16">
 
         {{-- Logo --}}
-        <a href="{{ route('index') }}" class="flex items-center gap-2 group">
+        <a href="{{ route('index') }}" class="flex shrink-0 items-center gap-2 group">
             <x-ui.logo />
         </a>
 
         {{-- Nav links --}}
-        <div class="flex items-center gap-1">
+        <div class="flex min-w-0 items-center gap-1">
             <a href="{{ route('index') }}" @class([
                 'px-3 py-2 text-sm font-medium hover:text-primary dark:hover:text-primary-400 hover:bg-primary/5 dark:hover:bg-primary/10 rounded-lg transition',
                 'text-primary dark:text-primary-400 bg-primary/5 dark:bg-primary/10' => request()->route()->getName() === 'index',
@@ -50,47 +50,46 @@
             ])>
                 Hôtels
             </a>
-            <a href="{{ route('parcelles.index') }}" @class([
-                'px-3 py-2 text-sm font-medium hover:text-primary dark:hover:text-primary-400 hover:bg-primary/5 dark:hover:bg-primary/10 rounded-lg transition',
-                'text-primary dark:text-primary-400 bg-primary/5 dark:bg-primary/10' =>
-                    request()->route()->getName() === 'parcelles.index',
-                'text-gray-700 dark:text-gray-300' => request()->route()->getName() !== 'parcelles.index',
-            ])>
-                Parcelles
-            </a>
-            <a href="{{ route('artisans.index') }}" @class([
-                'px-3 py-2 text-sm font-medium hover:text-primary dark:hover:text-primary-400 hover:bg-primary/5 dark:hover:bg-primary/10 rounded-lg transition',
-                'text-primary dark:text-primary-400 bg-primary/5 dark:bg-primary/10' =>
-                    request()->route()->getName() === 'artisans.index',
-                'text-gray-700 dark:text-gray-300' => request()->route()->getName() !== 'artisans.index',
-            ])>
-                Services
-            </a>
-            @if (!auth()->user())
-                <a href="{{ route('property.create') }}"
-                    class="text-sm underline hover:text-primary dark:hover:text-primary-400 text-gray-700 dark:text-gray-300">
-                    Publier une annonce
-                </a>
-                <a href="{{ route('artisan.create') }}"
-                    class="text-sm underline hover:text-primary dark:hover:text-primary-400 text-gray-700 dark:text-gray-300">
-                    Devenir artisan
-                </a>
-            @endif
+            <div x-data="{ open: false }" class="relative shrink-0">
+                <button type="button" x-on:click="open = !open" x-on:click.outside="open = false"
+                    x-on:keydown.escape.window="open = false" :aria-expanded="open"
+                    class="flex items-center gap-1 rounded-lg px-3 py-2 text-sm font-medium text-gray-700 transition hover:bg-primary/5 hover:text-primary dark:text-gray-300 dark:hover:bg-primary/10 dark:hover:text-primary-400">
+                    Plus
+                    <i data-lucide="chevron-down" class="h-3.5 w-3.5 transition-transform" :class="open && 'rotate-180'"></i>
+                </button>
 
-
-            <a href="{{ route('avis.index') }}" @class([
-                'px-3 py-2 text-sm font-medium hover:text-primary dark:hover:text-primary-400 hover:bg-primary/5 dark:hover:bg-primary/10 rounded-lg transition',
-                'text-primary dark:text-primary-400 bg-primary/5 dark:bg-primary/10' =>
-                    request()->route()->getName() === 'avis.index',
-                'text-gray-700 dark:text-gray-300' => request()->route()->getName() !== 'avis.index',
-            ])>
-                Boite à suggestions
-            </a>
+                <div x-show="open" x-cloak x-transition
+                    class="absolute right-0 mt-2 w-56 rounded-xl border border-gray-100 bg-white py-1 text-sm shadow-lg dark:border-gray-700 dark:bg-gray-800">
+                    <a href="{{ route('parcelles.index') }}" x-on:click="open = false"
+                        class="flex items-center gap-2 px-3 py-2.5 text-gray-700 hover:bg-gray-50 dark:text-gray-300 dark:hover:bg-gray-700">
+                        <i data-lucide="land-plot" class="h-4 w-4 text-gray-400"></i> Parcelles
+                    </a>
+                    <a href="{{ route('artisans.index') }}" x-on:click="open = false"
+                        class="flex items-center gap-2 px-3 py-2.5 text-gray-700 hover:bg-gray-50 dark:text-gray-300 dark:hover:bg-gray-700">
+                        <i data-lucide="briefcase" class="h-4 w-4 text-gray-400"></i> Services
+                    </a>
+                    <a href="{{ route('avis.index') }}" x-on:click="open = false"
+                        class="flex items-center gap-2 px-3 py-2.5 text-gray-700 hover:bg-gray-50 dark:text-gray-300 dark:hover:bg-gray-700">
+                        <i data-lucide="message-square" class="h-4 w-4 text-gray-400"></i> Boîte à suggestions
+                    </a>
+                    @if (!auth()->user())
+                        <div class="my-1 border-t border-gray-100 dark:border-gray-700"></div>
+                        <a href="{{ route('property.create') }}" x-on:click="open = false"
+                            class="flex items-center gap-2 px-3 py-2.5 text-gray-700 hover:bg-gray-50 dark:text-gray-300 dark:hover:bg-gray-700">
+                            <i data-lucide="warehouse" class="h-4 w-4 text-gray-400"></i> Publier une annonce
+                        </a>
+                        <a href="{{ route('artisan.create') }}" x-on:click="open = false"
+                            class="flex items-center gap-2 px-3 py-2.5 text-gray-700 hover:bg-gray-50 dark:text-gray-300 dark:hover:bg-gray-700">
+                            <i data-lucide="drill" class="h-4 w-4 text-gray-400"></i> Devenir artisan
+                        </a>
+                    @endif
+                </div>
+            </div>
 
         </div>
 
         {{-- CTA + Auth --}}
-        <div class="flex items-center gap-3">
+        <div class="flex shrink-0 items-center gap-3">
             <button x-on:click="toggleTheme()"
                 class="p-1.5 text-[var(--muted-foreground)] dark:text-gray-400 hover:text-[var(--foreground)] dark:hover:text-white rounded-md hover:bg-[var(--sidebar-border)] dark:hover:bg-gray-700 transition-colors focus:outline-none">
                 <i data-lucide="sun" class="h-4 w-4 hidden dark:block"></i>
@@ -182,7 +181,7 @@
     </div>
 
     {{-- Mobile --}}
-    <div class="flex md:hidden justify-between items-center px-4 h-14 ">
+    <div class="flex xl:hidden justify-between items-center px-4 h-14 ">
 
 
         <a href="{{ route('index') }}" class="flex items-center gap-2">
@@ -239,7 +238,7 @@
         x-transition:enter="transition ease-out duration-200" x-transition:enter-start="opacity-0 -translate-y-2"
         x-transition:enter-end="opacity-100 translate-y-0" x-transition:leave="transition ease-in duration-150"
         x-transition:leave-start="opacity-100 translate-y-0" x-transition:leave-end="opacity-0 -translate-y-2"
-        class="md:hidden absolute inset-x-0 top-full z-50 bg-white dark:bg-gray-900 border-t border-gray-100 dark:border-gray-800 shadow-xl rounded-b-2xl">
+        class="xl:hidden absolute inset-x-0 top-full z-50 bg-white dark:bg-gray-900 border-t border-gray-100 dark:border-gray-800 shadow-xl rounded-b-2xl">
         <div class="flex flex-col gap-1 max-w-7xl mx-auto px-4 py-4">
             <a href="{{ route('index') }}" x-on:click="isOpen = false"
                 class="flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-medium text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-800">
@@ -327,14 +326,11 @@
             @endif
         </div>
     </div>
-</nav>
-
-
 {{-- menu de navigation pour téléphone --}}
-    <div x-show="!isOpen" class="block md:hidden text-sm flex overflow-x-auto whitespace-nowrap scrollbar-hide">
+    <div x-show="!isOpen" class="flex xl:hidden text-sm overflow-x-auto whitespace-nowrap scrollbar-hide">
         <div class="flex justify-center items-center gap-1  dark:border-t-white py-2 ">
             <a href="{{ route('index') }}" @class([
-                'px-5 py-1 flex jutify-center items-center  text-sm font-medium hover:text-primary dark:hover:text-primary-400 transition text-gray-700 dark:text-gray-300 border-1 border-solid rounded-md',
+                'px-5 py-1 flex justify-center items-center text-sm font-medium hover:text-primary dark:hover:text-primary-400 transition text-gray-700 dark:text-gray-300 border rounded-md',
                 'text-primary dark:text-primary-400 bg-primary/5 dark:bg-primary/10' => request()->route()->getName() === 'index',
                 'text-gray-700 dark:text-gray-300' => request()->route()->getName() !== 'index',
             ])>
@@ -342,7 +338,7 @@
             </a>
             <a href="{{ route('property.index') }}" @class([
 
-                'px-5 py-1 flex jutify-center items-center  text-sm font-medium hover:text-primary dark:hover:text-primary-400 transition text-gray-700 dark:text-gray-300 border-1 border-solid rounded-md',
+                'px-5 py-1 flex justify-center items-center text-sm font-medium hover:text-primary dark:hover:text-primary-400 transition text-gray-700 dark:text-gray-300 border rounded-md',
 
                 'text-primary dark:text-primary-400 bg-primary/5 dark:bg-primary/10' =>
                     request()->route()->getName() === 'property.index',
@@ -351,14 +347,14 @@
                 Maisons
             </a>
             <a href="{{ route('boutique.index') }}" @class([
-                'px-5 py-1 flex jutify-center items-center text-sm font-medium hover:text-primary dark:hover:text-primary-400 transition text-gray-700 dark:text-gray-300 border-1 border-solid rounded-md',
+                'px-5 py-1 flex justify-center items-center text-sm font-medium hover:text-primary dark:hover:text-primary-400 transition text-gray-700 dark:text-gray-300 border rounded-md',
                 'text-primary dark:text-primary-400 bg-primary/5 dark:bg-primary/10' => request()->route()->getName() === 'boutique.index',
                 'text-gray-700 dark:text-gray-300' => request()->route()->getName() !== 'boutique.index',
             ])>
                 Boutiques
             </a>
             <a href="{{ route('bureau.index') }}" @class([
-                'px-5 py-1 flex jutify-center items-center text-sm font-medium hover:text-primary dark:hover:text-primary-400 transition text-gray-700 dark:text-gray-300 border-1 border-solid rounded-md',
+                'px-5 py-1 flex justify-center items-center text-sm font-medium hover:text-primary dark:hover:text-primary-400 transition text-gray-700 dark:text-gray-300 border rounded-md',
                 'text-primary dark:text-primary-400 bg-primary/5 dark:bg-primary/10' => request()->route()->getName() === 'bureau.index',
                 'text-gray-700 dark:text-gray-300' => request()->route()->getName() !== 'bureau.index',
             ])>
@@ -366,7 +362,7 @@
             </a>
             <a href="{{ route('hotel.index') }}" @class([
 
-                'px-5 py-1 flex jutify-center items-center  text-sm font-medium hover:text-primary dark:hover:text-primary-400 transition text-gray-700 dark:text-gray-300 border-1 border-solid rounded-md',
+                'px-5 py-1 flex justify-center items-center text-sm font-medium hover:text-primary dark:hover:text-primary-400 transition text-gray-700 dark:text-gray-300 border rounded-md',
 
                 'text-primary dark:text-primary-400 bg-primary/5 dark:bg-primary/10' =>
                     request()->route()->getName() === 'hotel.index',
@@ -376,7 +372,7 @@
             </a>
             <a href="{{ route('parcelles.index') }}" @class([
 
-                'px-5 py-1 flex jutify-center items-center  text-sm font-medium hover:text-primary dark:hover:text-primary-400 transition text-gray-700 dark:text-gray-300 border-1 border-solid rounded-md',
+                'px-5 py-1 flex justify-center items-center text-sm font-medium hover:text-primary dark:hover:text-primary-400 transition text-gray-700 dark:text-gray-300 border rounded-md',
 
                 'text-primary dark:text-primary-400 bg-primary/5 dark:bg-primary/10' =>
                     request()->route()->getName() === 'parcelles.index',
@@ -385,7 +381,7 @@
                 Parcelles
             </a>
             <a href="{{ route('artisans.index') }}" @class([
-                'px-5 py-1 flex jutify-center items-center  text-sm font-medium hover:text-primary dark:hover:text-primary-400 transition text-gray-700 dark:text-gray-300 border-1 border-solid rounded-md',
+                'px-5 py-1 flex justify-center items-center text-sm font-medium hover:text-primary dark:hover:text-primary-400 transition text-gray-700 dark:text-gray-300 border rounded-md',
 
 
                 'text-primary dark:text-primary-400 bg-primary/5 dark:bg-primary/10' =>
@@ -396,12 +392,12 @@
             </a>
             @if (!auth()->user())
                 <a href="{{ route('property.create') }}"
-                    class="px-5 py-1 flex jutify-center items-center  text-sm font-medium hover:text-primary dark:hover:text-primary-400 transition text-gray-700 dark:text-gray-300 border-1 border-solid rounded-md">
+                    class="px-5 py-1 flex justify-center items-center text-sm font-medium hover:text-primary dark:hover:text-primary-400 transition text-gray-700 dark:text-gray-300 border rounded-md">
                     Publier
                 </a>
 
                 <a href="{{ route('artisan.create') }}"
-                    class="px-5 py-1 flex jutify-center items-center  text-sm font-medium hover:text-primary dark:hover:text-primary-400 transition text-gray-700 dark:text-gray-300 border-1 border-solid rounded-md">
+                    class="px-5 py-1 flex justify-center items-center text-sm font-medium hover:text-primary dark:hover:text-primary-400 transition text-gray-700 dark:text-gray-300 border rounded-md">
                     Artisan
                 </a>
 
@@ -410,7 +406,7 @@
 
             <a href="{{ route('avis.index') }}" @class([
 
-                'px-5 py-1 flex jutify-center items-center  text-sm font-medium hover:text-primary dark:hover:text-primary-400 transition text-gray-700 dark:text-gray-300 border-1 border-solid rounded-md',
+                'px-5 py-1 flex justify-center items-center text-sm font-medium hover:text-primary dark:hover:text-primary-400 transition text-gray-700 dark:text-gray-300 border rounded-md',
 
                 'text-primary dark:text-primary-400 bg-primary/5 dark:bg-primary/10' =>
                     request()->route()->getName() === 'avis.index',
@@ -420,3 +416,4 @@
             </a>
         </div>
     </div>
+</nav>
