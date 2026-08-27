@@ -28,6 +28,20 @@
             ])>
                 Maisons
             </a>
+            <a href="{{ route('boutique.index') }}" @class([
+                'px-3 py-2 text-sm font-medium hover:text-primary dark:hover:text-primary-400 hover:bg-primary/5 dark:hover:bg-primary/10 rounded-lg transition',
+                'text-primary dark:text-primary-400 bg-primary/5 dark:bg-primary/10' => request()->route()->getName() === 'boutique.index',
+                'text-gray-700 dark:text-gray-300' => request()->route()->getName() !== 'boutique.index',
+            ])>
+                Boutiques
+            </a>
+            <a href="{{ route('bureau.index') }}" @class([
+                'px-3 py-2 text-sm font-medium hover:text-primary dark:hover:text-primary-400 hover:bg-primary/5 dark:hover:bg-primary/10 rounded-lg transition',
+                'text-primary dark:text-primary-400 bg-primary/5 dark:bg-primary/10' => request()->route()->getName() === 'bureau.index',
+                'text-gray-700 dark:text-gray-300' => request()->route()->getName() !== 'bureau.index',
+            ])>
+                Bureaux
+            </a>
             <a href="{{ route('hotel.index') }}" @class([
                 'px-3 py-2 text-sm font-medium hover:text-primary dark:hover:text-primary-400 hover:bg-primary/5 dark:hover:bg-primary/10 rounded-lg transition',
                 'text-primary dark:text-primary-400 bg-primary/5 dark:bg-primary/10' =>
@@ -235,6 +249,14 @@
                 class="flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-medium text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-800">
                 <i data-lucide="warehouse" class="w-4 h-4 text-gray-400 dark:text-gray-500"></i> Maisons
             </a>
+            <a href="{{ route('boutique.index') }}" x-on:click="isOpen = false"
+                class="flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-medium text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-800">
+                <i data-lucide="store" class="w-4 h-4 text-gray-400 dark:text-gray-500"></i> Boutiques
+            </a>
+            <a href="{{ route('bureau.index') }}" x-on:click="isOpen = false"
+                class="flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-medium text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-800">
+                <i data-lucide="briefcase-business" class="w-4 h-4 text-gray-400 dark:text-gray-500"></i> Bureaux
+            </a>
             <a href="{{ route('hotel.index') }}" x-on:click="isOpen = false"
                 class="flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-medium text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-800">
                 <i data-lucide="building-2" class="w-4 h-4 text-gray-400 dark:text-gray-500"></i> Hôtels
@@ -327,6 +349,20 @@
                 'text-gray-700 dark:text-gray-300' => request()->route()->getName() !== 'property.index',
             ])>
                 Maisons
+            </a>
+            <a href="{{ route('boutique.index') }}" @class([
+                'px-5 py-1 flex jutify-center items-center text-sm font-medium hover:text-primary dark:hover:text-primary-400 transition text-gray-700 dark:text-gray-300 border-1 border-solid rounded-md',
+                'text-primary dark:text-primary-400 bg-primary/5 dark:bg-primary/10' => request()->route()->getName() === 'boutique.index',
+                'text-gray-700 dark:text-gray-300' => request()->route()->getName() !== 'boutique.index',
+            ])>
+                Boutiques
+            </a>
+            <a href="{{ route('bureau.index') }}" @class([
+                'px-5 py-1 flex jutify-center items-center text-sm font-medium hover:text-primary dark:hover:text-primary-400 transition text-gray-700 dark:text-gray-300 border-1 border-solid rounded-md',
+                'text-primary dark:text-primary-400 bg-primary/5 dark:bg-primary/10' => request()->route()->getName() === 'bureau.index',
+                'text-gray-700 dark:text-gray-300' => request()->route()->getName() !== 'bureau.index',
+            ])>
+                Bureaux
             </a>
             <a href="{{ route('hotel.index') }}" @class([
 
