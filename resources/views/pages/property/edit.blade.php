@@ -4,6 +4,8 @@
 
 @section('content')
     @php
+    $propertyType = $propertyType ?? ($property->property_type?->value ?? 'residential');
+    $routePrefix = $propertyType === 'residential' ? 'property' : $propertyType;
         $statusOptions = [
             'available' => 'Disponible',
             'sold' => 'Vendu',
@@ -17,7 +19,7 @@
                 <h1 class="text-2xl font-bold text-gray-900 dark:text-white">Modifier le bien</h1>
                 <p class="text-gray-600 dark:text-gray-400 mt-1">{{ $property->title }}</p>
             </div>
-            <a href="{{ route('property.dashboard') }}"
+            <a href="{{ route($routePrefix . '.dashboard') }}"
                 class="inline-flex items-center gap-2 px-4 py-2 text-gray-600 dark:text-gray-400 hover:text-primary dark:hover:text-primary-400 transition-colors">
                 <i data-lucide="chevron-left" class="w-4 h-4"></i>
                 Retour
@@ -35,10 +37,11 @@
         </div>
 
         <div class="bg-sidebar dark:bg-gray-800 rounded-xl shadow-sm border border-gray-100 dark:border-gray-700 overflow-hidden">
-            <form action="{{ route('property.update', $property) }}" method="POST" enctype="multipart/form-data"
+            <form action="{{ route($routePrefix . '.update', $property) }}" method="POST" enctype="multipart/form-data"
                 class="space-y-6">
                 @csrf
                 @method('PUT')
+                <input type="hidden" name="property_type" value="{{ $propertyType }}">
 
                 <!-- Informations générales -->
                 <div class="p-6 border-b border-gray-100 dark:border-gray-700">
@@ -141,7 +144,7 @@
 
                 <!-- Boutons d'action -->
                 <div class="p-6 bg-accent dark:bg-gray-700/50 flex justify-end items-center gap-3">
-                    <x-btn href="{{ route('property.dashboard') }}" style="outline" class="dark:border-gray-600 dark:text-gray-300 dark:hover:bg-gray-700">Annuler</x-btn>
+                    <x-btn href="{{ route($routePrefix . '.dashboard') }}" style="outline" class="dark:border-gray-600 dark:text-gray-300 dark:hover:bg-gray-700">Annuler</x-btn>
                     <x-btn type="submit" class="dark:bg-primary-600 dark:text-white dark:hover:bg-primary-700">
                         <x-slot:prefix>
                             <i data-lucide="save"></i>

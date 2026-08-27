@@ -3,6 +3,11 @@
 @section('title', 'Tous les biens')
 
 @section('content')
+    @php
+        $propertyType = $propertyType ?? 'residential';
+        $routePrefix = $propertyType === 'residential' ? 'property' : $propertyType;
+        $propertyLabel = $propertyType === 'boutique' ? 'Boutiques' : ($propertyType === 'bureau' ? 'Bureaux' : 'biens immobiliers');
+    @endphp
     <!-- Hero Header avec image de fond -->
     <div
         class="relative bg-gradient-to-r from-black via-black to-black dark:from-blue-800 dark:via-blue-900 dark:to-blue-950 text-white min-h-[90vh] md:min-h-[80vh] lg:min-h-[90vh] flex items-center">
@@ -34,7 +39,7 @@
         <!-- Barre de recherche et filtres améliorée -->
         <div
             class="bg-card dark:bg-gray-800 rounded-lg shadow-lg -mt-16 md:-mt-20 lg:-mt-24 relative z-10 p-4 sm:p-6 mb-8 md:mb-12">
-            <form action="{{ route('property.search') }}" method="GET" id="searchForm">
+            <form action="{{ route($routePrefix . '.search') }}" method="GET" id="searchForm">
                 <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-4">
                     <!-- Recherche par mot-clé -->
                     <div class="lg:col-span-2">
@@ -166,7 +171,7 @@
 
                 <!-- Boutons d'action -->
                 <div class="mt-4 flex flex-col sm:flex-row gap-3 justify-end">
-                    <a href="{{ route('property.index') }}"
+                    <a href="{{ route($routePrefix . '.index') }}"
                         class="px-6 py-2.5 border border-border dark:border-gray-700 rounded-lg text-muted-foreground dark:text-gray-400 hover:bg-muted dark:hover:bg-gray-700 transition-colors text-center">
                         Réinitialiser
                     </a>
@@ -187,7 +192,7 @@
         <div id="properties"
             class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 mb-6 md:mb-8 mt-4 md:mt-8">
             <div>
-                <h2 class="text-xl sm:text-2xl md:text-3xl font-bold text-foreground dark:text-white">Nos biens immobiliers
+                <h2 class="text-xl sm:text-2xl md:text-3xl font-bold text-foreground dark:text-white">Nos {{ $propertyLabel }}
                 </h2>
                 <p class="text-sm sm:text-base text-muted-foreground dark:text-gray-400 mt-1 flex items-center gap-2">
                     <svg class="w-4 h-4 text-primary dark:text-primary-400" fill="none" stroke="currentColor"
@@ -281,7 +286,7 @@
                     <p class="text-muted-foreground dark:text-gray-400 text-sm sm:text-base">Aucun bien ne correspond à vos
                         critères de
                         recherche.</p>
-                    <a href="{{ route('property.index') }}"
+                    <a href="{{ route($routePrefix . '.index') }}"
                         class="inline-block mt-4 px-6 py-2 bg-primary dark:bg-primary-600 text-primary-foreground dark:text-white rounded-lg hover:bg-primary/90 dark:hover:bg-primary-700 transition-colors">
                         Voir tous les biens
                     </a>

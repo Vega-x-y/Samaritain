@@ -20,7 +20,7 @@ class PropertyController extends Controller
      */
     public function index()
     {
-        $properties = Property::paginate(10);
+        $properties = Property::where('property_type', 'residential')->paginate(10);
 
         return view('pages.admin.property.index', [
             'properties' => $properties,
@@ -32,6 +32,7 @@ class PropertyController extends Controller
      */
     public function show(Property $property)
     {
+        abort_unless($property->property_type?->value === 'residential', 404);
         $property->load(['amenities', 'images', 'category', 'city', 'arrondissement', 'creator']);
 
         return view('pages.admin.property.show', [
@@ -58,6 +59,8 @@ class PropertyController extends Controller
     public function store(PropertyFormRequest $request, UploadImage $storeImage)
     {
         $data = $request->validated();
+        $data['property_type'] = 'residential';
+        unset($data['conditions']);
 
         $property = Property::create([
             ...$data,
@@ -94,7 +97,9 @@ class PropertyController extends Controller
      */
     public function update(PropertyFormRequest $request, Property $property, UploadImage $storeImage)
     {
-        $property->update($request->validated());
+        $data = $request->validated();
+        $data['property_type'] = 'residential';
+        $property->update($data);
         $property->amenities()->sync($request->validated('amenities'));
 
         // Supprimer uniquement les images non conservées

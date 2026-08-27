@@ -27,6 +27,7 @@ class PropertyController extends Controller
     public function index(Request $request)
     {
         $query = Property::query()
+            ->where('property_type', 'residential')
             ->where('is_active', true)
             ->where('is_verify', true)
             ->with(['city', 'category', 'images', 'arrondissement']);
@@ -95,6 +96,7 @@ class PropertyController extends Controller
      */
     public function show(Request $request, Property $property)
     {
+        abort_unless($property->property_type?->value === 'residential', 404);
         Gate::authorize('view', $property);
 
         $this->registerView($request, $property);
@@ -112,7 +114,7 @@ class PropertyController extends Controller
             'images',
             'city',
             'category',
-        ])
+        ])->where('property_type', 'residential')
             ->where('id', '!=', $property->id)
             ->where('is_active', true)
             ->where('is_verify', true)
@@ -146,6 +148,7 @@ class PropertyController extends Controller
     public function store(PropertyFormRequest $request, UploadImage $storeImage)
     {
         $data = $request->validated();
+        $data['property_type'] = 'residential';
         unset($data['conditions']);
 
         $property = Property::create([
@@ -171,6 +174,7 @@ class PropertyController extends Controller
      */
     public function edit(Property $property)
     {
+        abort_unless($property->property_type?->value === 'residential', 404);
         Gate::authorize('update', $property);
 
         $property->load(['amenities', 'images']);
@@ -189,9 +193,12 @@ class PropertyController extends Controller
      */
     public function update(PropertyFormRequest $request, Property $property, UploadImage $storeImage)
     {
+        abort_unless($property->property_type?->value === 'residential', 404);
         Gate::authorize('update', $property);
 
-        $property->update($request->validated());
+        $data = $request->validated();
+        $data['property_type'] = 'residential';
+        $property->update($data);
         $property->amenities()->sync($request->validated('amenities'));
 
         // Après modification, le bien redevient non vérifié (nécessite une nouvelle validation)
@@ -221,6 +228,7 @@ class PropertyController extends Controller
      */
     public function destroy(Property $property)
     {
+        abort_unless($property->property_type?->value === 'residential', 404);
         Gate::authorize('delete', $property);
 
         $property->images()
@@ -242,6 +250,7 @@ class PropertyController extends Controller
     public function byCity(Request $request, City $city)
     {
         $properties = Property::where('city_id', $city->id)
+            ->where('property_type', 'residential')
             ->where('is_active', true)
             ->where('is_verify', true)
             ->with(['city', 'category'])
@@ -262,6 +271,7 @@ class PropertyController extends Controller
     public function byCategory(Request $request, Category $category)
     {
         $properties = Property::where('category_id', $category->id)
+            ->where('property_type', 'residential')
             ->where('is_active', true)
             ->where('is_verify', true)
             ->with(['city', 'category'])
@@ -282,6 +292,7 @@ class PropertyController extends Controller
     public function search(Request $request)
     {
         $query = Property::query()
+            ->where('property_type', 'residential')
             ->where('is_active', true)
             ->where('is_verify', true);
 
@@ -356,15 +367,16 @@ class PropertyController extends Controller
     public function dashboard()
     {
         $properties = Property::where('created_by', Auth::id())
+            ->where('property_type', 'residential')
             ->with(['city', 'category'])
             ->latest()
             ->paginate(10);
 
         $stats = [
-            'total' => Property::where('created_by', Auth::id())->count(),
-            'verified' => Property::where('created_by', Auth::id())->where('is_verify', true)->count(),
-            'pending' => Property::where('created_by', Auth::id())->where('is_verify', false)->count(),
-            'active' => Property::where('created_by', Auth::id())->where('is_active', true)->count(),
+            'total' => Property::where('created_by', Auth::id())->where('property_type', 'residential')->count(),
+            'verified' => Property::where('created_by', Auth::id())->where('property_type', 'residential')->where('is_verify', true)->count(),
+            'pending' => Property::where('created_by', Auth::id())->where('property_type', 'residential')->where('is_verify', false)->count(),
+            'active' => Property::where('created_by', Auth::id())->where('property_type', 'residential')->where('is_active', true)->count(),
         ];
 
         return view('pages.property.dashboard', [

@@ -38,7 +38,7 @@
 
                 {{-- ── FORM ── --}}
                 <div>
-                    <form method="POST" action="{{ $type === 'property' ? route('property.contact.store', $contactable) : route('parcelles.contact.store', $contactable) }}" class="space-y-5">
+                    <form method="POST" action="{{ $type === 'property' ? route('property.contact.store', $contactable) : ($type === 'parcelle' ? route('parcelles.contact.store', $contactable) : route($type . '.contact.store', $contactable)) }}" class="space-y-5">
                         @csrf
 
                         <div class="grid grid-cols-1 sm:grid-cols-2 gap-5">

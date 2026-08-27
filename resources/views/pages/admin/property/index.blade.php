@@ -3,14 +3,19 @@
 @section('title', 'Les biens')
 
 @section('content')
+    @php
+        $propertyType = $propertyType ?? 'residential';
+        $adminRoutePrefix = 'admin.' . ($propertyType === 'residential' ? 'property' : $propertyType);
+        $propertyLabel = $propertyType === 'boutique' ? 'boutique' : ($propertyType === 'bureau' ? 'bureau' : 'bien');
+    @endphp
     @if (!$properties->isEmpty())
         <div class="flex justify-between">
             <h1 class="text-gray-800 dark:text-white">Liste des biens</h1>
-            <x-btn href="{{ route('admin.property.create') }}" class="dark:bg-primary-600 dark:text-white dark:hover:bg-primary-700">
+            <x-btn href="{{ route($adminRoutePrefix . '.create') }}" class="dark:bg-primary-600 dark:text-white dark:hover:bg-primary-700">
                 <x-slot:prefix>
                     <i data-lucide="plus"></i>
                 </x-slot:prefix>
-                Créer un bien
+                Créer une {{ $propertyLabel }}
             </x-btn>
         </div>
         <x-container-dashed>
@@ -36,7 +41,7 @@
                                 <tr class="hover:bg-gray-50 dark:hover:bg-gray-700/50 transition">
                                     <td class="px-4 py-3">#{{ $loop->iteration }}</td>
                                     <td class="px-4 py-3 font-medium hover:text-blue-600 dark:hover:text-blue-400">
-                                        <a href="{{ route('admin.property.show', $property) }}" class="text-gray-800 dark:text-white">{{ $property->title }}</a>
+                                        <a href="{{ route($adminRoutePrefix . '.show', $property) }}" class="text-gray-800 dark:text-white">{{ $property->title }}</a>
                                     </td>
                                     <td class="px-4 py-3 text-gray-800 dark:text-white">{{ number_format($property->price, 0, ',', ' ') }} FCFA {{ $property->price_label }}</td>
                                     <td class="px-4 py-3">{{ $property->rooms }}</td>
@@ -77,13 +82,13 @@
                                     </td>
                                     <td class="px-4 py-3">
                                         <div class="flex items-center justify-center gap-2">
-                                            <a href="{{ route('admin.property.show', $property) }}" class="block text-blue-500 dark:text-blue-400 hover:text-blue-600 dark:hover:text-blue-300">
+                                            <a href="{{ route($adminRoutePrefix . '.show', $property) }}" class="block text-blue-500 dark:text-blue-400 hover:text-blue-600 dark:hover:text-blue-300">
                                                 <i data-lucide="eye" class="w-4 h-4"></i>
                                             </a>
-                                            <a href="{{ route('admin.property.edit', $property) }}" class="block text-yellow-500 dark:text-yellow-400 hover:text-yellow-600 dark:hover:text-yellow-300">
+                                            <a href="{{ route($adminRoutePrefix . '.edit', $property) }}" class="block text-yellow-500 dark:text-yellow-400 hover:text-yellow-600 dark:hover:text-yellow-300">
                                                 <i data-lucide="edit" class="w-4 h-4"></i>
                                             </a>
-                                            <button x-on:click="openModal('{{ route('admin.property.destroy', $property) }}', '{{ $property->title }}')" class="block text-destructive dark:text-red-400 hover:text-red-600 dark:hover:text-red-300">
+                                            <button x-on:click="openModal('{{ route($adminRoutePrefix . '.destroy', $property) }}', '{{ $property->title }}')" class="block text-destructive dark:text-red-400 hover:text-red-600 dark:hover:text-red-300">
                                                 <i data-lucide="trash" class="w-4 h-4"></i>
                                             </button>
                                         </div>
@@ -131,7 +136,7 @@
     @else
         <div class="flex justify-between">
             <div></div>
-            <x-btn href="{{ route('admin.property.create') }}" class="dark:bg-primary-600 dark:text-white dark:hover:bg-primary-700">
+            <x-btn href="{{ route($adminRoutePrefix . '.create') }}" class="dark:bg-primary-600 dark:text-white dark:hover:bg-primary-700">
                 <x-slot:prefix>
                     <i data-lucide="plus"></i>
                 </x-slot:prefix>

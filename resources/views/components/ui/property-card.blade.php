@@ -2,7 +2,8 @@
     'property' => null,
 ])
 
-<a href="{{ route('property.show', $property) }}"
+@php($cardRoute = $property->property_type?->value && $property->property_type->value !== 'residential' ? $property->property_type->value . '.show' : 'property.show')
+<a href="{{ route($cardRoute, $property) }}"
     class="group block w-full cursor-pointer">
 
     {{-- Image --}}

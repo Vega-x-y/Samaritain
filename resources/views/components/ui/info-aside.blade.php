@@ -41,7 +41,7 @@
 
         {{-- CTAs --}}
         <div class="flex flex-col gap-2.5 mb-4">
-            <a href="{{ route('property.contact.create', $property) }}"
+            <a href="{{ route($property->property_type?->value && $property->property_type->value !== 'residential' ? $property->property_type->value . '.contact.create' : 'property.contact.create', $property) }}"
                 class="inline-flex w-full items-center justify-center gap-x-1.5 shrink-0 transition-colors duration-100 text-sm/5 font-medium shadow-none rounded-[var(--radius)] bg-[var(--primary)] text-[var(--primary-foreground)] hover:bg-[color-mix(in_oklab,var(--primary)_90%,transparent)] focus:bg-[color-mix(in_oklab,var(--primary)_90%,transparent)] active:bg-[var(--primary)] h-9 text-center px-4 py-2">
                 Contacter l'entreprise
             </a>

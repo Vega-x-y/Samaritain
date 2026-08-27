@@ -3,6 +3,7 @@
 namespace App\Models;
 
 use App\Enums\PropertyStatus;
+use App\Enums\PropertyType;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\HasMany;
@@ -14,6 +15,7 @@ class Property extends Model
     use HasFactory, SoftDeletes;
 
     protected $fillable = [
+        'property_type',
         'created_by',
         'title',
         'slug',
@@ -38,6 +40,7 @@ class Property extends Model
     ];
 
     protected $casts = [
+        'property_type' => PropertyType::class,
         'status' => PropertyStatus::class,
         'conditions_accepted_at' => 'datetime',
     ];

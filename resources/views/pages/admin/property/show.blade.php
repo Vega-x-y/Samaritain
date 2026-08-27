@@ -3,17 +3,23 @@
 @section('title', 'Détails du bien - ' . $property->title)
 
 @section('content')
+@php
+    $propertyType = $propertyType ?? ($property->property_type?->value ?? 'residential');
+    $adminRoutePrefix = 'admin.' . ($propertyType === 'residential' ? 'property' : $propertyType);
+    $verifyRoute = $propertyType === 'residential' ? 'admin.property.' . ($property->is_verify ? 'unverify' : 'verify') : 'admin.' . $propertyType . '.toggle-verify';
+    $activeRoute = $propertyType === 'residential' ? 'admin.property.' . ($property->is_active ? 'disable' : 'enable') : 'admin.' . $propertyType . '.toggle-active';
+@endphp
 <div class="space-y-6">
     <!-- En-tête avec retour et actions -->
     <div class="flex justify-between items-center">
         <div class="flex items-center gap-4">
-            <a href="{{ route('admin.property.index') }}" class="text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white">
+            <a href="{{ route($adminRoutePrefix . '.index') }}" class="text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white">
                 <i data-lucide="arrow-left" class="w-5 h-5"></i>
             </a>
             <h1 class="text-gray-800 dark:text-white">Détails du bien : {{ $property->title }}</h1>
         </div>
         <div class="flex gap-2">
-            <x-btn href="{{ route('admin.property.edit', $property) }}" style="outline" class="dark:border-gray-700 dark:bg-gray-800 dark:text-gray-100 dark:hover:bg-gray-700">
+            <x-btn href="{{ route($adminRoutePrefix . '.edit', $property) }}" style="outline" class="dark:border-gray-700 dark:bg-gray-800 dark:text-gray-100 dark:hover:bg-gray-700">
                 <x-slot:prefix>
                     <i data-lucide="edit" class="w-4 h-4"></i>
                 </x-slot:prefix>
@@ -146,7 +152,7 @@
                     <div class="space-y-3">
                         <!-- Vérification -->
                         @if(!$property->is_verify)
-                            <form action="{{ route('admin.property.verify', $property) }}" method="POST">
+                            <form action="{{ route($verifyRoute, $property) }}" method="POST">
                                 @csrf
                                 @method('PATCH')
                                 <button type="submit" class="w-full bg-green-600 hover:bg-green-700 dark:bg-green-700 dark:hover:bg-green-800 text-white font-medium py-2 px-4 rounded-lg text-sm transition flex items-center justify-center gap-2">
@@ -154,7 +160,7 @@
                                 </button>
                             </form>
                         @else
-                            <form action="{{ route('admin.property.unverify', $property) }}" method="POST">
+                            <form action="{{ route($verifyRoute, $property) }}" method="POST">
                                 @csrf
                                 @method('PATCH')
                                 <button type="submit" class="w-full bg-yellow-600 hover:bg-yellow-700 dark:bg-yellow-700 dark:hover:bg-yellow-800 text-white font-medium py-2 px-4 rounded-lg text-sm transition flex items-center justify-center gap-2">
@@ -165,7 +171,7 @@
 
                         <!-- Activation/Désactivation -->
                         @if($property->is_active)
-                            <form action="{{ route('admin.property.disable', $property) }}" method="POST">
+                            <form action="{{ route($activeRoute, $property) }}" method="POST">
                                 @csrf
                                 @method('PATCH')
                                 <button type="submit" class="w-full bg-red-600 hover:bg-red-700 dark:bg-red-700 dark:hover:bg-red-800 text-white font-medium py-2 px-4 rounded-lg text-sm transition flex items-center justify-center gap-2">
@@ -173,7 +179,7 @@
                                 </button>
                             </form>
                         @else
-                            <form action="{{ route('admin.property.enable', $property) }}" method="POST">
+                            <form action="{{ route($activeRoute, $property) }}" method="POST">
                                 @csrf
                                 @method('PATCH')
                                 <button type="submit" class="w-full bg-green-600 hover:bg-green-700 dark:bg-green-700 dark:hover:bg-green-800 text-white font-medium py-2 px-4 rounded-lg text-sm transition flex items-center justify-center gap-2">
@@ -205,7 +211,7 @@
                 <!-- Suppression -->
                 <div class="bg-sidebar dark:bg-gray-800 rounded-lg p-4 border border-red-200 dark:border-red-800">
                     <h3 class="font-semibold text-red-600 dark:text-red-400 mb-3">Zone dangereuse</h3>
-                    <form action="{{ route('admin.property.destroy', $property) }}" method="POST" onsubmit="return confirm('Êtes-vous sûr de vouloir supprimer ce bien ? Cette action est irréversible.');">
+                    <form action="{{ route($adminRoutePrefix . '.destroy', $property) }}" method="POST" onsubmit="return confirm('Êtes-vous sûr de vouloir supprimer ce bien ? Cette action est irréversible.');">
                         @csrf
                         @method('DELETE')
                         <button type="submit" class="w-full bg-red-100 hover:bg-red-200 dark:bg-red-900/30 dark:hover:bg-red-900/50 text-red-700 dark:text-red-400 font-medium py-2 px-4 rounded-lg text-sm transition flex items-center justify-center gap-2">

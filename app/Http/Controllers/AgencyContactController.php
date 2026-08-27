@@ -25,6 +25,23 @@ class AgencyContactController extends Controller
         return $this->processContact($request, $property, 'property.show');
     }
 
+    public function commercialPropertyCreate(Property $property, string $type)
+    {
+        abort_unless($property->property_type?->value === $type, 404);
+
+        return view('pages.agency-contact.create', [
+            'contactable' => $property,
+            'type' => $type,
+        ]);
+    }
+
+    public function commercialPropertyStore(StoreAgencyContactRequest $request, Property $property, string $type)
+    {
+        abort_unless($property->property_type?->value === $type, 404);
+
+        return $this->processContact($request, $property, "{$type}.show");
+    }
+
     public function parcelleCreate(Parcelle $parcelle)
     {
         return view('pages.agency-contact.create', [

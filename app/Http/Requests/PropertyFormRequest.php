@@ -27,6 +27,7 @@ class PropertyFormRequest extends FormRequest
 
         $rules = [
             'title' => ['required', 'min:8'],
+            'property_type' => ['nullable', 'in:residential,boutique,bureau'],
             'description' => ['nullable', 'min:8'],
             'price' => ['required', 'integer', 'min:0'],
             'price_type' => ['required', 'in:monthly,daily'],

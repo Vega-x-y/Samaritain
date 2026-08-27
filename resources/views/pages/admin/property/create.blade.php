@@ -4,16 +4,20 @@
 
 @section('content')
     @php
+    $propertyType = $propertyType ?? 'residential';
+    $adminRoutePrefix = 'admin.' . ($propertyType === 'residential' ? 'property' : $propertyType);
+    $propertyLabel = $propertyType === 'boutique' ? 'boutique' : ($propertyType === 'bureau' ? 'bureau' : 'bien');
         $status = [
             'available' => 'Disponible',
             'sold' => 'Vendu',
             'rented' => 'Loué',
         ];
     @endphp
-    <h1>Créer un bien</h1>
+    <h1>Créer une {{ $propertyLabel }}</h1>
     <x-container-dashed>
-        <form action="{{ route('admin.property.store') }}" method="POST" class="space-y-4" enctype="multipart/form-data">
+        <form action="{{ route($adminRoutePrefix . '.store') }}" method="POST" class="space-y-4" enctype="multipart/form-data">
             @csrf
+            <input type="hidden" name="property_type" value="{{ $propertyType }}">
 
             <div class="grid grid-cols-1 md:grid-cols-5 gap-6">
                 <div class="md:col-span-2">
@@ -60,7 +64,7 @@
             </div>
 
             <div class="flex justify-end items-center gap-3">
-                <x-btn href="{{ route('admin.property.index') }}" style="outline">
+                <x-btn href="{{ route($adminRoutePrefix . '.index') }}" style="outline">
                     Annuler
                 </x-btn>
                 <x-btn type="submit">

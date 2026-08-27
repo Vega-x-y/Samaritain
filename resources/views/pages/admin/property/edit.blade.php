@@ -3,11 +3,16 @@
 @section('title', 'Modifier un bien')
 
 @section('content')
+    @php
+        $propertyType = $propertyType ?? ($property->property_type?->value ?? 'residential');
+        $adminRoutePrefix = 'admin.' . ($propertyType === 'residential' ? 'property' : $propertyType);
+    @endphp
     <h1>Modifier le bien</h1>
     <x-container-dashed>
-        <form action="{{ route('admin.property.update', $property) }}" method="POST" enctype="multipart/form-data" class="space-y-4">
+        <form action="{{ route($adminRoutePrefix . '.update', $property) }}" method="POST" enctype="multipart/form-data" class="space-y-4">
             @csrf
             @method('PATCH')
+            <input type="hidden" name="property_type" value="{{ $propertyType }}">
             <div class="grid grid-cols-1 md:grid-cols-5 gap-6">
                 <div class="md:col-span-2">
                     <x-form.input name="title" label="Titre du bien" :value="$property->title" />
@@ -72,7 +77,7 @@
                 <x-btn type="submit">
                     Modifier le bien
                 </x-btn>
-                <x-btn href="{{ route('admin.property.index') }}" style="outline">
+                <x-btn href="{{ route($adminRoutePrefix . '.index') }}" style="outline">
                     Annuler
                 </x-btn>
             </div>
