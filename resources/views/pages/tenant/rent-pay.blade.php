@@ -10,7 +10,7 @@
         <span class="dark:text-gray-300">Payer le loyer</span>
     </nav>
     <h1 class="text-2xl font-bold text-gray-800 dark:text-white">Payer le loyer</h1>
-    <p class="text-gray-500 dark:text-gray-400 mt-1">Saisissez votre numéro Mobile Money. L'opérateur sera détecté automatiquement et la demande de paiement sera envoyée sur votre téléphone.</p>
+    <p class="text-gray-500 dark:text-gray-400 mt-1">Confirmez le paiement : vous serez redirigé vers la page sécurisée PawaPay.</p>
 </div>
 
 <div class="grid grid-cols-1 lg:grid-cols-[1fr_340px] gap-8 items-start">
@@ -19,23 +19,18 @@
         @csrf
 
         <div>
-            <label for="phone_number" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1.5">
-                Numéro Mobile Money <span class="text-red-500">*</span>
-            </label>
-            <input id="phone_number" name="phone_number" type="text" value="{{ old('phone_number') }}"
-                placeholder="Ex : 24206XXXXXXXX" autocomplete="tel" required
-                class="w-full px-4 py-2.5 rounded-lg border @error('phone_number') border-red-400 @else border-gray-200 dark:border-gray-600 @enderror bg-white dark:bg-gray-700 text-gray-800 dark:text-white text-sm focus:outline-none focus:ring-2 focus:ring-primary">
-            @error('phone_number')
-                <p class="mt-1 text-xs text-red-500">{{ $message }}</p>
-            @enderror
-            <p class="mt-1 text-xs text-gray-400 dark:text-gray-500">Format international, chiffres uniquement ou avec le préfixe +242.</p>
+            <h2 class="font-semibold text-gray-800 dark:text-white">Confirmer le paiement</h2>
+            <p class="mt-1 text-sm text-gray-500 dark:text-gray-400">
+                Vous allez être redirigé vers la page de paiement sécurisée PawaPay.
+                Vous y choisirez votre opérateur Mobile Money et validerez le paiement depuis votre téléphone.
+            </p>
         </div>
 
         <div class="mt-6 flex flex-col sm:flex-row items-center gap-3">
             <button type="submit"
                 class="inline-flex w-full sm:w-auto items-center justify-center gap-2 rounded-xl bg-emerald-600 text-white px-6 py-3 text-sm font-semibold hover:bg-emerald-700 transition-colors">
                 <i data-lucide="wallet" class="w-4 h-4"></i>
-                Valider le paiement ({{ number_format($rentPayment->amount_due, 0, ',', ' ') }} {{ $currency }})
+                Payer {{ number_format($rentPayment->amount_due, 0, ',', ' ') }} {{ $currency }}
             </button>
             <a href="{{ route('tenant.payments') }}"
                 class="inline-flex w-full sm:w-auto items-center justify-center gap-2 rounded-xl border border-gray-200 dark:border-gray-600 px-6 py-3 text-sm font-medium text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors">

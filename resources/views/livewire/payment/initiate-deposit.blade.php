@@ -22,7 +22,7 @@
                 </p>
             </div>
         @else
-            {{-- Payment form --}}
+            {{-- Redirect to pawaPay's hosted payment page --}}
             <div class="space-y-4">
                 {{-- Amount display --}}
                 <div class="bg-gray-100 dark:bg-gray-800 p-4 rounded-lg">
@@ -32,83 +32,24 @@
                     </flux:heading>
                 </div>
 
-                {{-- Direct payment form --}}
                 <div class="border-t pt-4">
-                    <flux:heading size="sm" class="mb-3">Option 1 : Paiement direct</flux:heading>
-
-                    <flux:field>
-                        <flux:label>Numéro de téléphone</flux:label>
-                        <flux:input 
-                            type="tel" 
-                            wire:model.live="phoneNumber" 
-                            placeholder="Ex: 243970000000"
-                            :disabled="$processing"
-                        />
-                        <flux:error name="phoneNumber" />
-                    </flux:field>
-
-                    <flux:field class="mt-3">
-                        <flux:label>Opérateur Mobile Money</flux:label>
-                        <flux:select wire:model.live="provider" :disabled="$processing">
-                            <option value="">-- Sélectionner un opérateur --</option>
-                            @foreach($this->providers as $code => $name)
-                                <option value="{{ $code }}">{{ $name }}</option>
-                            @endforeach
-                        </flux:select>
-                        <flux:error name="provider" />
-                    </flux:field>
-
-                    <flux:field class="mt-3">
-                        <flux:label>Message optionnel (max 22 caractères)</flux:label>
-                        <flux:input 
-                            wire:model.live="customerMessage" 
-                            placeholder="Note visible sur votre téléphone"
-                            maxlength="22"
-                            :disabled="$processing"
-                        />
-                        <flux:error name="customerMessage" />
-                        @if($customerMessage)
-                            <flux:text class="text-xs text-gray-500 mt-1">
-                                {{ strlen($customerMessage) }}/22 caractères
-                            </flux:text>
-                        @endif
-                    </flux:field>
-
-                    <flux:button 
-                        wire:click="initiateDeposit" 
-                        variant="primary" 
-                        class="w-full mt-4"
-                        :disabled="$processing"
-                    >
-                        @if($processing)
-                            <span wire:loading wire:target="initiateDeposit">
-                                Traitement en cours...
-                            </span>
-                        @else
-                            Payer directement
-                        @endif
-                    </flux:button>
-                </div>
-
-                {{-- Payment page option --}}
-                <div class="border-t pt-4">
-                    <flux:heading size="sm" class="mb-3">Option 2 : Page de paiement hébergée</flux:heading>
                     <flux:text class="text-sm text-gray-600 dark:text-gray-400 mb-3">
-                        Vous serez redirigé vers une page sécurisée pour choisir votre opérateur et entrer votre numéro.
+                        Vous serez redirigé vers la page de paiement sécurisée de PawaPay pour choisir votre opérateur
+                        et saisir votre numéro. Les informations de paiement ne sont jamais saisies sur Samaritain.
                     </flux:text>
 
-                    <flux:button 
-                        wire:click="initiatePaymentPage" 
-                        variant="outline" 
+                    <flux:button
+                        wire:click="initiatePaymentPage"
+                        variant="primary"
                         class="w-full"
                         :disabled="$processing"
                     >
                         @if($processing)
                             <span wire:loading wire:target="initiatePaymentPage">
-                                Redirection...
+                                Redirection vers PawaPay...
                             </span>
                         @else
-                            Payer via page hébergée
+                            Payer via la page sécurisée PawaPay
                         @endif
                     </flux:button>
                 </div>

@@ -25,7 +25,7 @@ class TransactionFactory extends Factory
             'user_id' => User::factory(),
             'visit_pass_id' => null,
             'rent_payment_id' => null,
-            'status' => 'pending',
+            'status' => 'PENDING',
             'amount' => fake()->numberBetween(1000, 10000),
             'deposit_id' => null,
             'provider' => 'MTN_MOMO_COG',

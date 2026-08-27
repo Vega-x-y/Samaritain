@@ -126,7 +126,7 @@ class PawapayService
             );
         }
 
-        return $response->json() ?? [];
+        return $this->normalizeStatusResponse($response->json() ?? []);
     }
 
     /**
@@ -191,7 +191,7 @@ class PawapayService
             );
         }
 
-        return $response->json() ?? [];
+        return $this->normalizeStatusResponse($response->json() ?? []);
     }
 
     /**
@@ -319,7 +319,32 @@ class PawapayService
             );
         }
 
-        return $response->json() ?? [];
+        return $this->normalizeStatusResponse($response->json() ?? []);
+    }
+
+    /**
+     * Normalize a deposit/payout/refund status response.
+     *
+     * pawaPay wraps the actual status of a resource in a FOUND envelope:
+     *
+     *     { "status": "FOUND", "data": { "status": "COMPLETED", ... } }
+     *
+     * Consumers expect the real status (e.g. COMPLETED/FAILED) directly on the
+     * "status" key, so we unwrap the envelope when present.
+     *
+     * @param  array  $response  Raw response from the status-check endpoint
+     * @return array Normalized response with the real status on the "status" key
+     */
+    protected function normalizeStatusResponse(array $response): array
+    {
+        $envelopeStatus = strtoupper((string) ($response['status'] ?? ''));
+        $innerStatus = $response['data']['status'] ?? null;
+
+        if ($envelopeStatus === 'FOUND' && is_string($innerStatus) && $innerStatus !== '') {
+            $response['status'] = $innerStatus;
+        }
+
+        return $response;
     }
 
     /**
@@ -333,6 +358,12 @@ class PawapayService
      * @param  string  $amount  Amount as string
      * @param  string  $currency  ISO 4217 currency code
      * @param  string|null  $clientReferenceId  Your internal reference
+     * @param  string|null  $country  Optional ISO 3166-1 alpha-3 country filter
+     * @param  string|null  $language  Optional payment page language (EN|FR)
+     * @param  string|null  $reason  Optional text shown to the customer
+     * @param  string|null  $customerMessage  Optional 4-22 char narration
+     * @param  array|null  $metadata  Optional metadata (up to 10 fields)
+     * @param  string|null  $phoneNumber  Optional pre-filled MSISDN
      * @return array{redirectUrl: string, ...}
      *
      * @throws PawaPayException
@@ -342,17 +373,49 @@ class PawapayService
         string $returnUrl,
         string $amount,
         string $currency,
-        ?string $clientReferenceId = null
+        ?string $clientReferenceId = null,
+        ?string $country = null,
+        ?string $language = null,
+        ?string $reason = null,
+        ?string $customerMessage = null,
+        ?array $metadata = null,
+        ?string $phoneNumber = null
     ): array {
         $payload = [
             'depositId' => $depositId,
             'returnUrl' => $returnUrl,
-            'amount' => $amount,
-            'currency' => $currency,
+            'amountDetails' => [
+                'amount' => $amount,
+                'currency' => $currency,
+            ],
         ];
 
         if ($clientReferenceId !== null) {
             $payload['clientReferenceId'] = $clientReferenceId;
+        }
+
+        if ($country !== null) {
+            $payload['country'] = $country;
+        }
+
+        if ($language !== null) {
+            $payload['language'] = $language;
+        }
+
+        if ($reason !== null) {
+            $payload['reason'] = $reason;
+        }
+
+        if ($customerMessage !== null) {
+            $payload['customerMessage'] = $customerMessage;
+        }
+
+        if ($metadata !== null && count($metadata) > 0) {
+            $payload['metadata'] = $metadata;
+        }
+
+        if ($phoneNumber !== null) {
+            $payload['phoneNumber'] = $phoneNumber;
         }
 
         $response = $this->httpClient()
@@ -590,6 +653,39 @@ class PawapayService
     }
 
     /**
+     * Verify an incoming pawaPay server-to-server callback (RFC-9421 HTTP Message
+     * Signatures).
+     *
+     * When signature verification is disabled (default) the callback is
+     * accepted without verification. When enabled but no public key is
+     * configured, the callback is rejected rather than silently accepted.
+     *
+     * @param  string  $payload  Raw request body
+     * @param  array  $headers  Relevant signature headers
+     * @param  string  $method  HTTP method
+     * @param  string  $authority  Request host
+     * @param  string  $path  Request path
+     */
+    public function verifyCallbackRequest(
+        string $payload,
+        array $headers,
+        string $method,
+        string $authority,
+        string $path
+    ): bool {
+        if (! $this->verifyCallbackSignature) {
+            return true;
+        }
+
+        Log::warning('pawaPay callback signature verification is enabled but not implemented; rejecting callback', [
+            'authority' => $authority,
+            'path' => $path,
+        ]);
+
+        return false;
+    }
+
+    /**
      * Handle an incoming callback from PawaPay.
      *
      * Automatically determines the transaction type (deposit, payout, refund)
@@ -631,7 +727,7 @@ class PawapayService
         $status = TransactionStatus::tryFrom($payload['status'] ?? '') ?? TransactionStatus::PENDING;
 
         // Only update if the new status is different (idempotency)
-        if ($transaction->status !== $status->value) {
+        if ($transaction->status?->value !== $status->value) {
             $transaction->update([
                 'status' => $status->value,
                 'raw_response' => array_merge($transaction->raw_response ?? [], $payload),

@@ -87,7 +87,7 @@ test('getDepositStatus retrieves deposit status', function () {
     $response = $this->service->getDepositStatus('test-deposit-id');
 
     expect($response)->toHaveKey('status')
-        ->and($response['status'])->toBe('FOUND')
+        ->and($response['status'])->toBe('COMPLETED')
         ->and($response['data']['status'])->toBe('COMPLETED');
 });
 
@@ -188,7 +188,7 @@ test('getPayoutStatus retrieves payout status', function () {
     $response = $this->service->getPayoutStatus('test-payout-id');
 
     expect($response)->toHaveKey('status')
-        ->and($response['status'])->toBe('FOUND');
+        ->and($response['status'])->toBe('COMPLETED');
 });
 
 test('cancelPayout cancels an enqueued payout', function () {
@@ -250,12 +250,12 @@ test('getRefundStatus retrieves refund status', function () {
     $response = $this->service->getRefundStatus('test-refund-id');
 
     expect($response)->toHaveKey('status')
-        ->and($response['status'])->toBe('FOUND');
+        ->and($response['status'])->toBe('COMPLETED');
 });
 
 test('createPaymentPage creates hosted payment page', function () {
     Http::fake([
-        "{$this->baseUrl}/v2/deposits/payment-page" => Http::response([
+        "{$this->baseUrl}/v2/paymentpage" => Http::response([
             'redirectUrl' => 'https://payment.pawapay.io/xyz',
             'depositId' => 'test-deposit-id',
         ], 200),
@@ -270,11 +270,17 @@ test('createPaymentPage creates hosted payment page', function () {
 
     expect($response)->toHaveKey('redirectUrl')
         ->and($response['redirectUrl'])->toBe('https://payment.pawapay.io/xyz');
+
+    Http::assertSent(fn ($request) => $request->url() === "{$this->baseUrl}/v2/paymentpage"
+        && $request['depositId'] === 'test-deposit-id'
+        && $request['returnUrl'] === 'https://example.com/return'
+        && $request['amountDetails']['amount'] === '15'
+        && $request['amountDetails']['currency'] === 'ZMW');
 });
 
 test('createPaymentPage throws exception when redirectUrl is missing', function () {
     Http::fake([
-        "{$this->baseUrl}/v2/deposits/payment-page" => Http::response([
+        "{$this->baseUrl}/v2/paymentpage" => Http::response([
             'depositId' => 'test-deposit-id',
             // Missing redirectUrl
         ], 200),

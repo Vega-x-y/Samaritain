@@ -12,8 +12,9 @@ return new class extends Migration
     public function up(): void
     {
         Schema::table('transactions', function (Blueprint $table) {
-            // Distinguish deposits (tenant paying rent/pass) from payouts (owner sending money)
-            $table->string('type')->default('deposit')->after('user_id');
+            // Distinguish deposits (tenant paying rent/pass) from payouts (owner sending money).
+            // Value matches the TransactionType enum backing values (uppercase).
+            $table->string('type')->default('DEPOSIT')->after('user_id');
 
             // pawaPay payoutId — only set for type=payout transactions
             $table->string('payout_id')->nullable()->after('deposit_id');

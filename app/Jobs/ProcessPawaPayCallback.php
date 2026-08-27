@@ -2,6 +2,7 @@
 
 namespace App\Jobs;
 
+use App\Enums\TransactionStatus;
 use App\Events\PaymentCompleted;
 use App\Events\PaymentFailed;
 use App\Exceptions\PawaPayException;
@@ -41,7 +42,10 @@ class ProcessPawaPayCallback implements ShouldQueue
      */
     public function handle(PawapayService $pawapayService): void
     {
-        if (in_array($this->transaction->status, ['completed', 'failed'], true)) {
+        if (in_array($this->transaction->status, [
+            TransactionStatus::COMPLETED,
+            TransactionStatus::FAILED,
+        ], true)) {
             return;
         }
 
@@ -93,7 +97,7 @@ class ProcessPawaPayCallback implements ShouldQueue
      */
     protected function handleCompleted(): void
     {
-        $this->transaction->update(['status' => 'completed']);
+        $this->transaction->update(['status' => TransactionStatus::COMPLETED]);
 
         if ($this->transaction->visit_pass_id) {
             $visitPass = $this->transaction->visitPass;
@@ -120,7 +124,7 @@ class ProcessPawaPayCallback implements ShouldQueue
      */
     protected function handleFailed(): void
     {
-        $this->transaction->update(['status' => 'failed']);
+        $this->transaction->update(['status' => TransactionStatus::FAILED]);
 
         if ($this->transaction->visit_pass_id) {
             $visitPass = $this->transaction->visitPass;
@@ -146,7 +150,7 @@ class ProcessPawaPayCallback implements ShouldQueue
      */
     protected function handlePending(): void
     {
-        $this->transaction->update(['status' => 'pending']);
+        $this->transaction->update(['status' => TransactionStatus::PENDING]);
     }
 
     /**
@@ -160,6 +164,6 @@ class ProcessPawaPayCallback implements ShouldQueue
             'deposit_id' => $this->transaction->deposit_id,
         ]);
 
-        $this->transaction->update(['status' => 'pending']);
+        $this->transaction->update(['status' => TransactionStatus::PENDING]);
     }
 }

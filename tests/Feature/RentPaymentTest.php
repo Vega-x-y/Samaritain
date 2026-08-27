@@ -1,5 +1,6 @@
 <?php
 
+use App\Enums\TransactionStatus;
 use App\Jobs\ProcessPawaPayCallback;
 use App\Models\Contract;
 use App\Models\Property;
@@ -82,46 +83,40 @@ test('le locataire arrive sur la page de paiement de son loyer', function () {
     $this->actingAs($s['tenant'])
         ->get(route('tenant.rent-payments.pay', $s['rentPayment']))
         ->assertOk()
-        ->assertSee('Saisissez votre numéro Mobile Money');
+        ->assertSee('page de paiement sécurisée PawaPay');
 });
 
-test('le locataire peut initier un dépôt direct depuis sa page de paiement', function () {
+test('le locataire est redirigé vers la page de paiement hébergée pawaPay', function () {
     $s = rentPaymentScenario();
     Http::fake([
-        'api.sandbox.pawapay.io/v2/predict-provider' => Http::response([
-            'country' => 'COG',
-            'provider' => 'MTN_MOMO_COG',
-            'phoneNumber' => '242061234567',
-        ], 200),
-        'api.sandbox.pawapay.io/v2/deposits' => Http::response([
-            'depositId' => 'some-uuid',
-            'status' => 'ACCEPTED',
+        'api.sandbox.pawapay.io/v2/paymentpage' => Http::response([
+            'redirectUrl' => 'https://pay.pawapay.io/session/test',
         ], 200),
     ]);
 
     $this->actingAs($s['tenant'])
-        ->post(route('tenant.rent-payments.initiate', $s['rentPayment']), ['phone_number' => '242061234567'])
-        ->assertRedirect(route('transactions.pending', ['transaction' => Transaction::first()]));
+        ->post(route('tenant.rent-payments.initiate', $s['rentPayment']))
+        ->assertRedirect('https://pay.pawapay.io/session/test');
 
     $transaction = Transaction::where('user_id', $s['tenant']->id)->first();
 
     expect($transaction)->not->toBeNull()
         ->and($transaction->rent_payment_id)->toBe($s['rentPayment']->id)
         ->and($transaction->amount)->toBe(150000)
-        ->and($transaction->status)->toBe('pending')
-        ->and($transaction->provider)->toBe('MTN_MOMO_COG')
+        ->and($transaction->status)->toBe(TransactionStatus::PENDING)
         ->and($transaction->currency)->toBe('XAF')
         ->and($transaction->deposit_id)->not->toBeNull();
 
     $s['rentPayment']->refresh();
     expect($s['rentPayment']->transaction_id)->toBe($transaction->transaction_id);
 
-    // Le depositId persisté est bien celui envoyé à pawaPay (clé d'idempotence).
-    Http::assertSent(fn ($request) => str_contains($request->url(), '/v2/deposits')
+    // Le depositId persisté est bien celui envoyé à pawaPay (clé d'idempotence),
+    // et le montant est envoyé côté serveur dans amountDetails.
+    Http::assertSent(fn ($request) => str_contains($request->url(), '/v2/paymentpage')
         && $request['depositId'] === $transaction->deposit_id
-        && $request['amount'] === '150000'
-        && $request['currency'] === 'XAF'
-        && $request['payer']['accountDetails']['provider'] === 'MTN_MOMO_COG');
+        && $request['amountDetails']['amount'] === '150000'
+        && $request['amountDetails']['currency'] === 'XAF'
+        && $request['returnUrl'] === route('transactions.callback', $transaction));
 });
 
 test('un loyer déjà payé ne peut pas être re-payé', function () {
@@ -156,21 +151,17 @@ test('si l\'API pawaPay échoue, la transaction reste en pending (jamais failed)
     $s = rentPaymentScenario();
 
     Http::fake([
-        'api.sandbox.pawapay.io/v2/predict-provider' => Http::response([
-            'provider' => 'MTN_MOMO_COG',
-            'phoneNumber' => '242061234567',
-        ], 200),
-        'api.sandbox.pawapay.io/v2/deposits' => Http::response('Server error', 500),
+        'api.sandbox.pawapay.io/v2/paymentpage' => Http::response('Server error', 500),
     ]);
 
     $this->actingAs($s['tenant'])
-        ->post(route('tenant.rent-payments.initiate', $s['rentPayment']), ['phone_number' => '242061234567'])
-        ->assertRedirect();
+        ->post(route('tenant.rent-payments.initiate', $s['rentPayment']))
+        ->assertRedirect(route('transactions.pending', ['transaction' => Transaction::first()]));
 
     $transaction = Transaction::where('user_id', $s['tenant']->id)->first();
 
     expect($transaction)->not->toBeNull()
-        ->and($transaction->status)->toBe('pending');
+        ->and($transaction->status)->toBe(TransactionStatus::PENDING);
 });
 /*
 |--------------------------------------------------------------------------
@@ -185,7 +176,7 @@ test('le callback COMPLETED marque le loyer comme payé', function () {
     $transaction = Transaction::factory()->create([
         'user_id' => $s['tenant']->id,
         'rent_payment_id' => $s['rentPayment']->id,
-        'status' => 'pending',
+        'status' => 'PENDING',
         'amount' => 150000,
         'deposit_id' => $depositId,
         'currency' => 'XAF',
@@ -205,7 +196,7 @@ test('le callback COMPLETED marque le loyer comme payé', function () {
     $transaction->refresh();
     $s['rentPayment']->refresh();
 
-    expect($transaction->status)->toBe('completed')
+    expect($transaction->status)->toBe(TransactionStatus::COMPLETED)
         ->and($s['rentPayment']->status)->toBe('paid')
         ->and($s['rentPayment']->amount_paid)->toBe(150000)
         ->and($s['rentPayment']->paid_at)->not->toBeNull();
@@ -218,7 +209,7 @@ test('le callback est idempotent : un loyer déjà payé reste payé', function 
     $transaction = Transaction::factory()->create([
         'user_id' => $s['tenant']->id,
         'rent_payment_id' => $s['rentPayment']->id,
-        'status' => 'pending',
+        'status' => 'PENDING',
         'amount' => 150000,
         'deposit_id' => $depositId,
         'currency' => 'XAF',
@@ -252,7 +243,7 @@ test('le callback FAILED laisse le loyer impayé', function () {
     $transaction = Transaction::factory()->create([
         'user_id' => $s['tenant']->id,
         'rent_payment_id' => $s['rentPayment']->id,
-        'status' => 'pending',
+        'status' => 'PENDING',
         'amount' => 150000,
         'deposit_id' => $depositId,
         'currency' => 'XAF',
@@ -272,7 +263,7 @@ test('le callback FAILED laisse le loyer impayé', function () {
     $transaction->refresh();
     $s['rentPayment']->refresh();
 
-    expect($transaction->status)->toBe('failed')
+    expect($transaction->status)->toBe(TransactionStatus::FAILED)
         ->and($s['rentPayment']->status)->toBe('unpaid');
 });
 
@@ -283,7 +274,7 @@ test('la réconciliation marque le loyer comme payé quand le dépôt est COMPLE
     $transaction = Transaction::factory()->create([
         'user_id' => $s['tenant']->id,
         'rent_payment_id' => $s['rentPayment']->id,
-        'status' => 'pending',
+        'status' => 'PENDING',
         'amount' => 150000,
         'deposit_id' => $depositId,
         'currency' => 'XAF',

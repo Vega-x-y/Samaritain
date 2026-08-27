@@ -2,6 +2,7 @@
 
 namespace App\Console\Commands;
 
+use App\Enums\TransactionStatus;
 use App\Events\PaymentCompleted;
 use App\Events\PaymentFailed;
 use App\Models\Transaction;
@@ -34,7 +35,13 @@ class ReconcilePawaPayPaymentsCommand extends Command
         $thresholdMinutes = (int) $this->option('threshold');
 
         $stuckTransactions = Transaction::query()
-            ->whereIn('status', ['pending', 'accepted', 'processing'])
+            ->whereIn('status', [
+                TransactionStatus::PENDING->value,
+                TransactionStatus::ACCEPTED->value,
+                TransactionStatus::SUBMITTED->value,
+                TransactionStatus::ENQUEUED->value,
+                'PROCESSING',
+            ])
             ->where(function ($q) {
                 $q->whereNotNull('deposit_id')
                     ->orWhereNotNull('payout_id');
@@ -99,7 +106,7 @@ class ReconcilePawaPayPaymentsCommand extends Command
      */
     protected function reconcileAsCompleted(Transaction $transaction): void
     {
-        $transaction->update(['status' => 'completed']);
+        $transaction->update(['status' => TransactionStatus::COMPLETED]);
 
         if ($transaction->visit_pass_id && $transaction->visitPass) {
             app(VisitPassService::class)
@@ -119,7 +126,7 @@ class ReconcilePawaPayPaymentsCommand extends Command
      */
     protected function reconcileAsFailed(Transaction $transaction): void
     {
-        $transaction->update(['status' => 'failed']);
+        $transaction->update(['status' => TransactionStatus::FAILED]);
 
         if ($transaction->visit_pass_id && $transaction->visitPass) {
             app(VisitPassService::class)
@@ -139,7 +146,7 @@ class ReconcilePawaPayPaymentsCommand extends Command
      */
     protected function reconcileAsStillPending(Transaction $transaction): void
     {
-        $transaction->update(['status' => 'pending']);
+        $transaction->update(['status' => TransactionStatus::PENDING]);
     }
 
     /**

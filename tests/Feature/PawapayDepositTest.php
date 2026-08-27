@@ -1,5 +1,6 @@
 <?php
 
+use App\Enums\TransactionStatus;
 use App\Exceptions\PawaPayException;
 use App\Jobs\ProcessPawaPayCallback;
 use App\Models\Property;
@@ -16,11 +17,11 @@ uses(RefreshDatabase::class);
 
 /*
 |--------------------------------------------------------------------------
-| Tests d'unité du PawapayService
+| Tests d'unitÃ© du PawapayService
 |--------------------------------------------------------------------------
 */
 
-test('predict_provider retourne le provider et le phoneNumber normalisés', function () {
+test('predict_provider retourne le provider et le phoneNumber normalisÃ©s', function () {
     config(['services.pawapay.base_url' => 'https://api.sandbox.pawapay.io']);
     config(['services.pawapay.token' => 'test-token']);
 
@@ -40,7 +41,7 @@ test('predict_provider retourne le provider et le phoneNumber normalisés', func
         ->and($result['country'])->toBe('COG');
 });
 
-test('predict_provider lance une exception si l\'API échoue', function () {
+test('predict_provider lance une exception si l\'API Ã©choue', function () {
     config(['services.pawapay.base_url' => 'https://api.sandbox.pawapay.io']);
     config(['services.pawapay.token' => 'test-token']);
 
@@ -51,10 +52,10 @@ test('predict_provider lance une exception si l\'API échoue', function () {
     $service = new PawapayService;
 
     expect(fn () => $service->predictProvider('+242061234567'))
-        ->toThrow(PawaPayException::class, 'Impossible de prédire le fournisseur');
+        ->toThrow(PawaPayException::class, 'Impossible de prÃ©dire le fournisseur');
 });
 
-test('get_active_configuration retourne les providers et décimales', function () {
+test('get_active_configuration retourne les providers et dÃ©cimales', function () {
     config(['services.pawapay.base_url' => 'https://api.sandbox.pawapay.io']);
     config(['services.pawapay.token' => 'test-token']);
 
@@ -80,7 +81,7 @@ test('get_active_configuration retourne les providers et décimales', function (
         ->and($result['countries'][0]['providers'][0]['provider'])->toBe('MTN_MOMO_COG');
 });
 
-test('available_providers_with_branding récupère les logos et libellés depuis active-configuration', function () {
+test('available_providers_with_branding rÃ©cupÃ¨re les logos et libellÃ©s depuis active-configuration', function () {
     config(['services.pawapay.base_url' => 'https://api.sandbox.pawapay.io']);
     config(['services.pawapay.token' => 'test-token']);
 
@@ -105,7 +106,7 @@ test('available_providers_with_branding récupère les logos et libellés depuis
         ->and($branding['AIRTEL_COG']['logo'])->toBe('https://img.pawapay/AIRTEL_COG.png');
 });
 
-test('available_providers_with_branding retombe sur les libellés sans logo quand pawaPay échoue', function () {
+test('available_providers_with_branding retombe sur les libellÃ©s sans logo quand pawaPay Ã©choue', function () {
     config(['services.pawapay.base_url' => 'https://api.sandbox.pawapay.io']);
     config(['services.pawapay.token' => 'test-token']);
 
@@ -168,7 +169,7 @@ test('create_deposit lance une exception en cas d\'erreur API', function () {
     ]))->toThrow(PawaPayException::class);
 });
 
-test('create_payment_page envoie le dépôt et retourne l URL hébergée', function () {
+test('create_payment_page envoie le dÃ©pÃ´t et retourne l URL hÃ©bergÃ©e', function () {
     config([
         'services.pawapay.base_url' => 'https://api.sandbox.pawapay.io',
         'services.pawapay.token' => 'test-token',
@@ -197,10 +198,10 @@ test('create_payment_page envoie le dépôt et retourne l URL hébergée', funct
         && $request['returnUrl'] === $returnUrl
         && $request['amountDetails']['amount'] === '5000'
         && $request['amountDetails']['currency'] === 'XAF'
-        && $request['reason'] === 'V-XXXX');
+        && $request['clientReferenceId'] === 'V-XXXX');
 });
 
-test('get_deposit_status retourne NOT_FOUND pour une réponse 404', function () {
+test('get_deposit_status retourne NOT_FOUND pour une rÃ©ponse 404', function () {
     config(['services.pawapay.base_url' => 'https://api.sandbox.pawapay.io']);
     config(['services.pawapay.token' => 'test-token']);
 
@@ -242,7 +243,7 @@ test('get_deposit_status retourne le statut final depuis l enveloppe FOUND/data'
         ->and($result['depositId'])->toBe($depositId);
 });
 
-test('verify_callback_signature accepte les callbacks non signés quand la vérification est désactivée', function () {
+test('verify_callback_signature accepte les callbacks non signÃ©s quand la vÃ©rification est dÃ©sactivÃ©e', function () {
     config([
         'services.pawapay.verify_callback_signature' => false,
     ]);
@@ -252,7 +253,7 @@ test('verify_callback_signature accepte les callbacks non signés quand la véri
     expect($service->verifyCallbackRequest('payload', [], 'POST', 'example.test', '/webhook'))->toBeTrue();
 });
 
-test('verify_callback_signature refuse un callback signé mal configuré', function () {
+test('verify_callback_signature refuse un callback signÃ© mal configurÃ©', function () {
     config([
         'services.pawapay.verify_callback_signature' => true,
         'services.pawapay.callback_public_key' => null,
@@ -265,7 +266,7 @@ test('verify_callback_signature refuse un callback signé mal configuré', funct
 
 /*
 |--------------------------------------------------------------------------
-| Tests du dépôt direct (PawapayService::initiateDeposit) et de la page pending
+| Tests du dÃ©pÃ´t direct (PawapayService::initiateDeposit) et de la page pending
 |--------------------------------------------------------------------------
 */
 
@@ -319,7 +320,7 @@ test('normalize_msisdn retire les espaces et ajoute le code pays', function () {
         ->and($service->normalizeMsisdn('24268007138'))->toBe('24268007138');
 });
 
-test('normalize_msisdn refuse un numéro vide', function () {
+test('normalize_msisdn refuse un numÃ©ro vide', function () {
     config(['services.pawapay.dial_code' => '242']);
 
     $service = new PawapayService;
@@ -328,7 +329,7 @@ test('normalize_msisdn refuse un numéro vide', function () {
         ->toThrow(PawaPayException::class);
 });
 
-test('la page pending nécessite une authentification', function () {
+test('la page pending nÃ©cessite une authentification', function () {
     $transaction = Transaction::factory()->create();
 
     $this->get(route('transactions.pending', $transaction))
@@ -337,11 +338,11 @@ test('la page pending nécessite une authentification', function () {
 
 /*
 |--------------------------------------------------------------------------
-| Tests du flow visit pass → paiement (UserVisitPassController)
+| Tests du flow visit pass â†’ paiement (UserVisitPassController)
 |--------------------------------------------------------------------------
 */
 
-test('store visit pass crée le pass et ouvre directement la page pawaPay', function () {
+test('store visit pass crÃ©e le pass et ouvre directement la page pawaPay', function () {
     config([
         'services.pawapay.base_url' => 'https://api.sandbox.pawapay.io',
         'services.pawapay.token' => 'test-token',
@@ -405,11 +406,11 @@ test('initiate_payment du visit pass redirige vers la page de paiement pawaPay',
         ->post(route('my-visit-passes.initiate-payment', $visitPass))
         ->assertRedirect('https://pay.pawapay.io/session/test');
 
-    $transaction = Transaction::where('visit_pass_id', $visitPass->id)->first();
+    $transaction = Transaction::where('visit_pass_id', $visitPass->id)->latest()->first();
 
     expect($transaction)->not->toBeNull()
         ->and($transaction->deposit_id)->not->toBeNull()
-        ->and($transaction->status)->toBe('pending')
+        ->and($transaction->status)->toBe(TransactionStatus::PENDING)
         ->and($transaction->provider)->toBeNull()
         ->and($transaction->amount)->toBe(5000);
 
@@ -423,7 +424,7 @@ test('initiate_payment du visit pass redirige vers la page de paiement pawaPay',
         && $request['returnUrl'] === route('transactions.callback', $transaction));
 });
 
-test('initiate_payment du visit pass laisse la transaction en pending si l\'API pawaPay échoue', function () {
+test('initiate_payment du visit pass laisse la transaction en pending si l\'API pawaPay Ã©choue', function () {
     config([
         'services.pawapay.base_url' => 'https://api.sandbox.pawapay.io',
         'services.pawapay.token' => 'test-token',
@@ -456,12 +457,12 @@ test('initiate_payment du visit pass laisse la transaction en pending si l\'API 
 
     $transaction = Transaction::where('visit_pass_id', $visitPass->id)->first();
 
-    // Règle critique : en cas d'erreur HTTP, ne JAMAIS marquer failed — rester pending
+    // RÃ¨gle critique : en cas d'erreur HTTP, ne JAMAIS marquer failed â€” rester pending
     expect($transaction)->not->toBeNull()
-        ->and($transaction->status)->toBe('pending');
+        ->and($transaction->status)->toBe(TransactionStatus::PENDING);
 });
 
-test('initiate_payment du visit pass accepte le choix du provider sur la page hébergée', function () {
+test('initiate_payment du visit pass accepte le choix du provider sur la page hÃ©bergÃ©e', function () {
     config([
         'services.pawapay.base_url' => 'https://api.sandbox.pawapay.io',
         'services.pawapay.token' => 'test-token',
@@ -516,7 +517,7 @@ test('webhook accepte un callback valide et dispatch le job de traitement', func
     $transaction = Transaction::create([
         'user_id' => $user->id,
         'deposit_id' => (string) Str::uuid(),
-        'status' => 'pending',
+        'status' => 'PENDING',
         'amount' => 5000,
         'currency' => 'XAF',
     ]);
@@ -547,7 +548,7 @@ test('webhook rejette un callback avec signature invalide', function () {
     $transaction = Transaction::create([
         'user_id' => $user->id,
         'deposit_id' => (string) Str::uuid(),
-        'status' => 'pending',
+        'status' => 'PENDING',
         'amount' => 5000,
         'currency' => 'XAF',
     ]);
@@ -575,7 +576,7 @@ test('generic_webhook accepte un callback valide et dispatch le job de traitemen
     $transaction = Transaction::create([
         'user_id' => $user->id,
         'deposit_id' => (string) Str::uuid(),
-        'status' => 'pending',
+        'status' => 'PENDING',
         'amount' => 5000,
         'currency' => 'XAF',
     ]);
@@ -606,7 +607,7 @@ test('generic_webhook rejette un callback avec signature invalide', function () 
     $transaction = Transaction::create([
         'user_id' => $user->id,
         'deposit_id' => (string) Str::uuid(),
-        'status' => 'pending',
+        'status' => 'PENDING',
         'amount' => 5000,
         'currency' => 'XAF',
     ]);
@@ -627,7 +628,7 @@ test('generic_webhook rejette un callback avec signature invalide', function () 
 |--------------------------------------------------------------------------
 */
 
-test('process_pawaPay_callback met à jour la transaction à completed', function () {
+test('process_pawaPay_callback met Ã  jour la transaction Ã  completed', function () {
     config([
         'services.pawapay.base_url' => 'https://api.sandbox.pawapay.io',
         'services.pawapay.token' => 'test-token',
@@ -639,7 +640,7 @@ test('process_pawaPay_callback met à jour la transaction à completed', functio
     $transaction = Transaction::create([
         'user_id' => $user->id,
         'deposit_id' => $depositId,
-        'status' => 'pending',
+        'status' => 'PENDING',
         'amount' => 5000,
         'currency' => 'XAF',
     ]);
@@ -659,10 +660,10 @@ test('process_pawaPay_callback met à jour la transaction à completed', functio
     $job->handle(app(PawapayService::class));
 
     $transaction->refresh();
-    expect($transaction->status)->toBe('completed');
+    expect($transaction->status)->toBe(TransactionStatus::COMPLETED);
 });
 
-test('process_pawaPay_callback met à jour la transaction à failed', function () {
+test('process_pawaPay_callback met Ã  jour la transaction Ã  failed', function () {
     config([
         'services.pawapay.base_url' => 'https://api.sandbox.pawapay.io',
         'services.pawapay.token' => 'test-token',
@@ -674,7 +675,7 @@ test('process_pawaPay_callback met à jour la transaction à failed', function (
     $transaction = Transaction::create([
         'user_id' => $user->id,
         'deposit_id' => $depositId,
-        'status' => 'pending',
+        'status' => 'PENDING',
         'amount' => 5000,
         'currency' => 'XAF',
     ]);
@@ -693,7 +694,7 @@ test('process_pawaPay_callback met à jour la transaction à failed', function (
     $job->handle(app(PawapayService::class));
 
     $transaction->refresh();
-    expect($transaction->status)->toBe('failed');
+    expect($transaction->status)->toBe(TransactionStatus::FAILED);
 });
 
 test('process_pawaPay_callback laisse en pending sur NOT_FOUND', function () {
@@ -708,7 +709,7 @@ test('process_pawaPay_callback laisse en pending sur NOT_FOUND', function () {
     $transaction = Transaction::create([
         'user_id' => $user->id,
         'deposit_id' => $depositId,
-        'status' => 'pending',
+        'status' => 'PENDING',
         'amount' => 5000,
         'currency' => 'XAF',
     ]);
@@ -721,17 +722,17 @@ test('process_pawaPay_callback laisse en pending sur NOT_FOUND', function () {
     $job->handle(app(PawapayService::class));
 
     $transaction->refresh();
-    // NOT_FOUND should NOT be treated as FAILED — keep as pending
-    expect($transaction->status)->toBe('pending');
+    // NOT_FOUND should NOT be treated as FAILED â€” keep as pending
+    expect($transaction->status)->toBe(TransactionStatus::PENDING);
 });
 
 /*
 |--------------------------------------------------------------------------
-| Tests de la commande de réconciliation
+| Tests de la commande de rÃ©conciliation
 |--------------------------------------------------------------------------
 */
 
-test('la commande de réconciliation vérifie les paiements bloqués', function () {
+test('la commande de rÃ©conciliation vÃ©rifie les paiements bloquÃ©s', function () {
     config([
         'services.pawapay.base_url' => 'https://api.sandbox.pawapay.io',
         'services.pawapay.token' => 'test-token',
@@ -743,7 +744,7 @@ test('la commande de réconciliation vérifie les paiements bloqués', function 
     $transaction = Transaction::create([
         'user_id' => $user->id,
         'deposit_id' => $depositId,
-        'status' => 'pending',
+        'status' => 'PENDING',
         'amount' => 5000,
         'currency' => 'XAF',
     ]);
@@ -766,10 +767,10 @@ test('la commande de réconciliation vérifie les paiements bloqués', function 
         ->assertExitCode(0);
 
     $transaction = Transaction::where('deposit_id', $depositId)->first();
-    expect($transaction->status)->toBe('completed');
+    expect($transaction->status)->toBe(TransactionStatus::COMPLETED);
 });
 
-test('la commande de réconciliation ne marque pas en failed sur NOT_FOUND', function () {
+test('la commande de rÃ©conciliation ne marque pas en failed sur NOT_FOUND', function () {
     config([
         'services.pawapay.base_url' => 'https://api.sandbox.pawapay.io',
         'services.pawapay.token' => 'test-token',
@@ -781,7 +782,7 @@ test('la commande de réconciliation ne marque pas en failed sur NOT_FOUND', fun
     $transaction = Transaction::create([
         'user_id' => $user->id,
         'deposit_id' => $depositId,
-        'status' => 'pending',
+        'status' => 'PENDING',
         'amount' => 5000,
         'currency' => 'XAF',
     ]);
@@ -798,11 +799,11 @@ test('la commande de réconciliation ne marque pas en failed sur NOT_FOUND', fun
 
     $transaction = Transaction::where('deposit_id', $depositId)->first();
     // NOT_FOUND means the deposit was never created (e.g. abandoned payment page)
-    // — mark it failed so the pass/rent can be retried.
-    expect($transaction->status)->toBe('failed');
+    // â€” mark it failed so the pass/rent can be retried.
+    expect($transaction->status)->toBe(TransactionStatus::FAILED);
 });
 
-test('la commande de réconciliation ignore les paiements récents', function () {
+test('la commande de rÃ©conciliation ignore les paiements rÃ©cents', function () {
     config([
         'services.pawapay.base_url' => 'https://api.sandbox.pawapay.io',
         'services.pawapay.token' => 'test-token',
@@ -814,7 +815,7 @@ test('la commande de réconciliation ignore les paiements récents', function ()
     $transaction = Transaction::create([
         'user_id' => $user->id,
         'deposit_id' => $depositId,
-        'status' => 'pending',
+        'status' => 'PENDING',
         'amount' => 5000,
         'currency' => 'XAF',
     ]);
@@ -834,5 +835,5 @@ test('la commande de réconciliation ignore les paiements récents', function ()
         ->assertExitCode(0);
 
     $transaction = Transaction::where('deposit_id', $depositId)->first();
-    expect($transaction->status)->toBe('pending');
+    expect($transaction->status)->toBe(TransactionStatus::PENDING);
 });

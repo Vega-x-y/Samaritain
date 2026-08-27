@@ -2,6 +2,7 @@
 
 namespace App\Services;
 
+use App\Models\OwnerDocument;
 use App\Models\RentPayment;
 use App\Support\BrandingHelper;
 use Barryvdh\DomPDF\Facade\Pdf;
@@ -71,7 +72,7 @@ class RentPaymentService
 
         Storage::put($fullPath, $pdf->output());
 
-        Document::create([
+        OwnerDocument::create([
             'property_id' => $property->id,
             'name' => 'Reçu de loyer - '.$rentPayment->month.'/'.$rentPayment->year.' - '.$contract->tenant_name,
             'category' => 'receipt',

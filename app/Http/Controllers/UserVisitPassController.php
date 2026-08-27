@@ -78,6 +78,7 @@ class UserVisitPassController extends Controller
 
         $depositId = (string) Str::uuid();
         $currency = config('services.pawapay.currency', 'XAF');
+        $country = config('services.pawapay.country', 'COG');
 
         $transaction = Transaction::create([
             'user_id' => $visitPass->user_id,
@@ -95,9 +96,12 @@ class UserVisitPassController extends Controller
             $result = $this->pawapay->createPaymentPage(
                 depositId: $depositId,
                 returnUrl: route('transactions.callback', $transaction),
-                amount: $transaction->amount,
+                amount: (string) $transaction->amount,
                 currency: $transaction->currency,
                 clientReferenceId: $visitPass->reference,
+                country: $country,
+                reason: 'Pass visite '.$visitPass->reference,
+                customerMessage: 'Pass visite',
             );
 
             $transaction->update([

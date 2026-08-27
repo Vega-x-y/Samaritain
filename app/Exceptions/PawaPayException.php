@@ -27,6 +27,11 @@ class PawaPayException extends Exception
     /**
      * Render the exception as an HTTP response.
      */
+    public function getStatusCode(): ?int
+    {
+        return $this->statusCode;
+    }
+
     public function render(Request $request): JsonResponse
     {
         return response()->json([

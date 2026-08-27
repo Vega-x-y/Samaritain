@@ -29,8 +29,8 @@ describe('index', function () {
 
         Transaction::factory()->create([
             'user_id' => $this->owner->id,
-            'type' => 'payout',
-            'status' => 'completed',
+            'type' => 'PAYOUT',
+            'status' => 'COMPLETED',
             'amount' => 50000,
             'payout_id' => (string) Str::uuid(),
             'currency' => 'XAF',
