@@ -7,10 +7,12 @@ use App\DataTransferObjects\Pawapay\PayoutRequest;
 use App\Enums\TransactionStatus;
 use App\Enums\TransactionType;
 use App\Exceptions\PawaPayException;
+use App\Models\RentPayment;
 use App\Models\Transaction;
 use App\Models\VisitPass;
 use App\Services\OwnerWalletService;
 use App\Services\PawapayService;
+use App\Services\RentPaymentService;
 use App\Services\VisitPassService;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
@@ -35,6 +37,12 @@ class TransactionsController extends Controller
             return $visitPass;
         }
 
+        $rentPayment = $this->resolveRentPayment($request->query('rent_payment'));
+
+        if ($rentPayment instanceof RedirectResponse) {
+            return $rentPayment;
+        }
+
         $providers_data = $this->getProvidersAvailable();
 
         if (empty($providers_data) || empty($providers_data['countries'][0]['providers'])) {
@@ -44,6 +52,7 @@ class TransactionsController extends Controller
         return view('transactions.deposit-form', [
             'payment_config' => $providers_data['countries'][0],
             'visitPass' => $visitPass,
+            'rentPayment' => $rentPayment,
         ]);
     }
 
@@ -81,11 +90,20 @@ class TransactionsController extends Controller
             return $visitPass;
         }
 
+        $rentPayment = $this->resolveRentPayment($request->input('rent_payment'));
+
+        if ($rentPayment instanceof RedirectResponse) {
+            return $rentPayment;
+        }
+
         $transaction = Transaction::create([
             'user_id' => Auth::id(),
             'visit_pass_id' => $visitPass?->id,
+            'rent_payment_id' => $rentPayment?->id,
             'type' => TransactionType::DEPOSIT,
-            'amount' => $visitPass ? (int) $visitPass->amount : (int) round((float) $request->amount * 100),
+            'amount' => $rentPayment
+                ? (int) $rentPayment->amount_due
+                : ($visitPass ? (int) $visitPass->amount : (int) round((float) $request->amount * 100)),
             'status' => TransactionStatus::PENDING,
             'provider' => $request->provider,
             'currency' => config('services.pawapay.currency'),
@@ -195,6 +213,11 @@ class TransactionsController extends Controller
                 // A visit pass purchase: mark the pass as paid (QR + PDF),
                 // the wallet is NOT involved — the pass is not a wallet deposit.
                 $this->visitPassService->handleSuccessfulPayment($transaction->visitPass);
+            } elseif ($transaction->rent_payment_id && $transaction->rentPayment) {
+                // A rent payment: settle() already credited the OWNER wallet
+                // (via creditRentOwner). Mark the rent as paid + generate the receipt.
+                // The tenant wallet is NOT credited.
+                app(RentPaymentService::class)->handleSuccessfulPayment($transaction->rentPayment);
             } elseif ($transaction->type === TransactionType::DEPOSIT) {
                 $this->wallet->creditDeposit($transaction);
             }
@@ -269,5 +292,31 @@ class TransactionsController extends Controller
         }
 
         return $visitPass;
+    }
+
+    /**
+     * Resolve an optional rent payment from the deposit context.
+     *
+     * Returns null when no rent payment is provided. Returns a RedirectResponse
+     * when the rent payment is invalid, does not belong to the authenticated
+     * user, its contract is not active, or it is already paid.
+     */
+    protected function resolveRentPayment(mixed $rentPaymentKey): RentPayment|null|RedirectResponse
+    {
+        if (! $rentPaymentKey) {
+            return null;
+        }
+
+        $rentPayment = RentPayment::with('contract')->find($rentPaymentKey);
+
+        if (! $rentPayment
+            || $rentPayment->contract?->tenant_email !== Auth::user()?->email
+            || $rentPayment->contract?->status !== 'active'
+            || $rentPayment->isPaid()) {
+            return redirect()->route('tenant.payments')
+                ->with('error', 'Ce loyer est introuvable ou déjà payé.');
+        }
+
+        return $rentPayment;
     }
 }

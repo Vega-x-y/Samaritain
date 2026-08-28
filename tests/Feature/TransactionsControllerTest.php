@@ -2,14 +2,19 @@
 
 use App\Enums\TransactionStatus;
 use App\Enums\TransactionType;
+use App\Models\Contract;
 use App\Models\OwnerWallet;
+use App\Models\Property;
+use App\Models\RentPayment;
 use App\Models\Transaction;
 use App\Models\User;
 use App\Models\VisitPass;
 use App\Services\OwnerWalletService;
 use App\Services\VisitPassService;
+use Barryvdh\DomPDF\Facade\Pdf;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Facades\Http;
+use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Str;
 
 uses(RefreshDatabase::class);
@@ -358,4 +363,135 @@ test('creditDeposit is idempotent and does not double credit', function () {
     $wallet->refresh();
 
     expect($wallet->available_balance)->toBe(2500);
+});
+
+function makeRentScenario(): array
+{
+    $owner = User::factory()->create();
+    $tenant = User::factory()->create();
+    $property = Property::factory()->create(['created_by' => $owner->id]);
+    $contract = Contract::factory()->create([
+        'property_id' => $property->id,
+        'tenant_email' => $tenant->email,
+        'status' => 'active',
+        'created_by' => $owner->id,
+    ]);
+    $rentPayment = RentPayment::factory()->create([
+        'contract_id' => $contract->id,
+        'amount_due' => 150000,
+        'amount_paid' => 0,
+        'status' => 'unpaid',
+    ]);
+
+    return compact('owner', 'tenant', 'property', 'contract', 'rentPayment');
+}
+
+test('deposit form is prefilled for a rent payment', function () {
+    $s = makeRentScenario();
+    $this->actingAs($s['tenant']);
+
+    Http::fake([
+        '*/v2/active-conf' => Http::response([
+            'countries' => [[
+                'country' => 'COG',
+                'prefix' => '242',
+                'providers' => [
+                    ['provider' => 'MTN_MOMO_COG', 'displayName' => 'MTN Mobile Money'],
+                ],
+            ]],
+        ], 200),
+    ]);
+
+    $this->get(route('transactions.deposit', ['rent_payment' => $s['rentPayment']->id]))
+        ->assertOk()
+        ->assertViewHas('rentPayment', fn ($rentPayment) => $rentPayment->is($s['rentPayment']))
+        ->assertSee('Loyer');
+});
+
+test('init deposit for a rent payment uses the rent amount and links it', function () {
+    $s = makeRentScenario();
+    $this->actingAs($s['tenant']);
+
+    Http::fake([
+        '*/v2/deposits' => Http::response([
+            'depositId' => Str::uuid()->toString(),
+            'status' => 'ACCEPTED',
+            'created' => now()->toIso8601String(),
+        ], 200),
+    ]);
+
+    $this->post(route('transactions.deposit'), [
+        'amount' => 999, // ignored: the server-side amount_due is authoritative
+        'phone' => '064567890',
+        'provider' => 'MTN_MOMO_COG',
+        'rent_payment' => $s['rentPayment']->id,
+    ]);
+
+    $transaction = Transaction::first();
+
+    expect($transaction)->not->toBeNull()
+        ->and($transaction->rent_payment_id)->toBe($s['rentPayment']->id)
+        ->and($transaction->amount)->toBe(150000);
+});
+
+test('a completed rent deposit marks the rent paid, credits the owner wallet and not the tenant wallet', function () {
+    $s = makeRentScenario();
+    $tenantWallet = makeWallet($s['tenant']);
+    $ownerWallet = makeWallet($s['owner']);
+    $this->actingAs($s['tenant']);
+
+    $depositId = Str::uuid()->toString();
+
+    $transaction = Transaction::create([
+        'transaction_id' => Str::uuid()->toString(),
+        'user_id' => $s['tenant']->id,
+        'rent_payment_id' => $s['rentPayment']->id,
+        'type' => TransactionType::DEPOSIT,
+        'status' => TransactionStatus::PENDING,
+        'amount' => 150000,
+        'currency' => 'XAF',
+        'deposit_id' => $depositId,
+        'provider' => 'MTN_MOMO_COG',
+    ]);
+
+    // RentPaymentService runs for real: it marks the rent as paid and
+    // generates a PDF receipt (stubbed here to keep the test focused on
+    // the wallet routing).
+    config(['filesystems.default' => 'local']);
+    Storage::fake('local');
+    Pdf::shouldReceive('loadView')->once()->andReturnSelf();
+    Pdf::shouldReceive('output')->once()->andReturn('fake-pdf');
+
+    Http::fake([
+        "*/v2/deposits/{$depositId}" => Http::response([
+            'status' => 'FOUND',
+            'data' => [
+                'depositId' => $depositId,
+                'status' => 'COMPLETED',
+                'amount' => '1500.00',
+                'currency' => 'XAF',
+            ],
+        ], 200),
+    ]);
+
+    $this->get(route('transactions.deposit.status', $transaction));
+
+    $tenantWallet->refresh();
+    $ownerWallet->refresh();
+
+    expect($transaction->refresh()->status)->toBe(TransactionStatus::COMPLETED)
+        ->and($s['rentPayment']->refresh()->status)->toBe('paid')
+        ->and($ownerWallet->available_balance)->toBe(150000)
+        ->and($tenantWallet->available_balance)->toBe(0);
+});
+
+test('a tenant cannot open the deposit form for another tenant rent payment', function () {
+    $s = makeRentScenario();
+    $otherTenant = User::factory()->create();
+    $this->actingAs($otherTenant);
+
+    $this->get(route('transactions.deposit', ['rent_payment' => $s['rentPayment']->id]))
+        ->assertRedirect(route('tenant.payments'));
+
+    expect(Transaction::count())->toBe(0);
 });

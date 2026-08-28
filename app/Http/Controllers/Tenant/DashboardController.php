@@ -2,28 +2,21 @@
 
 namespace App\Http\Controllers\Tenant;
 
-use App\DataTransferObjects\Pawapay\DepositRequest;
-use App\Enums\TransactionStatus;
-use App\Enums\TransactionType;
 use App\Events\ContractFullySigned;
 use App\Events\ContractSigned;
-use App\Exceptions\PawaPayException;
 use App\Http\Controllers\Controller;
 use App\Models\Contract;
 use App\Models\Intervention;
 use App\Models\OwnerDocument;
 use App\Models\RentPayment;
-use App\Models\Transaction;
 use App\Notifications\ContractCompletedNotification;
 use App\Notifications\ContractSignedNotification;
 use App\Services\ContractSignatureService;
-use App\Services\PawapayService;
 use App\Support\BrandingHelper;
 use Barryvdh\DomPDF\Facade\Pdf;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Storage;
-use Illuminate\Support\Str;
 use Illuminate\View\View;
 
 class DashboardController extends Controller
@@ -148,7 +141,7 @@ class DashboardController extends Controller
         return view('pages.tenant.payments', compact('contract', 'payments'));
     }
 
-    public function payRentPayment(RentPayment $rentPayment, PawapayService $pawapay): View|RedirectResponse
+    public function payRentPayment(RentPayment $rentPayment): RedirectResponse
     {
         $this->authorizeRentPayment($rentPayment);
 
@@ -156,62 +149,8 @@ class DashboardController extends Controller
             return to_route('tenant.payments')->with('info', 'Ce loyer est déjà payé.');
         }
 
-        $contract = $rentPayment->contract;
-        $providers = $pawapay->activeProviders();
-        $payment_config = [
-            'providers' => collect($providers)
-                ->map(fn (string $displayName, string $provider): array => compact('provider', 'displayName'))
-                ->values()
-                ->all(),
-        ];
-        $currency = config('services.pawapay.currency', 'XAF');
-
-        return view('pages.tenant.rent-pay', compact('rentPayment', 'contract', 'payment_config', 'currency'));
-    }
-
-    public function initiateRentPayment(Request $request, RentPayment $rentPayment, PawapayService $pawapay): RedirectResponse
-    {
-        $this->authorizeRentPayment($rentPayment);
-        abort_if($rentPayment->isPaid(), 422, 'Ce loyer est déjà payé.');
-        $providers = $pawapay->activeProviders();
-        $validated = $request->validate([
-            'phone_number' => ['required', 'string', 'min:9', 'max:15'],
-            'provider' => ['required', 'string', 'in:'.implode(',', array_keys($providers))],
-        ]);
-        $depositId = (string) Str::uuid();
-        $amount = $pawapay->amountAfterFee((int) $rentPayment->amount_due);
-        $transaction = Transaction::create([
-            'transaction_id' => $depositId,
-            'user_id' => $request->user()->id,
-            'rent_payment_id' => $rentPayment->id,
-            'type' => TransactionType::DEPOSIT,
-            'status' => TransactionStatus::PENDING,
-            'amount' => $amount,
-            'deposit_id' => $depositId,
-            'provider' => $validated['provider'],
-            'currency' => config('services.pawapay.currency', 'XAF'),
-        ]);
-        $rentPayment->update(['transaction_id' => $transaction->transaction_id]);
-
-        try {
-            $response = $pawapay->initiateDeposit(new DepositRequest(
-                depositId: $depositId,
-                phoneNumber: $pawapay->normalizePhoneNumber($validated['phone_number']),
-                provider: $validated['provider'],
-                amount: number_format($amount / 100, 2, '.', ''),
-                currency: $transaction->currency,
-                clientReferenceId: (string) $rentPayment->id,
-            ));
-            $transaction->update([
-                'status' => TransactionStatus::tryFrom(strtoupper((string) ($response['status'] ?? 'PENDING')))
-                    ?? TransactionStatus::PENDING,
-                'raw_response' => $response,
-            ]);
-        } catch (PawaPayException $exception) {
-            $transaction->update(['raw_response' => ['error' => $exception->getMessage()]]);
-        }
-
-        return to_route('transactions.pending', $transaction);
+        // The unified deposit form handles the payment (check-status flow).
+        return to_route('transactions.deposit', ['rent_payment' => $rentPayment->id]);
     }
 
     private function authorizeRentPayment(RentPayment $rentPayment): void

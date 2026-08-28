@@ -55,6 +55,11 @@
                                     class="inline-flex items-center px-4 py-2 bg-gray-600 border border-transparent rounded-md font-semibold text-xs text-white uppercase tracking-widest hover:bg-gray-500 focus:outline-none focus:border-gray-700 focus:ring focus:ring-gray-200 active:bg-gray-600 disabled:opacity-25 transition">
                                     Réessayer le paiement
                                 </a>
+                            @elseif ($transaction->rent_payment_id && $transaction->rentPayment)
+                                <a href="{{ route('transactions.deposit', ['rent_payment' => $transaction->rentPayment->id]) }}"
+                                    class="inline-flex items-center px-4 py-2 bg-gray-600 border border-transparent rounded-md font-semibold text-xs text-white uppercase tracking-widest hover:bg-gray-500 focus:outline-none focus:border-gray-700 focus:ring focus:ring-gray-200 active:bg-gray-600 disabled:opacity-25 transition">
+                                    Réessayer le paiement
+                                </a>
                             @else
                                 <a href="{{ route('transactions.deposit') }}"
                                     class="inline-flex items-center px-4 py-2 bg-gray-600 border border-transparent rounded-md font-semibold text-xs text-white uppercase tracking-widest hover:bg-gray-500 focus:outline-none focus:border-gray-700 focus:ring focus:ring-gray-200 active:bg-gray-600 disabled:opacity-25 transition">
@@ -76,6 +81,13 @@
                                 <a href="{{ route('my-visit-passes.show', $transaction->visitPass) }}"
                                     class="inline-flex items-center px-4 py-2 bg-indigo-600 border border-transparent rounded-md font-semibold text-xs text-white uppercase tracking-widest hover:bg-indigo-500 focus:outline-none focus:border-indigo-700 focus:ring focus:ring-indigo-200 active:bg-indigo-600 disabled:opacity-25 transition">
                                     Voir mon pass
+                                </a>
+                            @elseif ($transaction->rent_payment_id && $transaction->rentPayment)
+                                <h3 class="text-lg font-semibold mb-2 text-green-600">Loyer payé</h3>
+                                <p class="mb-4">Votre loyer ({{ $transaction->rentPayment->month }}/{{ $transaction->rentPayment->year }}) a été payé avec succès. Un reçu a été généré.</p>
+                                <a href="{{ route('tenant.payments') }}"
+                                    class="inline-flex items-center px-4 py-2 bg-indigo-600 border border-transparent rounded-md font-semibold text-xs text-white uppercase tracking-widest hover:bg-indigo-500 focus:outline-none focus:border-indigo-700 focus:ring focus:ring-indigo-200 active:bg-indigo-600 disabled:opacity-25 transition">
+                                    Voir mes paiements
                                 </a>
                             @elseif ($transaction->type->value === 'DEPOSIT')
                                 <h3 class="text-lg font-semibold mb-2 text-green-600">Paiement réussi</h3>

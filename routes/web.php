@@ -663,7 +663,6 @@ Route::middleware(['auth', 'verified', 'tenant'])->prefix('tenant')->name('tenan
     Route::get('/contracts/{contract}/pdf', [App\Http\Controllers\Tenant\DashboardController::class, 'downloadPdf'])->name('contracts.pdf');
     Route::get('/payments', [App\Http\Controllers\Tenant\DashboardController::class, 'payments'])->name('payments');
     Route::get('/rent-payments/{rentPayment}/pay', [App\Http\Controllers\Tenant\DashboardController::class, 'payRentPayment'])->name('rent-payments.pay');
-    Route::post('/rent-payments/{rentPayment}/pay', [App\Http\Controllers\Tenant\DashboardController::class, 'initiateRentPayment'])->name('rent-payments.initiate');
     Route::get('/interventions', [App\Http\Controllers\Tenant\DashboardController::class, 'interventions'])->name('interventions');
     Route::get('/documents', [App\Http\Controllers\Tenant\DashboardController::class, 'documents'])->name('documents');
     Route::get('/documents/{document}/download', [App\Http\Controllers\Tenant\DashboardController::class, 'downloadDocument'])->name('documents.download');
