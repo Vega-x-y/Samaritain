@@ -31,8 +31,8 @@
             <select name="provider" required
                 class="w-full rounded-lg border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-white">
                 <option value="">Choisir l'opérateur</option>
-                @foreach($providers as $code => $label)
-                    <option value="{{ $code }}">{{ $label }}</option>
+                @foreach($payment_config['providers'] as $item)
+                    <option value="{{ $item['provider'] }}">{{ $item['displayName'] }}</option>
                 @endforeach
             </select>
         </div>

@@ -35,7 +35,7 @@ class PayoutController extends Controller
 
     public function create(): View
     {
-        $providers = $this->pawapay->activeProviders();
+        $providers = $this->pawapay->activeProviders('PAYOUT');
         $currency = config('services.pawapay.currency', 'XAF');
         $wallet = $this->wallets->balanceForOwner(auth()->id());
 
@@ -44,7 +44,7 @@ class PayoutController extends Controller
 
     public function store(Request $request): RedirectResponse
     {
-        $providers = $this->pawapay->activeProviders();
+        $providers = $this->pawapay->activeProviders('PAYOUT');
         $validated = $request->validate([
             'phone_number' => ['required', 'string', 'min:9', 'max:15'],
             'provider' => ['required', 'string', 'in:'.implode(',', array_keys($providers))],

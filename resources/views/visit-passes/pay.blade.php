@@ -46,11 +46,11 @@
                     <div>
                         <label for="provider" class="block text-sm font-medium">Opérateur</label>
                         <select id="provider" name="provider" required
-                            @disabled(empty($providers))
+                            @disabled(empty($payment_config['providers']))
                             class="mt-1 block w-full rounded-lg border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-white disabled:cursor-not-allowed disabled:bg-gray-100">
                             <option value="">Choisir l'opérateur</option>
-                            @foreach ($providers as $code => $label)
-                                <option value="{{ $code }}" @selected(old('provider') === $code)>{{ $label }}</option>
+                            @foreach ($payment_config['providers'] as $item)
+                                <option value="{{ $item['provider'] }}" @selected(old('provider') === $item['provider'])>{{ $item['displayName'] }}</option>
                             @endforeach
                         </select>
                         @error('provider')

@@ -158,9 +158,15 @@ class DashboardController extends Controller
 
         $contract = $rentPayment->contract;
         $providers = $pawapay->activeProviders();
+        $payment_config = [
+            'providers' => collect($providers)
+                ->map(fn (string $displayName, string $provider): array => compact('provider', 'displayName'))
+                ->values()
+                ->all(),
+        ];
         $currency = config('services.pawapay.currency', 'XAF');
 
-        return view('pages.tenant.rent-pay', compact('rentPayment', 'contract', 'providers', 'currency'));
+        return view('pages.tenant.rent-pay', compact('rentPayment', 'contract', 'payment_config', 'currency'));
     }
 
     public function initiateRentPayment(Request $request, RentPayment $rentPayment, PawapayService $pawapay): RedirectResponse

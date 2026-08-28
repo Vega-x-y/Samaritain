@@ -43,33 +43,58 @@ class PawapayService
     }
 
     /** @return array<string, string> */
-    public function activeProviders(): array
+    public function activeProviders(string $operationType = 'DEPOSIT'): array
     {
         $configuration = $this->getActiveConfiguration();
         $country = (string) config('services.pawapay.country', 'COG');
-        $entries = $configuration[$country] ?? $configuration['providers'] ?? $configuration;
         $providers = [];
 
-        foreach ((array) $entries as $key => $entry) {
-            if (is_string($entry)) {
-                $providers[$entry] = $entry;
+        foreach ((array) ($configuration['countries'] ?? []) as $countryConfiguration) {
+            if (($countryConfiguration['country'] ?? null) !== $country) {
 
                 continue;
             }
+            foreach ((array) ($countryConfiguration['providers'] ?? []) as $provider) {
+                $operation = $this->operationConfiguration($provider, $operationType);
 
-            if (! is_array($entry)) {
-                continue;
-            }
+                if (! $operation || ($operation['status'] ?? null) !== 'OPERATIONAL') {
+                    continue;
+                }
 
-            $code = $entry['provider'] ?? $entry['providerName'] ?? $entry['name'] ?? (is_string($key) ? $key : null);
-            $label = $entry['displayName'] ?? $entry['providerName'] ?? $entry['name'] ?? $code;
+                $code = $provider['provider'] ?? null;
+                $label = $provider['displayName'] ?? $code;
 
-            if (is_string($code) && $code !== '') {
-                $providers[$code] = is_string($label) && $label !== '' ? $label : $code;
+                if (is_string($code) && $code !== '') {
+                    $providers[$code] = is_string($label) && $label !== '' ? $label : $code;
+                }
             }
         }
 
         return $providers;
+    }
+
+    /** @return array<string, mixed>|null */
+    private function operationConfiguration(array $provider, string $operationType): ?array
+    {
+        foreach ((array) ($provider['currencies'] ?? []) as $currency) {
+            if (($currency['currency'] ?? null) !== config('services.pawapay.currency', 'XAF')) {
+                continue;
+            }
+
+            foreach ((array) ($currency['operationTypes'] ?? []) as $operation) {
+                $configuration = $operation[$operationType] ?? null;
+
+                if (is_array($configuration)) {
+                    return $configuration;
+                }
+
+                if (($operation['operationType'] ?? null) === $operationType) {
+                    return $operation;
+                }
+            }
+        }
+
+        return null;
     }
 
     public function normalizePhoneNumber(string $phoneNumber): string

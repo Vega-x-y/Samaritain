@@ -65,8 +65,14 @@ class UserVisitPassController extends Controller
             $providerError = 'Les opérateurs sont momentanément indisponibles. Veuillez réessayer dans quelques instants.';
         }
         $currency = config('services.pawapay.currency', 'XAF');
+        $payment_config = [
+            'providers' => collect($providers)
+                ->map(fn (string $displayName, string $provider): array => compact('provider', 'displayName'))
+                ->values()
+                ->all(),
+        ];
 
-        return view('visit-passes.pay', compact('visitPass', 'providers', 'currency', 'providerError'));
+        return view('visit-passes.pay', compact('visitPass', 'payment_config', 'currency', 'providerError'));
     }
 
     /**
