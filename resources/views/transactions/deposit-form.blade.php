@@ -54,7 +54,7 @@
                                 :suffix="config('services.pawapay.currency', 'XAF')"
                             />
                         @endif
-
+                        @dump($branding)
                         <x-transactions.provider-picker :providers="$branding['providers']" />
 
                         <div>
