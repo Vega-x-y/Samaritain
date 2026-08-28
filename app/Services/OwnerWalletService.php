@@ -93,6 +93,35 @@ class OwnerWalletService
         return $this->walletForOwner($ownerId);
     }
 
+    /**
+     * Credit the wallet of the transaction owner for a completed deposit.
+     *
+     * Idempotent: a wallet entry of kind "deposit_credit" is created the
+     * first time, so re-processing the same transaction never double-credits.
+     */
+    public function creditDeposit(Transaction $transaction): void
+    {
+        DB::transaction(function () use ($transaction): void {
+            $wallet = $this->walletForOwner((int) $transaction->user_id);
+            $amount = (int) $transaction->amount;
+
+            $alreadyCredited = WalletEntry::where('transaction_id', $transaction->transaction_id)
+                ->where('kind', 'deposit_credit')
+                ->exists();
+
+            if ($alreadyCredited) {
+                return;
+            }
+
+            $wallet->increment('available_balance', $amount);
+            $wallet->entries()->create([
+                'transaction_id' => $transaction->transaction_id,
+                'kind' => 'deposit_credit',
+                'amount' => $amount,
+            ]);
+        });
+    }
+
     private function creditRentOwner(Transaction $transaction): void
     {
         if (! $transaction->rentPayment) {

@@ -57,6 +57,7 @@ use App\Http\Controllers\ScanController;
 use App\Http\Controllers\Socialite\ProviderCallbackController;
 use App\Http\Controllers\Socialite\ProviderRedirectController;
 use App\Http\Controllers\TransactionController;
+use App\Http\Controllers\TransactionsController;
 use App\Http\Controllers\UserVisitPassController;
 use App\Http\Controllers\VisitRequestController;
 use App\Http\Middleware\EnsureUserCanSignContract;
@@ -512,6 +513,23 @@ Route::middleware('auth')->group(function () {
     Route::post('/avis', [AvisController::class, 'store'])->name('avis.store');
     Route::get('/avis', [AvisController::class, 'index'])->name('avis.index');
     Route::delete('/avis/{avis}', [AvisController::class, 'destroy'])->name('avis.destroy');
+});
+
+// Wallet deposit & withdraw (TransactionsController plural) — check-status flow
+Route::middleware('auth')->group(function () {
+    Route::get('/transactions/deposit', [TransactionsController::class, 'getDepositForm'])
+        ->name('transactions.deposit');
+    Route::post('/transactions/deposit', [TransactionsController::class, 'initDeposit'])
+        ->name('transactions.deposit');
+    Route::get('/transactions/deposit/{transaction}/status', [TransactionsController::class, 'getTransactionStatus'])
+        ->name('transactions.deposit.status');
+
+    Route::get('/transactions/withdraw', [TransactionsController::class, 'getWithdrawForm'])
+        ->name('transactions.withdraw');
+    Route::post('/transactions/withdraw', [TransactionsController::class, 'initWithdraw'])
+        ->name('transactions.withdraw');
+    Route::get('/transactions/withdraw/{transaction}/status', [TransactionsController::class, 'getTransactionStatus'])
+        ->name('transactions.withdraw.status');
 });
 
 // pawaPay in-app payment tracking (no hosted payment page) — GET, user sees the live status
