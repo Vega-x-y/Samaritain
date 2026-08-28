@@ -55,7 +55,7 @@
                             />
                         @endif
 
-                        <x-transactions.provider-picker :providers="$providers" />
+                        <x-transactions.provider-picker :providers="$branding['providers']" />
 
                         <div>
                             <x-form.input
