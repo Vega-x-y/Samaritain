@@ -51,6 +51,7 @@ class TransactionsController extends Controller
 
         return view('transactions.deposit-form', [
             'payment_config' => $providers_data['countries'][0],
+            'branding' => $this->buildBranding($providers_data, 'DEPOSIT'),
             'visitPass' => $visitPass,
             'rentPayment' => $rentPayment,
         ]);
@@ -72,6 +73,7 @@ class TransactionsController extends Controller
 
         return view('transactions.withdraw-form', [
             'payment_config' => $providers_data['countries'][0],
+            'branding' => $this->buildBranding($providers_data, 'PAYOUT'),
             'balance' => $balance,
         ]);
     }
@@ -245,6 +247,27 @@ class TransactionsController extends Controller
 
             return [];
         }
+    }
+
+    /**
+     * Build the branding payload (company name, country flag, provider logos)
+     * for the payment forms from the PawaPay active configuration.
+     *
+     * @param  array<string, mixed>  $providersData
+     * @return array{companyName: ?string, countryName: ?string, flag: ?string, prefix: string, providers: array<int, array{provider: string, displayName: string, logo: ?string}>}
+     */
+    protected function buildBranding(array $providersData, string $type): array
+    {
+        $countryConfig = $providersData['countries'][0] ?? [];
+        $displayName = $countryConfig['displayName'] ?? [];
+
+        return [
+            'companyName' => $providersData['companyName'] ?? null,
+            'countryName' => $displayName['fr'] ?? $displayName['en'] ?? null,
+            'flag' => isset($countryConfig['flag']) && is_string($countryConfig['flag']) ? $countryConfig['flag'] : null,
+            'prefix' => (string) ($countryConfig['prefix'] ?? config('services.pawapay.dial_code', '242')),
+            'providers' => $this->pawapay->providerBranding($countryConfig, $type),
+        ];
     }
 
     protected function verifyTransactionStatus(Transaction $transaction): ?array

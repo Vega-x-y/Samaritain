@@ -19,6 +19,9 @@
                 <div class="p-6 sm:p-8">
                     <form method="POST" action="{{ route('transactions.withdraw') }}" class="space-y-5">
                         @csrf
+
+                        @include('transactions.partials.branding-header')
+
                         <div>
                             <x-form.input
                                 name="amount"
@@ -36,14 +39,7 @@
                             </p>
                         </div>
 
-                        <x-form.select
-                            name="provider"
-                            label="Opérateur"
-                            icon="smartphone"
-                            placeholder="Sélectionner un opérateur"
-                            required
-                            :options="collect($payment_config['providers'])->mapWithKeys(fn ($item) => [$item['provider'] => $item['displayName']])->all()"
-                        />
+                        @include('transactions.partials.provider-picker')
 
                         <div>
                             <x-form.input
