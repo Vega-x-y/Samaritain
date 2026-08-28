@@ -45,6 +45,7 @@
 
                     <div>
                         <label for="provider" class="block text-sm font-medium">Opérateur</label>
+                        @dump($payment_config['providers'])
                         <select id="provider" name="provider" required
                             @disabled(empty($payment_config['providers']))
                             class="mt-1 block w-full rounded-lg border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-white disabled:cursor-not-allowed disabled:bg-gray-100">
