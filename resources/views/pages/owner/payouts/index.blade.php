@@ -70,7 +70,7 @@
                             {{ $payout->provider ?? '—' }}
                         </td>
                         <td class="px-5 py-3 text-right font-semibold text-gray-800 dark:text-white">
-                            {{ number_format($payout->amount / 100, 0, ',', ' ') }} {{ $payout->currency ?? config('services.pawapay.currency', 'XAF') }}
+                            {{ number_format($payout->amount, 0, ',', ' ') }} {{ $payout->currency ?? config('services.pawapay.currency', 'XAF') }}
                         </td>
                         <td class="px-5 py-3 text-center">
                             <span class="text-xs px-2 py-1 rounded-full whitespace-nowrap {{ $badgeClasses[$sc] ?? 'bg-gray-100 text-gray-600 dark:bg-gray-700 dark:text-gray-300' }}">

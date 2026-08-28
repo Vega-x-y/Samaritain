@@ -112,12 +112,12 @@
 
     <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 mb-5">
         <div class="bg-emerald-50 dark:bg-emerald-900/20 rounded-xl p-4">
-            <p class="text-xs font-medium text-emerald-600 dark:text-emerald-400 uppercase tracking-wide">Solde disponible</p>
-            <p class="text-2xl font-bold text-gray-800 dark:text-white mt-1">{{ number_format($wallet->available_balance / 100, 0, ',', ' ') }} <span class="text-sm font-medium text-gray-500 dark:text-gray-400">FCFA</span></p>
+            <p class="text-xs font-medium text-emerald-600 dark:text-emerald-400 uppercase tracking-wide">Solde actuel</p>
+            <p class="text-2xl font-bold text-gray-800 dark:text-white mt-1">{{ number_format($wallet->available_balance, 0, ',', ' ') }} <span class="text-sm font-medium text-gray-500 dark:text-gray-400">FCFA</span></p>
         </div>
         <div class="bg-amber-50 dark:bg-amber-900/20 rounded-xl p-4">
             <p class="text-xs font-medium text-amber-600 dark:text-amber-400 uppercase tracking-wide">Retraits en cours</p>
-            <p class="text-2xl font-bold text-gray-800 dark:text-white mt-1">{{ number_format($wallet->reserved_balance / 100, 0, ',', ' ') }} <span class="text-sm font-medium text-gray-500 dark:text-gray-400">FCFA</span></p>
+            <p class="text-2xl font-bold text-gray-800 dark:text-white mt-1">{{ number_format($wallet->reserved_balance, 0, ',', ' ') }} <span class="text-sm font-medium text-gray-500 dark:text-gray-400">FCFA</span></p>
         </div>
     </div>
 
@@ -131,7 +131,7 @@
                         <i data-lucide="banknote" class="w-4 h-4 text-gray-500 dark:text-gray-400"></i>
                     </div>
                     <div>
-                        <p class="text-sm font-medium text-gray-800 dark:text-white">{{ number_format($payout->amount / 100, 0, ',', ' ') }} FCFA</p>
+                        <p class="text-sm font-medium text-gray-800 dark:text-white">{{ number_format($payout->amount, 0, ',', ' ') }} FCFA</p>
                         <p class="text-xs text-gray-400 dark:text-gray-500">{{ $payout->created_at->translatedFormat('d M Y à H:i') }}</p>
                     </div>
                 </div>

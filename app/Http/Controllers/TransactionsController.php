@@ -103,7 +103,7 @@ class TransactionsController extends Controller
             'type' => TransactionType::DEPOSIT,
             'amount' => $rentPayment
                 ? (int) $rentPayment->amount_due
-                : ($visitPass ? (int) $visitPass->amount : (int) round((float) $request->amount * 100)),
+                : ($visitPass ? (int) $visitPass->amount : (int) $request->amount),
             'status' => TransactionStatus::PENDING,
             'provider' => $request->provider,
             'currency' => config('services.pawapay.currency'),
@@ -152,7 +152,7 @@ class TransactionsController extends Controller
         $transaction = Transaction::create([
             'user_id' => Auth::id(),
             'type' => TransactionType::PAYOUT,
-            'amount' => (int) round((float) $request->amount * 100),
+            'amount' => (int) $request->amount,
             'status' => TransactionStatus::PENDING,
             'provider' => $request->provider,
             'currency' => config('services.pawapay.currency'),

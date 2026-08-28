@@ -20,11 +20,11 @@
                         <!-- Amount Input -->
                         <div>
                             <label for="amount" class="block text-sm font-medium text-gray-700">
-                                Montant (balance: {{ number_format($balance / 100, 2, ',', ' ') }} {{ config('services.pawapay.currency', 'XAF') }})
+                                Montant (balance: {{ number_format($balance, 2, ',', ' ') }} {{ config('services.pawapay.currency', 'XAF') }})
                             </label>
                             <div class="mt-1 flex rounded-md shadow-sm">
                                 <input type="number" name="amount" id="amount" min="10"
-                                    max="{{ $balance / 100 }}" required value="{{ old('amount') }}"
+                                    max="{{ $balance }}" required value="{{ old('amount') }}"
                                     class="flex-1 block w-full rounded-none rounded-l-md sm:text-sm border-gray-300"
                                     placeholder="Montant a rétirer">
                                 <span

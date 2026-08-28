@@ -195,10 +195,10 @@ test('dashboard shows the owner wallet balance and recent withdrawals', function
     $response->assertOk()
         ->assertViewHas('wallet', fn ($wallet) => $wallet->available_balance === 250000)
         ->assertViewHas('recentPayouts', fn ($payouts) => $payouts->count() === 1)
-        ->assertSee('Mon Wallet')
-        ->assertSee('2 500')
-        ->assertSee('500')
-        ->assertSee('1 000');
+        ->assertSee('Solde actuel')
+        ->assertSee('250 000')
+        ->assertSee('50 000')
+        ->assertSee('100 000');
 });
 
 test('dashboard wallet section renders without a wallet', function () {

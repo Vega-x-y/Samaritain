@@ -85,7 +85,7 @@ test('init deposit accepts a valid deposit and redirects to status', function ()
     $transaction = Transaction::first();
     expect($transaction)->not->toBeNull()
         ->and($transaction->type)->toBe(TransactionType::DEPOSIT)
-        ->and($transaction->amount)->toBe(10000)
+        ->and($transaction->amount)->toBe(100)
         ->and($transaction->deposit_id)->not->toBeNull();
 });
 

@@ -75,7 +75,7 @@ class InitiateDeposit extends Component
                 depositId: $depositId,
                 phoneNumber: $pawapay->normalizePhoneNumber($this->phoneNumber),
                 provider: $this->provider,
-                amount: number_format($amount / 100, 2, '.', ''),
+                amount: (string) $amount,
                 currency: $currency,
                 clientReferenceId: $this->referenceId,
             ));

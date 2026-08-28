@@ -8,7 +8,7 @@
         <i data-lucide="arrow-left" class="w-4 h-4"></i> Retour au wallet
     </a>
     <h1 class="text-2xl font-bold text-gray-800 dark:text-white">Nouveau retrait</h1>
-    <p class="text-gray-500 dark:text-gray-400 mt-1">Solde disponible : {{ number_format($wallet->available_balance / 100, 0, ',', ' ') }} {{ $currency }}.</p>
+    <p class="text-gray-500 dark:text-gray-400 mt-1">Solde actuel : {{ number_format($wallet->available_balance, 0, ',', ' ') }} {{ $currency }}.</p>
 </div>
 
 <div class="max-w-lg">

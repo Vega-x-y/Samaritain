@@ -78,7 +78,7 @@ class PayoutController extends Controller
                 payoutId: $payoutId,
                 phoneNumber: $this->pawapay->normalizePhoneNumber($validated['phone_number']),
                 provider: $validated['provider'],
-                amount: number_format($amount / 100, 2, '.', ''),
+                amount: (string) $amount,
                 currency: $currency,
                 clientReferenceId: (string) $transaction->transaction_id,
                 customerMessage: $validated['description'] ?? 'Retrait Samaritain',
