@@ -2,11 +2,6 @@
 
 namespace App\DataTransferObjects\Pawapay;
 
-/**
- * Data Transfer Object for PawaPay payout requests.
- *
- * Represents the payload for POST /v2/payouts.
- */
 readonly class PayoutRequest
 {
     public function __construct(
@@ -20,12 +15,9 @@ readonly class PayoutRequest
         public ?array $metadata = null,
     ) {}
 
-    /**
-     * Convert to array for API request.
-     */
     public function toArray(): array
     {
-        $payload = [
+        return array_filter([
             'payoutId' => $this->payoutId,
             'recipient' => [
                 'type' => 'MMO',
@@ -36,20 +28,9 @@ readonly class PayoutRequest
             ],
             'amount' => $this->amount,
             'currency' => $this->currency,
-        ];
-
-        if ($this->clientReferenceId !== null) {
-            $payload['clientReferenceId'] = $this->clientReferenceId;
-        }
-
-        if ($this->customerMessage !== null) {
-            $payload['customerMessage'] = $this->customerMessage;
-        }
-
-        if ($this->metadata !== null && count($this->metadata) > 0) {
-            $payload['metadata'] = $this->metadata;
-        }
-
-        return $payload;
+            'clientReferenceId' => $this->clientReferenceId,
+            'customerMessage' => $this->customerMessage,
+            'metadata' => $this->metadata,
+        ], static fn (mixed $value): bool => $value !== null);
     }
 }

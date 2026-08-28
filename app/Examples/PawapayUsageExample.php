@@ -59,33 +59,6 @@ class PawapayUsageExample
                 'raw_response' => ['error' => $e->getMessage()],
             ]);
 
-            throw $e;
-        }
-
-        // 4. Build deposit request
-        $request = new DepositRequest(
-            depositId: $depositId,
-            phoneNumber: $normalizedPhone,
-            provider: $provider,
-            amount: (string) ($amount / 100), // Convert cents to decimal string
-            currency: config('pawapay.default_currency', 'CDF'),
-            clientReferenceId: "TXN-{$transactionId}",
-            customerMessage: 'Paiement Samaritain',
-        );
-
-        // 5. Initiate deposit via PawaPay
-        try {
-            $response = $this->pawapay->initiateDeposit($request);
-
-            // 6. Check initiation status
-            if ($response['status'] === 'ACCEPTED') {
-                // Deposit accepted - wait for callback for final status
-                $transaction->update([
-                    'status' => TransactionStatus::ACCEPTED,
-                    'raw_response' => $response,
-                ]);
-            } elseif ($response['status'] === 'REJECTED') {
-                // Deposit rejected immediately
                 $transaction->update([
                     'status' => TransactionStatus::REJECTED,
                     'raw_response' => $response,

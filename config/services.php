@@ -48,19 +48,15 @@ return [
     ],
 
     'pawapay' => [
-        'base_url' => env('PAWAPAY_ENV', 'sandbox') === 'production'
-            ? env('PAWAPAY_LIVE_URL', 'https://api.pawapay.io')
-            : env('PAWAPAY_SANDBOX_URL', 'https://api.sandbox.pawapay.io'),
-        'token' => env('PAWAPAY_API_TOKEN'),
-        'callback_public_key' => env('PAWAPAY_CALLBACK_PUBLIC_KEY'),
-        'verify_callback_signature' => (bool) env('PAWAPAY_CALLBACK_VERIFY_SIGNATURE', false),
+        'api_key' => env('PAWAPAY_API_KEY'),
+        'api_url' => env('PAWAPAY_MODE', 'sandbox') === 'production'
+            ? env('PAWAPAY_API_PRODUCTION_URL', 'https://api.pawapay.io/v2')
+            : env('PAWAPAY_API_SANDBOX_URL', 'https://api.sandbox.pawapay.io/v2'),
         'currency' => env('PAWAPAY_CURRENCY', 'XAF'),
         'country' => env('PAWAPAY_COUNTRY', 'COG'),
         'dial_code' => env('PAWAPAY_DIAL_CODE', '242'),
-        'providers' => [
-            'MTN_MOMO_COG' => 'MTN Mobile Money',
-            'AIRTEL_COG' => 'Airtel Money',
-        ],
+        'fee_percent' => (int) env('PAWAPAY_FEE_PERCENT', 5),
+        'timeout' => (int) env('PAWAPAY_TIMEOUT', 30),
+        'retry_times' => (int) env('PAWAPAY_RETRY_TIMES', 2),
     ],
-
 ];

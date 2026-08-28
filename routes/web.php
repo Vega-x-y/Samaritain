@@ -519,19 +519,6 @@ Route::get('/transactions/{transaction}/pending', [TransactionController::class,
     ->middleware('auth')
     ->name('transactions.pending');
 
-// pawaPay server-to-server callback (callbackUrl) — POST, CSRF-exempt via bootstrap/app.php
-Route::post('/transactions/{transaction}/webhook', [TransactionController::class, 'handleCallback'])
-    ->name('transactions.webhook');
-
-// pawaPay server-to-server generic callback — POST, CSRF-exempt via bootstrap/app.php
-Route::post('/transactions/webhook', [TransactionController::class, 'handleGenericCallback'])
-    ->name('transactions.generic_webhook');
-
-// pawaPay browser redirect (returnUrl) — GET, user sees the result
-Route::get('/transactions/{transaction}/callback', [TransactionController::class, 'callback'])
-    ->middleware('auth')
-    ->name('transactions.callback');
-
 // Manual status check endpoint
 Route::get('/transactions/{transaction}/status', [TransactionController::class, 'status'])
     ->middleware('auth')

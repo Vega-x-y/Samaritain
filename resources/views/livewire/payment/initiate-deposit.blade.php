@@ -22,7 +22,6 @@
                 </p>
             </div>
         @else
-            {{-- Redirect to pawaPay's hosted payment page --}}
             <div class="space-y-4">
                 {{-- Amount display --}}
                 <div class="bg-gray-100 dark:bg-gray-800 p-4 rounded-lg">
@@ -34,22 +33,29 @@
 
                 <div class="border-t pt-4">
                     <flux:text class="text-sm text-gray-600 dark:text-gray-400 mb-3">
-                        Vous serez redirigé vers la page de paiement sécurisée de PawaPay pour choisir votre opérateur
-                        et saisir votre numéro. Les informations de paiement ne sont jamais saisies sur Samaritain.
+                        Le paiement sera directement initié auprès de votre opérateur Mobile Money.
                     </flux:text>
 
+                    <flux:input wire:model="phoneNumber" label="Numéro Mobile Money" type="tel" required />
+                    <flux:select wire:model="provider" label="Opérateur" required>
+                        <flux:select.option value="">Choisir l'opérateur</flux:select.option>
+                        @foreach($this->providers as $code => $label)
+                            <flux:select.option value="{{ $code }}">{{ $label }}</flux:select.option>
+                        @endforeach
+                    </flux:select>
+
                     <flux:button
-                        wire:click="initiatePaymentPage"
+                        wire:click="initiateDeposit"
                         variant="primary"
                         class="w-full"
                         :disabled="$processing"
                     >
                         @if($processing)
-                            <span wire:loading wire:target="initiatePaymentPage">
-                                Redirection vers PawaPay...
+                            <span wire:loading wire:target="initiateDeposit">
+                                Confirmation en cours...
                             </span>
                         @else
-                            Payer via la page sécurisée PawaPay
+                            Confirmer le paiement
                         @endif
                     </flux:button>
                 </div>
@@ -64,10 +70,4 @@
         @endif
     </flux:card>
 
-    {{-- Auto-redirect to payment page if URL is set --}}
-    @if($redirectUrl)
-        <script>
-            window.location.href = '{{ $redirectUrl }}';
-        </script>
-    @endif
 </div>

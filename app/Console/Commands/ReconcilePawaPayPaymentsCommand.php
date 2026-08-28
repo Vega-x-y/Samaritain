@@ -3,9 +3,11 @@
 namespace App\Console\Commands;
 
 use App\Enums\TransactionStatus;
+use App\Enums\TransactionType;
 use App\Events\PaymentCompleted;
 use App\Events\PaymentFailed;
 use App\Models\Transaction;
+use App\Services\OwnerWalletService;
 use App\Services\PawapayService;
 use App\Services\RentPaymentService;
 use App\Services\VisitPassService;
@@ -60,9 +62,10 @@ class ReconcilePawaPayPaymentsCommand extends Command
         $errors = 0;
 
         foreach ($stuckTransactions as $transaction) {
+            /** @var Transaction $transaction */
             try {
                 // Choose the right status-check endpoint based on the transaction type.
-                if ($transaction->type === 'payout' && $transaction->payout_id) {
+                if ($transaction->type === TransactionType::PAYOUT && $transaction->payout_id) {
                     $statusResponse = $pawapayService->getPayoutStatus($transaction->payout_id);
                 } else {
                     $statusResponse = $pawapayService->getDepositStatus($transaction->deposit_id);
@@ -107,6 +110,7 @@ class ReconcilePawaPayPaymentsCommand extends Command
     protected function reconcileAsCompleted(Transaction $transaction): void
     {
         $transaction->update(['status' => TransactionStatus::COMPLETED]);
+        app(OwnerWalletService::class)->settle($transaction, TransactionStatus::COMPLETED);
 
         if ($transaction->visit_pass_id && $transaction->visitPass) {
             app(VisitPassService::class)
@@ -127,6 +131,7 @@ class ReconcilePawaPayPaymentsCommand extends Command
     protected function reconcileAsFailed(Transaction $transaction): void
     {
         $transaction->update(['status' => TransactionStatus::FAILED]);
+        app(OwnerWalletService::class)->settle($transaction, TransactionStatus::FAILED);
 
         if ($transaction->visit_pass_id && $transaction->visitPass) {
             app(VisitPassService::class)

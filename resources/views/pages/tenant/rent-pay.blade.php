@@ -10,7 +10,7 @@
         <span class="dark:text-gray-300">Payer le loyer</span>
     </nav>
     <h1 class="text-2xl font-bold text-gray-800 dark:text-white">Payer le loyer</h1>
-    <p class="text-gray-500 dark:text-gray-400 mt-1">Confirmez le paiement : vous serez redirigé vers la page sécurisée PawaPay.</p>
+    <p class="text-gray-500 dark:text-gray-400 mt-1">Saisissez vos coordonnées Mobile Money pour confirmer le paiement.</p>
 </div>
 
 <div class="grid grid-cols-1 lg:grid-cols-[1fr_340px] gap-8 items-start">
@@ -21,9 +21,20 @@
         <div>
             <h2 class="font-semibold text-gray-800 dark:text-white">Confirmer le paiement</h2>
             <p class="mt-1 text-sm text-gray-500 dark:text-gray-400">
-                Vous allez être redirigé vers la page de paiement sécurisée PawaPay.
-                Vous y choisirez votre opérateur Mobile Money et validerez le paiement depuis votre téléphone.
+                Le paiement sera directement initié auprès de votre opérateur Mobile Money.
             </p>
+        </div>
+
+        <div class="mt-6 space-y-4">
+            <input type="text" name="phone_number" required placeholder="Numéro Mobile Money"
+                class="w-full rounded-lg border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-white">
+            <select name="provider" required
+                class="w-full rounded-lg border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-white">
+                <option value="">Choisir l'opérateur</option>
+                @foreach($providers as $code => $label)
+                    <option value="{{ $code }}">{{ $label }}</option>
+                @endforeach
+            </select>
         </div>
 
         <div class="mt-6 flex flex-col sm:flex-row items-center gap-3">

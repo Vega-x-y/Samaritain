@@ -3,6 +3,7 @@
 namespace App\Jobs;
 
 use App\Enums\TransactionStatus;
+use App\Enums\TransactionType;
 use App\Events\PaymentCompleted;
 use App\Events\PaymentFailed;
 use App\Exceptions\PawaPayException;
@@ -49,10 +50,12 @@ class ProcessPawaPayCallback implements ShouldQueue
             return;
         }
 
-        $depositId = $callbackData['depositId'] ?? $this->transaction->deposit_id;
+        $transactionId = $callbackData['depositId']
+            ?? $callbackData['payoutId']
+            ?? $this->transaction->pawapay_id;
 
-        if (! $depositId) {
-            Log::error('pawaPay callback received but no depositId on transaction', [
+        if (! $transactionId) {
+            Log::error('pawaPay callback received without a PawaPay transaction ID', [
                 'transaction_id' => $this->transaction->transaction_id,
             ]);
 
@@ -62,10 +65,10 @@ class ProcessPawaPayCallback implements ShouldQueue
         // Independently verify the status via the pawaPay API.
         // Never trust the callback payload alone — always confirm with pawaPay.
         try {
-            if ($this->transaction->type === 'payout' && $this->transaction->payout_id) {
+            if ($this->transaction->type === TransactionType::PAYOUT && $this->transaction->payout_id) {
                 $statusResponse = $pawapayService->getPayoutStatus($this->transaction->payout_id);
             } else {
-                $statusResponse = $pawapayService->getDepositStatus($depositId);
+                $statusResponse = $pawapayService->getDepositStatus($transactionId);
             }
         } catch (PawaPayException $e) {
             // Re-throw to leverage the retry queue — the callback may arrive
@@ -86,7 +89,7 @@ class ProcessPawaPayCallback implements ShouldQueue
             'ACCEPTED', 'PROCESSING', 'PENDING', 'SUBMITTED', 'IN_RECONCILIATION' => $this->handlePending(),
             'NOT_FOUND' => $this->handleNotFound(),
             default => Log::warning('pawaPay callback received unknown status', [
-                'depositId' => $depositId,
+                'transactionId' => $transactionId,
                 'status' => $pawaPayStatus,
             ]),
         };

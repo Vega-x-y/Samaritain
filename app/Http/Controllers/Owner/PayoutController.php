@@ -2,28 +2,30 @@
 
 namespace App\Http\Controllers\Owner;
 
+use App\DataTransferObjects\Pawapay\PayoutRequest;
 use App\Enums\TransactionStatus;
 use App\Enums\TransactionType;
 use App\Exceptions\PawaPayException;
 use App\Http\Controllers\Controller;
-use App\Models\Property;
 use App\Models\Transaction;
+use App\Services\OwnerWalletService;
 use App\Services\PawapayService;
+use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Str;
+use Illuminate\View\View;
 
 class PayoutController extends Controller
 {
-    public function __construct(protected PawapayService $pawapay) {}
+    public function __construct(
+        private PawapayService $pawapay,
+        private OwnerWalletService $wallets,
+    ) {}
 
-    /**
-     * List all payouts initiated by this owner.
-     */
-    public function index()
+    public function index(Request $request): View
     {
-        $propertyIds = Property::where('created_by', auth()->id())->pluck('id');
-
-        $payouts = Transaction::where('user_id', auth()->id())
+        $payouts = Transaction::query()
+            ->where('user_id', $request->user()->id)
             ->where('type', TransactionType::PAYOUT)
             ->latest()
             ->paginate(20);
@@ -31,112 +33,71 @@ class PayoutController extends Controller
         return view('pages.owner.payouts.index', compact('payouts'));
     }
 
-    /**
-     * Show the payout initiation form.
-     */
-    public function create()
+    public function create(): View
     {
-        return view('pages.owner.payouts.create');
+        $providers = $this->pawapay->activeProviders();
+        $currency = config('services.pawapay.currency', 'XAF');
+        $wallet = $this->wallets->balanceForOwner(auth()->id());
+
+        return view('pages.owner.payouts.create', compact('providers', 'currency', 'wallet'));
     }
 
-    /**
-     * Initiate a pawaPay payout (send money to a Mobile Money number).
-     *
-     * Flow:
-     *  1. Validate inputs.
-     *  2. Predict provider from phone number via pawaPay API.
-     *  3. Generate UUIDv4 (payoutId) and persist the Transaction as PENDING.
-     *  4. Call pawaPay /v2/payouts.
-     *  5. Redirect with status feedback.
-     */
-    public function store(Request $request)
+    public function store(Request $request): RedirectResponse
     {
+        $providers = $this->pawapay->activeProviders();
         $validated = $request->validate([
-            'phone_number' => ['required', 'string', 'max:20'],
+            'phone_number' => ['required', 'string', 'min:9', 'max:15'],
+            'provider' => ['required', 'string', 'in:'.implode(',', array_keys($providers))],
             'amount' => ['required', 'integer', 'min:100'],
-            'description' => ['nullable', 'string', 'max:255'],
+            'description' => ['nullable', 'string', 'max:22'],
         ]);
 
-        // 1. Normalise the phone number and detect the provider.
-        try {
-            $prediction = $this->pawapay->predictProvider($validated['phone_number']);
-        } catch (PawaPayException $e) {
-            return back()
-                ->withInput()
-                ->withErrors(['phone_number' => 'Impossible de valider ce numéro de téléphone. Vérifiez le numéro et réessayez.']);
-        }
-
-        $provider = $prediction['provider'] ?? null;
-        $msisdn = $prediction['phoneNumber'] ?? $validated['phone_number'];
-
-        if (! $provider) {
-            return back()
-                ->withInput()
-                ->withErrors(['phone_number' => 'Aucun opérateur Mobile Money détecté pour ce numéro.']);
-        }
-
-        // 2. Generate the UUID BEFORE any API call — idempotency key.
         $payoutId = (string) Str::uuid();
-
-        // 3. Persist the transaction as PENDING — reconciliation anchor.
+        $amount = $this->pawapay->amountAfterFee((int) $validated['amount']);
+        $currency = config('services.pawapay.currency', 'XAF');
         $transaction = Transaction::create([
-            'user_id' => auth()->id(),
+            'user_id' => $request->user()->id,
             'type' => TransactionType::PAYOUT,
             'status' => TransactionStatus::PENDING,
-            'amount' => $validated['amount'],
+            'amount' => $amount,
             'payout_id' => $payoutId,
-            'provider' => $provider,
-            'currency' => 'XAF',
+            'provider' => $validated['provider'],
+            'currency' => $currency,
         ]);
 
-        // 4. Call pawaPay.
         try {
-            $result = $this->pawapay->createPayout($payoutId, [
-                'amount' => (string) $validated['amount'],
-                'currency' => 'XAF',
-                'country' => 'COG',
-                'recipient' => [
-                    'type' => 'MMO',
-                    'accountDetails' => [
-                        'phoneNumber' => $msisdn,
-                        'provider' => $provider,
-                    ],
-                ],
-                'customerTimestamp' => now()->toIso8601String(),
-                'statementDescription' => $validated['description'] ?? 'Virement propriétaire Samaritain',
-                'metadata' => [
-                    ['transactionId' => $transaction->transaction_id],
-                    ['userId' => (string) auth()->id()],
-                ],
-            ]);
+            $this->wallets->reservePayout($transaction);
+        } catch (\RuntimeException $exception) {
+            $transaction->delete();
 
-            // Map PawaPay status to our enum (uppercase)
-            $status = strtoupper($result['status'] ?? 'PENDING');
-            $transaction->update([
-                'status' => TransactionStatus::tryFrom($status) ?? TransactionStatus::PENDING,
-                'raw_response' => $result,
-            ]);
-        } catch (PawaPayException $e) {
-            // Do NOT mark as failed — leave PENDING for reconciliation.
-            $transaction->update([
-                'raw_response' => ['error' => $e->getMessage()],
-            ]);
-
-            return redirect()
-                ->route('owner.payouts.index')
-                ->with('warning', 'Le virement a été créé mais la confirmation pawaPay est en attente. Vérifiez l\'état dans quelques minutes.');
+            return back()->withInput()->withErrors(['amount' => $exception->getMessage()]);
         }
 
-        $status = strtoupper($result['status'] ?? 'UNKNOWN');
+        try {
+            $response = $this->pawapay->initiatePayout(new PayoutRequest(
+                payoutId: $payoutId,
+                phoneNumber: $this->pawapay->normalizePhoneNumber($validated['phone_number']),
+                provider: $validated['provider'],
+                amount: number_format($amount / 100, 2, '.', ''),
+                currency: $currency,
+                clientReferenceId: (string) $transaction->transaction_id,
+                customerMessage: $validated['description'] ?? 'Retrait Samaritain',
+            ));
 
-        if ($status === 'REJECTED') {
-            return redirect()
-                ->route('owner.payouts.index')
-                ->with('error', 'Le virement a été refusé par pawaPay. Vérifiez le numéro et réessayez.');
+            $status = TransactionStatus::tryFrom(strtoupper((string) ($response['status'] ?? 'PENDING')))
+                ?? TransactionStatus::PENDING;
+            $transaction->update(['status' => $status, 'raw_response' => $response]);
+            if ($status->isFinal()) {
+                $this->wallets->settle($transaction, $status);
+            }
+        } catch (PawaPayException $exception) {
+            $transaction->update(['raw_response' => ['error' => $exception->getMessage()]]);
+
+            return to_route('owner.payouts.index')
+                ->with('warning', 'Le retrait est enregistré et sera vérifié ultérieurement.');
         }
 
-        return redirect()
-            ->route('owner.payouts.index')
-            ->with('success', 'Virement de '.number_format($validated['amount'], 0, ',', ' ').' FCFA initié avec succès vers '.$msisdn.'. Statut : '.$status.'.');
+        return to_route('owner.payouts.index')
+            ->with('success', 'Le retrait a été initié.');
     }
 }
