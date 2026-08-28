@@ -80,7 +80,7 @@
                 @if ($isReconciliation)
                     pawaPay vérifie encore cette transaction. Le statut final sera actualisé automatiquement.
                 @else
-                    Votre paiement de {{ number_format($transaction->amount, 0, ',', ' ') }} {{ $currency }} est en cours de confirmation par pawaPay.
+                    Votre paiement de {{ number_format($transaction->amount / 100, 0, ',', ' ') }} {{ $currency }} est en cours de confirmation par pawaPay.
                     Le statut sera vérifié automatiquement après votre retour de la page de paiement.
                 @endif
             </p>

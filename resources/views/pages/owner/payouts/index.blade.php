@@ -51,27 +51,13 @@
             <tbody class="divide-y divide-gray-50 dark:divide-gray-700">
                 @forelse($payouts as $payout)
                     @php
-                        $statusColors = [
-                            'pending'    => 'amber',
-                            'accepted'   => 'blue',
-                            'processing' => 'blue',
-                            'enqueued'   => 'amber',
-                            'in_reconciliation' => 'amber',
-                            'completed'  => 'success',
-                            'failed'     => 'red',
-                            'rejected'   => 'red',
+                        $badgeClasses = [
+                            'success' => 'bg-success/10 text-success',
+                            'warning' => 'bg-amber-100 text-amber-700 dark:bg-amber-900/30 dark:text-amber-400',
+                            'danger'  => 'bg-red-100 text-red-700 dark:bg-red-900/30 dark:text-red-400',
+                            'info'    => 'bg-blue-100 text-blue-700 dark:bg-blue-900/30 dark:text-blue-400',
                         ];
-                        $statusLabels = [
-                            'pending'    => 'En attente',
-                            'accepted'   => 'Accepté',
-                            'processing' => 'En cours',
-                            'enqueued'   => "En file d'attente",
-                            'in_reconciliation' => 'En vérification',
-                            'completed'  => 'Complété',
-                            'failed'     => 'Échoué',
-                            'rejected'   => 'Refusé',
-                        ];
-                        $sc = $statusColors[$payout->status] ?? 'gray';
+                        $sc = $payout->status->variant();
                     @endphp
                     <tr class="hover:bg-gray-50 dark:hover:bg-gray-700/30 transition">
                         <td class="px-5 py-3 text-gray-500 dark:text-gray-400 text-xs whitespace-nowrap">
@@ -84,18 +70,12 @@
                             {{ $payout->provider ?? '—' }}
                         </td>
                         <td class="px-5 py-3 text-right font-semibold text-gray-800 dark:text-white">
-                            {{ number_format($payout->amount, 0, ',', ' ') }} {{ $payout->currency ?? config('services.pawapay.currency', 'XAF') }}
+                            {{ number_format($payout->amount / 100, 0, ',', ' ') }} {{ $payout->currency ?? config('services.pawapay.currency', 'XAF') }}
                         </td>
                         <td class="px-5 py-3 text-center">
-                            @if($sc === 'success')
-                                <span class="text-xs px-2 py-1 rounded-full bg-success/10 text-success">
-                                    {{ $statusLabels[$payout->status] ?? $payout->status }}
-                                </span>
-                            @else
-                                <span class="text-xs px-2 py-1 rounded-full bg-{{ $sc }}-100 dark:bg-{{ $sc }}-900/30 text-{{ $sc }}-600 dark:text-{{ $sc }}-400">
-                                    {{ $statusLabels[$payout->status] ?? $payout->status }}
-                                </span>
-                            @endif
+                            <span class="text-xs px-2 py-1 rounded-full whitespace-nowrap {{ $badgeClasses[$sc] ?? 'bg-gray-100 text-gray-600 dark:bg-gray-700 dark:text-gray-300' }}">
+                                {{ $payout->status->label() }}
+                            </span>
                         </td>
                     </tr>
                 @empty

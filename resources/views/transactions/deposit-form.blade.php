@@ -23,7 +23,7 @@
                                 <p class="text-sm font-medium text-gray-700">Pass visite</p>
                                 <p class="text-sm text-gray-500 mt-1">Réf. {{ $visitPass->reference }}</p>
                                 <p class="mt-2 text-lg font-semibold text-gray-900">
-                                    {{ number_format($visitPass->amount, 0, ',', ' ') }} {{ config('services.pawapay.currency', 'XAF') }}
+                                    {{ number_format($visitPass->amount / 100, 0, ',', ' ') }} {{ config('services.pawapay.currency', 'XAF') }}
                                 </p>
                                 <input type="hidden" name="amount" value="{{ $visitPass->amount / 100 }}">
                             </div>
@@ -33,7 +33,7 @@
                                 <p class="text-sm font-medium text-gray-700">Loyer</p>
                                 <p class="text-sm text-gray-500 mt-1">Période {{ $rentPayment->month }}/{{ $rentPayment->year }}</p>
                                 <p class="mt-2 text-lg font-semibold text-gray-900">
-                                    {{ number_format($rentPayment->amount_due, 0, ',', ' ') }} {{ config('services.pawapay.currency', 'XAF') }}
+                                    {{ number_format($rentPayment->amount_due / 100, 0, ',', ' ') }} {{ config('services.pawapay.currency', 'XAF') }}
                                 </p>
                                 <input type="hidden" name="amount" value="{{ $rentPayment->amount_due / 100 }}">
                             </div>
