@@ -208,7 +208,7 @@
         </header>
 
         <!-- Main Panel Content -->
-        <main class="flex-1 overflow-y-auto min-h-0 p-3 sm:p-4 bg-background flex flex-col gap-4 sm:mb-4">
+        <main class="flex-1 overflow-y-auto min-h-0 p-3 pb-8 sm:p-4 sm:pb-4 bg-background flex flex-col gap-4 sm:mb-4">
             {{ $slot }}
         </main>
     </div>
