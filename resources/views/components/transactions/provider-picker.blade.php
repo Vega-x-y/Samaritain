@@ -26,15 +26,11 @@
                         <img
                             src="{{ $provider['logo'] }}"
                             alt="{{ $provider['displayName'] }}"
-                            class="h-8 w-auto max-w-[80%] object-contain"
                             loading="lazy"
                         >
                     @else
                         <i data-lucide="smartphone" class="w-6 h-6 text-gray-400 dark:text-gray-500"></i>
                     @endif
-                    <span class="text-xs font-medium text-gray-700 dark:text-gray-300 leading-tight">
-                        {{ $provider['displayName'] }}
-                    </span>
                 </div>
             </label>
         @endforeach

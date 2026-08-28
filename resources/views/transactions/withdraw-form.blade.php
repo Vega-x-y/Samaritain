@@ -25,7 +25,7 @@
                         <p class="-mt-3 text-xs text-gray-500 dark:text-gray-400">
                             Solde disponible : {{ number_format($balance, 0, ',', ' ') }} {{ config('services.pawapay.currency', 'XAF') }}
                         </p>
-                        
+
                         <div>
                             <x-form.input
                                 name="amount"
@@ -47,7 +47,6 @@
                                 name="phone"
                                 type="tel"
                                 label="Numéro de téléphone"
-                                icon="phone"
                                 placeholder="Entrez les 9 chiffres"
                                 required
                                 pattern="[0-9]{9}"

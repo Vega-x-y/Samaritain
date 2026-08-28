@@ -54,7 +54,7 @@
                                 :suffix="config('services.pawapay.currency', 'XAF')"
                             />
                         @endif
-                        @dump($branding)
+
                         <x-transactions.provider-picker :providers="$branding['providers']" />
 
                         <div>
@@ -62,7 +62,6 @@
                                 name="phone"
                                 type="tel"
                                 label="Numéro de téléphone"
-                                icon="phone"
                                 placeholder="Entrez les 9 chiffres"
                                 required
                                 pattern="[0-9]{9}"
