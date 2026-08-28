@@ -21,19 +21,19 @@
                                 <h3 class="text-lg font-semibold mb-2">Paiement en attente</h3>
                                 <p class="mb-4">Veuillez valider la transaction sur votre téléphone. Une fois terminé,
                                     cliquez sur le bouton ci-dessous pour vérifier votre paiement.</p>
-                                <a href="{{ route('transactions.deposit.status', $transaction) }}"
+                                <x-btn href="{{ route('transactions.deposit.status', $transaction) }}"
                                     class="inline-flex items-center px-4 py-2 bg-indigo-600 border border-transparent rounded-md font-semibold text-xs text-white uppercase tracking-widest hover:bg-indigo-500 focus:outline-none focus:border-indigo-700 focus:ring focus:ring-indigo-200 active:bg-indigo-600 disabled:opacity-25 transition">
                                     Vérifier le paiement
-                                </a>
+                                </x-btn>
                             @else
                                 <h3 class="text-lg font-semibold mb-2">Transfert en attente</h3>
                                 <p class="mb-4">Votre retrait est en cours de traitement, vous recevrez une
                                     notification une fois le transfert terminé. Vous pouvez actualiser cette page pour
                                     vérifier le statut de votre retrait.</p>
-                                <a href="{{ route('transactions.withdraw.status', $transaction) }}"
+                                <x-btn href="{{ route('transactions.withdraw.status', $transaction) }}"
                                     class="inline-flex items-center px-4 py-2 bg-indigo-600 border border-transparent rounded-md font-semibold text-xs text-white uppercase tracking-widest hover:bg-indigo-500 focus:outline-none focus:border-indigo-700 focus:ring focus:ring-indigo-200 active:bg-indigo-600 disabled:opacity-25 transition">
                                     Vérifier le paiement
-                                </a>
+                                </x-btn>
                             @endif
                         </div>
                     @elseif($transaction->is_failed)
@@ -51,20 +51,20 @@
                             @endif
 
                             @if ($transaction->visit_pass_id && $transaction->visitPass)
-                                <a href="{{ route('transactions.deposit', ['visit_pass' => $transaction->visitPass->uuid]) }}"
+                                <x-btn style="warning" href="{{ route('transactions.deposit', ['visit_pass' => $transaction->visitPass->uuid]) }}"
                                     class="inline-flex items-center px-4 py-2 bg-gray-600 border border-transparent rounded-md font-semibold text-xs text-white uppercase tracking-widest hover:bg-gray-500 focus:outline-none focus:border-gray-700 focus:ring focus:ring-gray-200 active:bg-gray-600 disabled:opacity-25 transition">
                                     Réessayer le paiement
-                                </a>
+                                </x-btn>
                             @elseif ($transaction->rent_payment_id && $transaction->rentPayment)
-                                <a href="{{ route('transactions.deposit', ['rent_payment' => $transaction->rentPayment->id]) }}"
+                                <x-btn style="warning" href="{{ route('transactions.deposit', ['rent_payment' => $transaction->rentPayment->id]) }}"
                                     class="inline-flex items-center px-4 py-2 bg-gray-600 border border-transparent rounded-md font-semibold text-xs text-white uppercase tracking-widest hover:bg-gray-500 focus:outline-none focus:border-gray-700 focus:ring focus:ring-gray-200 active:bg-gray-600 disabled:opacity-25 transition">
                                     Réessayer le paiement
-                                </a>
+                                </x-btn>
                             @else
-                                <a href="{{ route('transactions.deposit') }}"
+                                <x-btn style="warning" href="{{ route('transactions.deposit') }}"
                                     class="inline-flex items-center px-4 py-2 bg-gray-600 border border-transparent rounded-md font-semibold text-xs text-white uppercase tracking-widest hover:bg-gray-500 focus:outline-none focus:border-gray-700 focus:ring focus:ring-gray-200 active:bg-gray-600 disabled:opacity-25 transition">
                                     Réessayer un autre transaction
-                                </a>
+                                </x-btn>
                             @endif
                         </div>
                     @elseif($transaction->is_completed)
@@ -78,17 +78,17 @@
                             @if ($transaction->visit_pass_id && $transaction->visitPass)
                                 <h3 class="text-lg font-semibold mb-2 text-green-600">Paiement réussi</h3>
                                 <p class="mb-4">Votre pass visite a été validé avec succès.</p>
-                                <a href="{{ route('my-visit-passes.show', $transaction->visitPass) }}"
+                                <x-btn style="success" href="{{ route('my-visit-passes.show', $transaction->visitPass) }}"
                                     class="inline-flex items-center px-4 py-2 bg-indigo-600 border border-transparent rounded-md font-semibold text-xs text-white uppercase tracking-widest hover:bg-indigo-500 focus:outline-none focus:border-indigo-700 focus:ring focus:ring-indigo-200 active:bg-indigo-600 disabled:opacity-25 transition">
                                     Voir mon pass
-                                </a>
+                                </x-btn>
                             @elseif ($transaction->rent_payment_id && $transaction->rentPayment)
                                 <h3 class="text-lg font-semibold mb-2 text-green-600">Loyer payé</h3>
                                 <p class="mb-4">Votre loyer ({{ $transaction->rentPayment->month }}/{{ $transaction->rentPayment->year }}) a été payé avec succès. Un reçu a été généré.</p>
-                                <a href="{{ route('tenant.payments') }}"
+                                <x-btn style="success" href="{{ route('tenant.payments') }}"
                                     class="inline-flex items-center px-4 py-2 bg-indigo-600 border border-transparent rounded-md font-semibold text-xs text-white uppercase tracking-widest hover:bg-indigo-500 focus:outline-none focus:border-indigo-700 focus:ring focus:ring-indigo-200 active:bg-indigo-600 disabled:opacity-25 transition">
                                     Voir mes paiements
-                                </a>
+                                </x-btn>
                             @elseif ($transaction->type->value === 'DEPOSIT')
                                 <h3 class="text-lg font-semibold mb-2 text-green-600">Paiement réussi</h3>
                                 <p class="mb-4">Votre paiement a été validé avec succès et votre portefeuille a été
