@@ -5,7 +5,9 @@ use App\Enums\TransactionType;
 use App\Models\OwnerWallet;
 use App\Models\Transaction;
 use App\Models\User;
+use App\Models\VisitPass;
 use App\Services\OwnerWalletService;
+use App\Services\VisitPassService;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Str;
@@ -191,6 +193,149 @@ test('a user cannot view another users transaction status', function () {
     $this->actingAs($other);
 
     $this->get(route('transactions.deposit.status', $transaction))->assertForbidden();
+});
+
+test('the deposit form is pre-filled for a visit pass context', function () {
+    $user = User::factory()->create();
+    $this->actingAs($user);
+
+    $visitPass = VisitPass::create([
+        'uuid' => Str::uuid()->toString(),
+        'user_id' => $user->id,
+        'amount' => 5000,
+        'payment_status' => 'pending',
+        'status' => 'pending_payment',
+    ]);
+
+    Http::fake([
+        '*/v2/active-conf' => Http::response([
+            'countries' => [[
+                'country' => 'COG',
+                'prefix' => '242',
+                'providers' => [
+                    ['provider' => 'MTN_MOMO_COG', 'displayName' => 'MTN Mobile Money'],
+                ],
+            ]],
+        ], 200),
+    ]);
+
+    $this->get(route('transactions.deposit', ['visit_pass' => $visitPass->uuid]))
+        ->assertOk()
+        ->assertSee('Pass visite')
+        ->assertSee($visitPass->reference);
+});
+
+test('an already paid visit pass cannot be paid again', function () {
+    $user = User::factory()->create();
+    $this->actingAs($user);
+
+    $visitPass = VisitPass::create([
+        'uuid' => Str::uuid()->toString(),
+        'user_id' => $user->id,
+        'amount' => 5000,
+        'payment_status' => 'paid',
+        'status' => 'active',
+        'paid_at' => now(),
+    ]);
+
+    Http::fake([
+        '*/v2/active-conf' => Http::response([
+            'countries' => [[
+                'country' => 'COG',
+                'prefix' => '242',
+                'providers' => [
+                    ['provider' => 'MTN_MOMO_COG', 'displayName' => 'MTN Mobile Money'],
+                ],
+            ]],
+        ], 200),
+    ]);
+
+    $this->get(route('transactions.deposit', ['visit_pass' => $visitPass->uuid]))
+        ->assertRedirect(route('my-visit-passes.show', $visitPass));
+});
+
+test('init deposit for a visit pass uses the pass amount and links it', function () {
+    $user = User::factory()->create();
+    $this->actingAs($user);
+
+    $visitPass = VisitPass::create([
+        'uuid' => Str::uuid()->toString(),
+        'user_id' => $user->id,
+        'amount' => 9000,
+        'payment_status' => 'pending',
+        'status' => 'pending_payment',
+    ]);
+
+    Http::fake([
+        '*/v2/deposits' => Http::response([
+            'depositId' => Str::uuid()->toString(),
+            'status' => 'ACCEPTED',
+            'created' => now()->toIso8601String(),
+        ], 200),
+    ]);
+
+    $this->post(route('transactions.deposit'), [
+        'amount' => 100,
+        'phone' => '064567890',
+        'provider' => 'MTN_MOMO_COG',
+        'visit_pass' => $visitPass->uuid,
+    ]);
+
+    $transaction = Transaction::first();
+    expect($transaction)->not->toBeNull()
+        ->and($transaction->visit_pass_id)->toBe($visitPass->id)
+        ->and($transaction->amount)->toBe(9000);
+});
+
+test('a completed visit pass deposit marks the pass paid without crediting the wallet', function () {
+    $user = User::factory()->create();
+    $wallet = makeWallet($user);
+    $this->actingAs($user);
+
+    $visitPass = VisitPass::create([
+        'uuid' => Str::uuid()->toString(),
+        'user_id' => $user->id,
+        'amount' => 9000,
+        'payment_status' => 'pending',
+        'status' => 'pending_payment',
+    ]);
+
+    $depositId = Str::uuid()->toString();
+
+    $transaction = Transaction::create([
+        'transaction_id' => Str::uuid()->toString(),
+        'user_id' => $user->id,
+        'visit_pass_id' => $visitPass->id,
+        'type' => TransactionType::DEPOSIT,
+        'status' => TransactionStatus::PENDING,
+        'amount' => 9000,
+        'currency' => 'XAF',
+        'deposit_id' => $depositId,
+        'provider' => 'MTN_MOMO_COG',
+    ]);
+
+    $visitPassService = Mockery::mock(VisitPassService::class);
+    $visitPassService->shouldReceive('handleSuccessfulPayment')->once();
+    app()->instance(VisitPassService::class, $visitPassService);
+
+    Http::fake([
+        "*/v2/deposits/{$depositId}" => Http::response([
+            'status' => 'FOUND',
+            'data' => [
+                'depositId' => $depositId,
+                'status' => 'COMPLETED',
+                'amount' => '90.00',
+                'currency' => 'XAF',
+            ],
+        ], 200),
+    ]);
+
+    $this->get(route('transactions.deposit.status', $transaction));
+
+    $wallet->refresh();
+
+    expect($transaction->refresh()->status)->toBe(TransactionStatus::COMPLETED)
+        ->and($wallet->available_balance)->toBe(0);
 });
 
 test('creditDeposit is idempotent and does not double credit', function () {

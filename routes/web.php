@@ -566,18 +566,12 @@ Route::middleware(['auth', 'verified'])->group(function () {
         ->name('my-visit-passes.create.parcelle');
     Route::post('/visit-pass', [UserVisitPassController::class, 'store'])
         ->name('my-visit-passes.store');
-    Route::get('/my-visit-passes/{visitPass}/pay', [UserVisitPassController::class, 'pay'])
-        ->name('my-visit-passes.pay');
-    Route::post('/my-visit-passes/{visitPass}/initiate-payment', [UserVisitPassController::class, 'initiatePayment'])
-        ->name('my-visit-passes.initiate-payment');
     Route::get('/my-visit-passes', [UserVisitPassController::class, 'index'])
         ->name('my-visit-passes.index');
     Route::get('/my-visit-passes/{visitPass}', [UserVisitPassController::class, 'show'])
         ->name('my-visit-passes.show');
     Route::get('/my-visit-passes/{visitPass}/download', [UserVisitPassController::class, 'download'])
         ->name('my-visit-passes.download');
-    Route::post('/my-visit-passes/{visitPass}/retry-payment', [UserVisitPassController::class, 'retryPayment'])
-        ->name('my-visit-passes.retry-payment');
     Route::delete('/my-visit-passes/{visitPass}', [UserVisitPassController::class, 'destroy'])
         ->name('my-visit-passes.destroy');
 });

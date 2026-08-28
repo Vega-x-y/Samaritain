@@ -1,7 +1,7 @@
 <x-app-layout>
     <x-slot name="header">
         <h2 class="font-semibold text-xl text-gray-800 leading-tight">
-            Dépôt
+            {{ $visitPass ? 'Payer le pass visite' : 'Dépôt' }}
         </h2>
     </x-slot>
 
@@ -17,23 +17,35 @@
                 <div class="p-6 text-gray-900">
                     <form method="POST" action="{{ route('transactions.deposit') }}" class="space-y-6">
                         @csrf
-                        <!-- Amount Input -->
-                        <div>
-                            <label for="amount" class="block text-sm font-medium text-gray-700">Montant</label>
-                            <div class="mt-1 flex rounded-md shadow-sm">
-                                <input type="number" name="amount" id="amount" min="1" step="0.01"
-                                    required
-                                    class="flex-1 block w-full rounded-none rounded-l-md sm:text-sm border-gray-300"
-                                    placeholder="0,00">
-                                <span
-                                    class="inline-flex items-center px-3 rounded-r-md border border-l-0 border-gray-300 bg-gray-50 text-gray-500 text-sm">
-                                    {{ config('services.pawapay.currency', 'XAF') }}
-                                </span>
+                        @if($visitPass)
+                            <input type="hidden" name="visit_pass" value="{{ $visitPass->uuid }}">
+                            <div class="rounded-md bg-gray-50 border border-gray-200 p-4">
+                                <p class="text-sm font-medium text-gray-700">Pass visite</p>
+                                <p class="text-sm text-gray-500 mt-1">Réf. {{ $visitPass->reference }}</p>
+                                <p class="mt-2 text-lg font-semibold text-gray-900">
+                                    {{ number_format($visitPass->amount, 0, ',', ' ') }} {{ config('services.pawapay.currency', 'XAF') }}
+                                </p>
+                                <input type="hidden" name="amount" value="{{ $visitPass->amount / 100 }}">
                             </div>
-                            @error('amount')
-                                <p class="mt-1 text-sm text-red-600">{{ $message }}</p>
-                            @enderror
-                        </div>
+                        @else
+                            <!-- Amount Input -->
+                            <div>
+                                <label for="amount" class="block text-sm font-medium text-gray-700">Montant</label>
+                                <div class="mt-1 flex rounded-md shadow-sm">
+                                    <input type="number" name="amount" id="amount" min="1" step="0.01"
+                                        required
+                                        class="flex-1 block w-full rounded-none rounded-l-md sm:text-sm border-gray-300"
+                                        placeholder="0,00">
+                                    <span
+                                        class="inline-flex items-center px-3 rounded-r-md border border-l-0 border-gray-300 bg-gray-50 text-gray-500 text-sm">
+                                        {{ config('services.pawapay.currency', 'XAF') }}
+                                    </span>
+                                </div>
+                                @error('amount')
+                                    <p class="mt-1 text-sm text-red-600">{{ $message }}</p>
+                                @enderror
+                            </div>
+                        @endif
 
                         <!-- Operator Select -->
                         <div>
@@ -73,7 +85,7 @@
                         <div>
                             <button type="submit"
                                 class="inline-flex items-center px-4 py-2 bg-indigo-600 border border-transparent rounded-md font-semibold text-xs text-white uppercase tracking-widest hover:bg-indigo-500 focus:outline-none focus:border-indigo-700 focus:ring focus:ring-indigo-200 active:bg-indigo-600 disabled:opacity-25 transition">
-                                Déposer
+                                {{ $visitPass ? 'Payer le pass' : 'Déposer' }}
                             </button>
                         </div>
                     </form>

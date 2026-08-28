@@ -50,10 +50,17 @@
                                 <p class="mb-4 text-sm text-gray-500">Cause : {{ $transaction->failure_reason }}</p>
                             @endif
 
-                            <a href="{{ route('transactions.deposit') }}"
-                                class="inline-flex items-center px-4 py-2 bg-gray-600 border border-transparent rounded-md font-semibold text-xs text-white uppercase tracking-widest hover:bg-gray-500 focus:outline-none focus:border-gray-700 focus:ring focus:ring-gray-200 active:bg-gray-600 disabled:opacity-25 transition">
-                                Réessayer un autre transaction
-                            </a>
+                            @if ($transaction->visit_pass_id && $transaction->visitPass)
+                                <a href="{{ route('transactions.deposit', ['visit_pass' => $transaction->visitPass->uuid]) }}"
+                                    class="inline-flex items-center px-4 py-2 bg-gray-600 border border-transparent rounded-md font-semibold text-xs text-white uppercase tracking-widest hover:bg-gray-500 focus:outline-none focus:border-gray-700 focus:ring focus:ring-gray-200 active:bg-gray-600 disabled:opacity-25 transition">
+                                    Réessayer le paiement
+                                </a>
+                            @else
+                                <a href="{{ route('transactions.deposit') }}"
+                                    class="inline-flex items-center px-4 py-2 bg-gray-600 border border-transparent rounded-md font-semibold text-xs text-white uppercase tracking-widest hover:bg-gray-500 focus:outline-none focus:border-gray-700 focus:ring focus:ring-gray-200 active:bg-gray-600 disabled:opacity-25 transition">
+                                    Réessayer un autre transaction
+                                </a>
+                            @endif
                         </div>
                     @elseif($transaction->is_completed)
                         <div class="text-center">
@@ -63,7 +70,14 @@
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                                     d="M9 12l2 2 4-4" />
                             </svg>
-                            @if ($transaction->type->value === 'DEPOSIT')
+                            @if ($transaction->visit_pass_id && $transaction->visitPass)
+                                <h3 class="text-lg font-semibold mb-2 text-green-600">Paiement réussi</h3>
+                                <p class="mb-4">Votre pass visite a été validé avec succès.</p>
+                                <a href="{{ route('my-visit-passes.show', $transaction->visitPass) }}"
+                                    class="inline-flex items-center px-4 py-2 bg-indigo-600 border border-transparent rounded-md font-semibold text-xs text-white uppercase tracking-widest hover:bg-indigo-500 focus:outline-none focus:border-indigo-700 focus:ring focus:ring-indigo-200 active:bg-indigo-600 disabled:opacity-25 transition">
+                                    Voir mon pass
+                                </a>
+                            @elseif ($transaction->type->value === 'DEPOSIT')
                                 <h3 class="text-lg font-semibold mb-2 text-green-600">Paiement réussi</h3>
                                 <p class="mb-4">Votre paiement a été validé avec succès et votre portefeuille a été
                                     crédité.</p>

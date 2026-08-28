@@ -27,7 +27,7 @@
 
     $retryRoute = null;
     if ($transaction->visit_pass_id && $transaction->visitPass) {
-        $retryRoute = route('my-visit-passes.pay', $transaction->visitPass);
+        $retryRoute = route('transactions.deposit', ['visit_pass' => $transaction->visitPass->uuid]);
     } elseif ($transaction->rent_payment_id && $transaction->rentPayment) {
         $retryRoute = route('tenant.rent-payments.pay', $transaction->rentPayment);
     }

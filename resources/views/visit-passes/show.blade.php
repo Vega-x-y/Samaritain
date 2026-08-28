@@ -227,14 +227,11 @@
                         @endif
 
                         @if($visitPass->isPaymentFailed())
-                            <form action="{{ route('my-visit-passes.retry-payment', $visitPass) }}" method="POST">
-                                @csrf
-                                <button type="submit"
-                                    class="inline-flex w-full items-center justify-center gap-2 rounded-xl bg-amber-500 text-white px-4 py-2.5 text-sm font-semibold hover:bg-amber-600 transition-colors">
-                                    <i data-lucide="refresh-cw" class="w-4 h-4"></i>
-                                    Réessayer le paiement
-                                </button>
-                            </form>
+                            <a href="{{ route('transactions.deposit', ['visit_pass' => $visitPass->uuid]) }}"
+                                class="inline-flex w-full items-center justify-center gap-2 rounded-xl bg-amber-500 text-white px-4 py-2.5 text-sm font-semibold hover:bg-amber-600 transition-colors">
+                                <i data-lucide="refresh-cw" class="w-4 h-4"></i>
+                                Réessayer le paiement
+                            </a>
                         @endif
 
                         @if($visitPass->isPendingPayment())

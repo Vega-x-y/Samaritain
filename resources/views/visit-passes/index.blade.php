@@ -146,14 +146,11 @@
                                     @endif
 
                                     @if($visitPass->isPaymentFailed())
-                                        <form action="{{ route('my-visit-passes.retry-payment', $visitPass) }}" method="POST" class="inline">
-                                            @csrf
-                                            <button type="submit"
-                                                class="inline-flex items-center gap-1.5 text-xs font-medium text-amber-600 dark:text-amber-400 hover:text-amber-800 dark:hover:text-amber-300 transition-colors">
-                                                <i data-lucide="refresh-cw" class="w-3.5 h-3.5"></i>
-                                                Payer
-                                            </button>
-                                        </form>
+                                        <a href="{{ route('transactions.deposit', ['visit_pass' => $visitPass->uuid]) }}"
+                                            class="inline-flex items-center gap-1.5 text-xs font-medium text-amber-600 dark:text-amber-400 hover:text-amber-800 dark:hover:text-amber-300 transition-colors">
+                                            <i data-lucide="refresh-cw" class="w-3.5 h-3.5"></i>
+                                            Payer
+                                        </a>
                                     @endif
 
                                     @can('delete', $visitPass)

@@ -8,8 +8,10 @@ use App\Enums\TransactionStatus;
 use App\Enums\TransactionType;
 use App\Exceptions\PawaPayException;
 use App\Models\Transaction;
+use App\Models\VisitPass;
 use App\Services\OwnerWalletService;
 use App\Services\PawapayService;
+use App\Services\VisitPassService;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
@@ -21,11 +23,18 @@ class TransactionsController extends Controller
 {
     public function __construct(
         protected PawapayService $pawapay,
-        protected OwnerWalletService $wallet
+        protected OwnerWalletService $wallet,
+        protected VisitPassService $visitPassService,
     ) {}
 
-    public function getDepositForm(): View|RedirectResponse
+    public function getDepositForm(Request $request): View|RedirectResponse
     {
+        $visitPass = $this->resolveVisitPass($request->query('visit_pass'));
+
+        if ($visitPass instanceof RedirectResponse) {
+            return $visitPass;
+        }
+
         $providers_data = $this->getProvidersAvailable();
 
         if (empty($providers_data) || empty($providers_data['countries'][0]['providers'])) {
@@ -34,6 +43,7 @@ class TransactionsController extends Controller
 
         return view('transactions.deposit-form', [
             'payment_config' => $providers_data['countries'][0],
+            'visitPass' => $visitPass,
         ]);
     }
 
@@ -65,10 +75,17 @@ class TransactionsController extends Controller
             'provider' => 'required',
         ]);
 
+        $visitPass = $this->resolveVisitPass($request->input('visit_pass'));
+
+        if ($visitPass instanceof RedirectResponse) {
+            return $visitPass;
+        }
+
         $transaction = Transaction::create([
             'user_id' => Auth::id(),
+            'visit_pass_id' => $visitPass?->id,
             'type' => TransactionType::DEPOSIT,
-            'amount' => (int) round((float) $request->amount * 100),
+            'amount' => $visitPass ? (int) $visitPass->amount : (int) round((float) $request->amount * 100),
             'status' => TransactionStatus::PENDING,
             'provider' => $request->provider,
             'currency' => config('services.pawapay.currency'),
@@ -172,7 +189,13 @@ class TransactionsController extends Controller
         if ($status === TransactionStatus::COMPLETED) {
             $this->wallet->settle($transaction, TransactionStatus::COMPLETED);
 
-            if ($transaction->type === TransactionType::DEPOSIT) {
+            if ($transaction->type === TransactionType::PAYOUT) {
+                // Handled by settle() above (reservation + debit/release).
+            } elseif ($transaction->visit_pass_id && $transaction->visitPass) {
+                // A visit pass purchase: mark the pass as paid (QR + PDF),
+                // the wallet is NOT involved — the pass is not a wallet deposit.
+                $this->visitPassService->handleSuccessfulPayment($transaction->visitPass);
+            } elseif ($transaction->type === TransactionType::DEPOSIT) {
                 $this->wallet->creditDeposit($transaction);
             }
         } elseif ($status === TransactionStatus::FAILED) {
@@ -219,5 +242,32 @@ class TransactionsController extends Controller
 
             return null;
         }
+    }
+
+    /**
+     * Resolve an optional visit pass from the deposit context.
+     *
+     * Returns null when no pass is provided. Returns a RedirectResponse when the
+     * pass is invalid, does not belong to the current user, or is already paid.
+     */
+    protected function resolveVisitPass(mixed $visitPassKey): VisitPass|null|RedirectResponse
+    {
+        if (! $visitPassKey) {
+            return null;
+        }
+
+        $visitPass = VisitPass::where('uuid', $visitPassKey)->first();
+
+        if (! $visitPass || $visitPass->user_id !== Auth::id()) {
+            return redirect()->route('my-visit-passes.index')
+                ->with('error', 'Ce pass visite est introuvable.');
+        }
+
+        if ($visitPass->isPaid()) {
+            return redirect()->route('my-visit-passes.show', $visitPass)
+                ->with('info', 'Ce pass visite est déjà payé.');
+        }
+
+        return $visitPass;
     }
 }
