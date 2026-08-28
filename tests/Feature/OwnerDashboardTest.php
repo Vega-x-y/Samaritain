@@ -1,13 +1,18 @@
 <?php
 
+use App\Enums\TransactionStatus;
+use App\Enums\TransactionType;
 use App\Models\Contract;
 use App\Models\Intervention;
 use App\Models\Invoice;
 use App\Models\OwnerDocument;
+use App\Models\OwnerWallet;
 use App\Models\Property;
 use App\Models\RentPayment;
+use App\Models\Transaction;
 use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
+use Illuminate\Support\Str;
 use Spatie\Permission\Models\Role;
 
 uses(RefreshDatabase::class);
@@ -164,6 +169,46 @@ test('dashboard includes recent interventions and documents', function () {
 
     $response->assertViewHas('recentInterventions')
         ->assertViewHas('recentDocuments');
+});
+
+test('dashboard shows the owner wallet balance and recent withdrawals', function () {
+    OwnerWallet::create([
+        'owner_id' => $this->owner->id,
+        'available_balance' => 250000,
+        'reserved_balance' => 50000,
+    ]);
+
+    Transaction::create([
+        'user_id' => $this->owner->id,
+        'type' => TransactionType::PAYOUT,
+        'status' => TransactionStatus::COMPLETED,
+        'amount' => 100000,
+        'currency' => 'XAF',
+        'payout_id' => (string) Str::uuid(),
+        'provider' => 'MTN_MOMO_COG',
+    ]);
+
+    $this->actingAs($this->owner);
+
+    $response = $this->get(route('owner.dashboard'));
+
+    $response->assertOk()
+        ->assertViewHas('wallet', fn ($wallet) => $wallet->available_balance === 250000)
+        ->assertViewHas('recentPayouts', fn ($payouts) => $payouts->count() === 1)
+        ->assertSee('Mon Wallet')
+        ->assertSee('2 500')
+        ->assertSee('500')
+        ->assertSee('1 000');
+});
+
+test('dashboard wallet section renders without a wallet', function () {
+    $this->actingAs($this->owner);
+
+    $response = $this->get(route('owner.dashboard'));
+
+    $response->assertOk()
+        ->assertViewHas('wallet')
+        ->assertSee('Aucun retrait pour le moment');
 });
 
 test('any authenticated user can access dashboard (owner middleware only enforces auth)', function () {

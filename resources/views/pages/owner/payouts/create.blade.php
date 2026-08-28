@@ -1,21 +1,21 @@
 @extends('layouts.owner')
 
-@section('title', 'Nouveau virement Mobile Money')
+@section('title', 'Nouveau retrait')
 
 @section('content')
 <div class="mb-6">
     <a href="{{ route('owner.payouts.index') }}" class="text-sm text-gray-500 dark:text-gray-400 hover:text-primary flex items-center gap-1 mb-3">
-        <i data-lucide="arrow-left" class="w-4 h-4"></i> Retour aux virements
+        <i data-lucide="arrow-left" class="w-4 h-4"></i> Retour au wallet
     </a>
-    <h1 class="text-2xl font-bold text-gray-800 dark:text-white">Nouveau virement Mobile Money</h1>
-    <p class="text-gray-500 dark:text-gray-400 mt-1">Solde disponible : {{ number_format($wallet->available_balance, 0, ',', ' ') }} {{ $currency }}.</p>
+    <h1 class="text-2xl font-bold text-gray-800 dark:text-white">Nouveau retrait</h1>
+    <p class="text-gray-500 dark:text-gray-400 mt-1">Solde disponible : {{ number_format($wallet->available_balance / 100, 0, ',', ' ') }} {{ $currency }}.</p>
 </div>
 
 <div class="max-w-lg">
     {{-- Info banner --}}
     <div class="mb-5 p-4 bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-800 rounded-xl text-sm text-blue-700 dark:text-blue-300 flex items-start gap-2">
         <i data-lucide="info" class="w-4 h-4 mt-0.5 shrink-0"></i>
-        <p>Le virement est asynchrone — <strong>pawaPay confirme le statut final</strong> en quelques secondes à quelques minutes via callback. Consultez la liste des virements pour suivre l'état.</p>
+        <p>Le retrait est asynchrone — <strong>pawaPay confirme le statut final</strong> en quelques secondes à quelques minutes via callback. Consultez la liste des retraits pour suivre l'état.</p>
     </div>
 
     @if($errors->any())
@@ -120,7 +120,7 @@
             <button type="submit"
                 class="flex items-center gap-2 px-5 py-2 bg-primary hover:bg-primary/90 text-primary-foreground rounded-lg text-sm font-medium transition">
                 <i data-lucide="send" class="w-4 h-4"></i>
-                Envoyer le virement
+                Envoyer le retrait
             </button>
         </div>
     </form>

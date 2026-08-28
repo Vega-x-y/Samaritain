@@ -85,6 +85,77 @@
     </div>
 </div>
 
+{{-- Wallet & Retraits --}}
+<div class="bg-white dark:bg-gray-800 rounded-xl shadow-sm border border-gray-100 dark:border-gray-700 p-5 mb-8">
+    <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 mb-5">
+        <div class="flex items-center gap-3">
+            <div class="bg-emerald-100 dark:bg-emerald-900/30 rounded-xl p-3">
+                <i data-lucide="wallet" class="w-6 h-6 text-emerald-600 dark:text-emerald-400"></i>
+            </div>
+            <div>
+                <h3 class="font-semibold text-gray-800 dark:text-white">Mon Wallet</h3>
+                <p class="text-xs text-gray-400 dark:text-gray-500 mt-0.5">Loyers encaissés via Mobile Money</p>
+            </div>
+        </div>
+        <div class="flex items-center gap-3">
+            <a href="{{ route('transactions.withdraw') }}"
+                class="flex items-center gap-2 px-4 py-2 bg-emerald-600 hover:bg-emerald-500 text-white rounded-lg text-sm font-medium transition">
+                <i data-lucide="send" class="w-4 h-4"></i>
+                Retirer
+            </a>
+            <a href="{{ route('owner.payouts.index') }}"
+                class="flex items-center gap-2 px-4 py-2 bg-gray-100 dark:bg-gray-700 hover:bg-gray-200 dark:hover:bg-gray-600 text-gray-700 dark:text-gray-200 rounded-lg text-sm font-medium transition">
+                Historique
+            </a>
+        </div>
+    </div>
+
+    <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 mb-5">
+        <div class="bg-emerald-50 dark:bg-emerald-900/20 rounded-xl p-4">
+            <p class="text-xs font-medium text-emerald-600 dark:text-emerald-400 uppercase tracking-wide">Solde disponible</p>
+            <p class="text-2xl font-bold text-gray-800 dark:text-white mt-1">{{ number_format($wallet->available_balance / 100, 0, ',', ' ') }} <span class="text-sm font-medium text-gray-500 dark:text-gray-400">FCFA</span></p>
+        </div>
+        <div class="bg-amber-50 dark:bg-amber-900/20 rounded-xl p-4">
+            <p class="text-xs font-medium text-amber-600 dark:text-amber-400 uppercase tracking-wide">Retraits en cours</p>
+            <p class="text-2xl font-bold text-gray-800 dark:text-white mt-1">{{ number_format($wallet->reserved_balance / 100, 0, ',', ' ') }} <span class="text-sm font-medium text-gray-500 dark:text-gray-400">FCFA</span></p>
+        </div>
+    </div>
+
+    {{-- Derniers retraits --}}
+    <h4 class="text-sm font-semibold text-gray-700 dark:text-gray-300 mb-3">Derniers retraits</h4>
+    <div class="space-y-2">
+        @forelse($recentPayouts as $payout)
+            <div class="flex items-center justify-between p-3 bg-gray-50 dark:bg-gray-700/50 rounded-lg">
+                <div class="flex items-center gap-3">
+                    <div class="bg-white dark:bg-gray-800 rounded-lg p-2">
+                        <i data-lucide="banknote" class="w-4 h-4 text-gray-500 dark:text-gray-400"></i>
+                    </div>
+                    <div>
+                        <p class="text-sm font-medium text-gray-800 dark:text-white">{{ number_format($payout->amount / 100, 0, ',', ' ') }} FCFA</p>
+                        <p class="text-xs text-gray-400 dark:text-gray-500">{{ $payout->created_at->translatedFormat('d M Y à H:i') }}</p>
+                    </div>
+                </div>
+                @php
+                    $statusStyles = [
+                        'COMPLETED' => 'bg-emerald-100 text-emerald-700 dark:bg-emerald-900/40 dark:text-emerald-300',
+                        'PENDING' => 'bg-amber-100 text-amber-700 dark:bg-amber-900/40 dark:text-amber-300',
+                        'FAILED' => 'bg-red-100 text-red-700 dark:bg-red-900/40 dark:text-red-300',
+                    ];
+                    $statusLabels = ['COMPLETED' => 'Terminé', 'PENDING' => 'En cours', 'FAILED' => 'Échoué'];
+                @endphp
+                <span class="text-xs font-medium px-2.5 py-1 rounded-full {{ $statusStyles[$payout->status->value] ?? 'bg-gray-100 text-gray-600 dark:bg-gray-700 dark:text-gray-300' }}">
+                    {{ $statusLabels[$payout->status->value] ?? $payout->status->value }}
+                </span>
+            </div>
+        @empty
+            <div class="text-center py-6">
+                <i data-lucide="banknote" class="w-10 h-10 text-gray-300 dark:text-gray-600 mx-auto mb-2"></i>
+                <p class="text-sm text-gray-400 dark:text-gray-500">Aucun retrait pour le moment</p>
+            </div>
+        @endforelse
+    </div>
+</div>
+
 {{-- Charts Section --}}
 <div class="grid grid-cols-1 lg:grid-cols-3 gap-6 mb-8">
     {{-- Monthly Revenue Chart --}}

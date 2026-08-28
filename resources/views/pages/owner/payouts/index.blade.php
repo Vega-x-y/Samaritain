@@ -1,17 +1,17 @@
 @extends('layouts.owner')
 
-@section('title', 'Virements Mobile Money')
+@section('title', 'Wallet & Retraits')
 
 @section('content')
 <div class="mb-6 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
     <div>
-        <h1 class="text-2xl font-bold text-gray-800 dark:text-white">Virements Mobile Money</h1>
-        <p class="text-gray-500 dark:text-gray-400 mt-1">Historique de vos virements pawaPay (payouts).</p>
+        <h1 class="text-2xl font-bold text-gray-800 dark:text-white">Wallet & Retraits</h1>
+        <p class="text-gray-500 dark:text-gray-400 mt-1">Votre wallet et l'historique de vos retraits pawaPay.</p>
     </div>
-    <a href="{{ route('owner.payouts.create') }}"
+    <a href="{{ route('transactions.withdraw') }}"
         class="flex items-center gap-2 px-4 py-2 bg-primary hover:bg-primary/90 text-primary-foreground rounded-lg text-sm font-medium transition shrink-0">
         <i data-lucide="send" class="w-4 h-4"></i>
-        Nouveau virement
+        Nouveau retrait
     </a>
 </div>
 
@@ -103,9 +103,9 @@
                         <td colspan="5" class="px-5 py-12 text-center">
                             <div class="flex flex-col items-center gap-3 text-gray-400 dark:text-gray-500">
                                 <i data-lucide="send" class="w-10 h-10 opacity-30"></i>
-                                <p class="text-sm">Aucun virement effectué pour l'instant.</p>
-                                <a href="{{ route('owner.payouts.create') }}" class="text-primary hover:underline text-sm font-medium">
-                                    Effectuer votre premier virement
+                                <p class="text-sm">Aucun retrait effectué pour l'instant.</p>
+                                <a href="{{ route('transactions.withdraw') }}" class="text-primary hover:underline text-sm font-medium">
+                                    Effectuer votre premier retrait
                                 </a>
                             </div>
                         </td>

@@ -19,8 +19,8 @@
                 <!-- Financial Stats -->
                 <x-sidebar.item icon="wallet" label="Finances & Stats" href="{{ route('owner.financial') }}" :active="request()->routeIs('owner.financial')" />
 
-                <!-- Mobile Money Payouts -->
-                <x-sidebar.item icon="send" label="Virements MoMo" href="{{ route('owner.payouts.index') }}" :active="request()->routeIs('owner.payouts.*')" />
+                <!-- Wallet & Withdrawals -->
+                <x-sidebar.item icon="wallet" label="Wallet & Retraits" href="{{ route('owner.payouts.index') }}" :active="request()->routeIs('owner.payouts.*')" />
 
                 <!-- Contracts -->
                 <x-sidebar.item icon="file-signature" label="Contrats de bail" href="{{ route('owner.contracts.index') }}" :active="request()->routeIs('owner.contracts.*')" />

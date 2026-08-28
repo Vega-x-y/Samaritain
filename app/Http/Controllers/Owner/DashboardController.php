@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers\Owner;
 
+use App\Enums\TransactionType;
 use App\Http\Controllers\Controller;
 use App\Models\Contract;
 use App\Models\Intervention;
@@ -9,10 +10,14 @@ use App\Models\Invoice;
 use App\Models\OwnerDocument;
 use App\Models\Property;
 use App\Models\RentPayment;
+use App\Models\Transaction;
+use App\Services\OwnerWalletService;
 use Illuminate\Support\Facades\DB;
 
 class DashboardController extends Controller
 {
+    public function __construct(private OwnerWalletService $wallets) {}
+
     public function index()
     {
         $userId = auth()->id();
@@ -124,6 +129,15 @@ class DashboardController extends Controller
             ];
         }
 
+        // 9. Wallet du propriétaire + retraits récents
+        $wallet = $this->wallets->balanceForOwner((int) $userId);
+        $recentPayouts = Transaction::query()
+            ->where('user_id', $userId)
+            ->where('type', TransactionType::PAYOUT)
+            ->latest()
+            ->take(5)
+            ->get();
+
         return view('pages.owner.dashboard', compact(
             'totalProperties',
             'occupancyRate',
@@ -138,7 +152,9 @@ class DashboardController extends Controller
             'unpaidInvoicesSum',
             'monthlyRevenue',
             'monthlyExpenses',
-            'collectionTrend'
+            'collectionTrend',
+            'wallet',
+            'recentPayouts'
         ));
     }
 }
