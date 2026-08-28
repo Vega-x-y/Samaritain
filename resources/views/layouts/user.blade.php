@@ -6,12 +6,22 @@
 
         <title>{{ $title ?? config('app.name') }}</title>
 
+        <script>
+            (function () {
+                const storedTheme = localStorage.getItem('theme');
+                const prefersDark = window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches;
+                const shouldUseDarkTheme = storedTheme ? storedTheme === 'dark' : prefersDark;
+
+                document.documentElement.classList.toggle('dark', shouldUseDarkTheme);
+            })();
+        </script>
+
         @vite(['resources/css/app.css', 'resources/js/app.js'])
 
         @livewireStyles
         @fluxAppearance
     </head>
-    <body>
+    <body class="bg-background text-foreground antialiased">
         @yield('content')
         @livewireScripts
         @fluxScripts
