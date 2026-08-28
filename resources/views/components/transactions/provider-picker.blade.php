@@ -28,7 +28,7 @@
                             src="{{ $provider['logo'] }}"
                             alt="{{ $provider['displayName'] }}"
                             loading="lazy"
-                            class="h-8 w-auto max-w-[64px] object-contain"
+                            class="h-16 w-auto max-w-[64px] object-contain"
                         >
                     @else
                         <i data-lucide="smartphone" class="w-6 h-6 text-gray-400 dark:text-gray-500"></i>
