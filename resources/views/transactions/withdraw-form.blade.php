@@ -39,7 +39,7 @@
                             </p>
                         </div>
 
-                        @include('transactions.partials.provider-picker')
+                        <x-transactions.provider-picker :providers="$branding['providers']" />
 
                         <div>
                             <x-form.input
@@ -53,7 +53,7 @@
                                 maxlength="9"
                                 :prefix="'+'.$payment_config['prefix']"
                             />
-                            <p class="-mt-3 text-xs text-gray-500 dark:text-gray-400">Entrez les 9 chiffres après +{{ $payment_config['prefix'] }}</p>
+                            <p class="-mt-3 text-xs text-gray-500 dark:text-gray-400">+{{ $payment_config['prefix'] }}</p>
                         </div>
 
                         <div class="pt-2">

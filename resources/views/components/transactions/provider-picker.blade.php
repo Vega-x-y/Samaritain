@@ -1,15 +1,20 @@
-{{-- Sélecteur d'opérateur : cartes cliquables avec logo (données active-conf PawaPay) --}}
+@props([
+    'providers',
+    'name' => 'provider',
+    'label' => 'Opérateur',
+])
+
 <div>
     <label class="block text-xs font-medium text-gray-700 dark:text-gray-300 mb-2">
-        Opérateur
+        {{ $label }}
     </label>
 
-    <div class="grid grid-cols-2 gap-3" role="radiogroup" aria-label="Opérateur">
-        @foreach($branding['providers'] as $provider)
+    <div class="grid grid-cols-2 gap-3" role="radiogroup" aria-label="{{ $label }}">
+        @foreach($providers as $provider)
             <label class="cursor-pointer">
                 <input
                     type="radio"
-                    name="provider"
+                    name="{{ $name }}"
                     value="{{ $provider['provider'] }}"
                     class="peer sr-only"
                     required
@@ -35,7 +40,7 @@
         @endforeach
     </div>
 
-    @error('provider')
+    @error($name)
         <p class="mt-1 text-xs text-red-600 dark:text-red-400">{{ $message }}</p>
     @enderror
 </div>
