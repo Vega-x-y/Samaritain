@@ -11,13 +11,6 @@
         @livewireStyles
     </head>
     <body class="bg-background text-foreground antialiased">
-        <button type="button" x-on:click="toggleTheme()"
-            class="fixed right-4 top-4 z-50 inline-flex h-10 w-10 items-center justify-center rounded-full border border-border bg-card/90 text-foreground shadow-sm backdrop-blur-sm transition hover:bg-muted focus:outline-none focus:ring-2 focus:ring-primary/40"
-            aria-label="Basculer le thème">
-            <i data-lucide="sun" class="h-4 w-4 hidden dark:block"></i>
-            <i data-lucide="moon" class="h-4 w-4 block dark:hidden"></i>
-        </button>
-
         @yield('content')
 
         @livewireScripts
