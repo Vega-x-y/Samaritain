@@ -356,6 +356,14 @@ test('normalizePhoneNumber removes leading plus', function () {
     expect($normalized)->toBe('260763456789');
 });
 
+test('normalizePhoneNumber keeps the leading zero for a bare Congo national number', function () {
+    config(['services.pawapay.dial_code' => '242']);
+
+    // What the deposit/withdraw form sends (9 digits, no 242 country code).
+    // The leading "0" (mobile range "06"/"05") is part of the Congo MSISDN.
+    expect($this->service->normalizePhoneNumber('064567890'))->toBe('242064567890');
+});
+
 test('handleCallback updates transaction status for deposit', function () {
     $user = User::factory()->create();
     $depositId = Str::uuid()->toString();

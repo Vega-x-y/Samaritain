@@ -107,11 +107,15 @@ class PawapayService
         $digits = preg_replace('/\D+/', '', $phoneNumber) ?? '';
         $dialCode = (string) config('services.pawapay.dial_code', '242');
 
-        if (Str::startsWith($digits, '0')) {
-            $digits = $dialCode.substr($digits, 1);
+        // If the number already includes the dial code (full MSISDN), return it as-is.
+        if (Str::startsWith($digits, $dialCode)) {
+            return $digits;
         }
 
-        return Str::startsWith($digits, $dialCode) ? $digits : $dialCode.$digits;
+        // Bare national number without the country code, e.g. "064567890".
+        // The leading zero after the dial code is part of the Congo MSISDN
+        // (mobile range "06"/"05"), so it must be kept: "242064567890".
+        return $dialCode.$digits;
     }
 
     public function amountAfterFee(int $amountInMinorUnits): int
