@@ -37,15 +37,20 @@ class PawapayService
         return $this->get('/payouts/'.rawurlencode($payoutId));
     }
 
-    public function getActiveConfiguration(): array
+    public function getActiveConfiguration(?string $country = null, string $operationType = 'DEPOSIT'): array
     {
-        return $this->get('/active-conf');
+        $query = array_filter([
+            'country' => $country ?? config('services.pawapay.country', 'COG'),
+            'operationType' => $operationType,
+        ]);
+
+        return $this->get('/active-conf', $query);
     }
 
     /** @return array<string, string> */
     public function activeProviders(string $operationType = 'DEPOSIT'): array
     {
-        $configuration = $this->getActiveConfiguration();
+        $configuration = $this->getActiveConfiguration(null, $operationType);
         $country = (string) config('services.pawapay.country', 'COG');
         $providers = [];
 
@@ -116,12 +121,12 @@ class PawapayService
         return intdiv($amountInMinorUnits * (100 - $feePercent), 100);
     }
 
-    private function get(string $path): array
+    private function get(string $path, array $query = []): array
     {
         return $this->request(fn () => Http::withToken($this->token())
             ->acceptJson()
             ->timeout($this->timeout())
-            ->get($this->apiUrl.$path));
+            ->get($this->apiUrl.$path, $query));
     }
 
     private function post(string $path, array $payload): array

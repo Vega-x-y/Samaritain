@@ -58,19 +58,25 @@ class UserVisitPassController extends Controller
         }
 
         try {
-            $providers = $this->pawapay->activeProviders();
+            $providersData = $this->pawapay->getActiveConfiguration(
+                config('services.pawapay.country', 'COG'),
+                'DEPOSIT',
+            );
+            $paymentConfig = $providersData['countries'][0] ?? [];
+            $providers = $paymentConfig['providers'] ?? [];
             $providerError = null;
         } catch (PawaPayException) {
+            $paymentConfig = [];
             $providers = [];
             $providerError = 'Les opérateurs sont momentanément indisponibles. Veuillez réessayer dans quelques instants.';
         }
+
+        if ($providers === []) {
+            $providerError ??= 'Aucun fournisseur de paiement disponible pour votre pays.';
+        }
+
         $currency = config('services.pawapay.currency', 'XAF');
-        $payment_config = [
-            'providers' => collect($providers)
-                ->map(fn (string $displayName, string $provider): array => compact('provider', 'displayName'))
-                ->values()
-                ->all(),
-        ];
+        $payment_config = $paymentConfig;
 
         return view('visit-passes.pay', compact('visitPass', 'payment_config', 'currency', 'providerError'));
     }
