@@ -109,6 +109,32 @@ test('init deposit marks the transaction as rejected when API rejects', function
         ->and($transaction->failure_reason)->toContain('MTN_MOMO_COG');
 });
 
+test('failed deposit status renders a link to the deposit form', function () {
+    $user = User::factory()->create();
+    $this->actingAs($user);
+
+    $transaction = Transaction::create([
+        'transaction_id' => Str::uuid()->toString(),
+        'user_id' => $user->id,
+        'type' => TransactionType::DEPOSIT,
+        'status' => TransactionStatus::REJECTED,
+        'amount' => 10000,
+        'currency' => 'XAF',
+        'deposit_id' => Str::uuid()->toString(),
+        'provider' => 'MTN_MOMO_COG',
+    ]);
+
+    Http::fake([
+        "*/v2/deposits/{$transaction->deposit_id}" => Http::response([
+            'status' => 'REJECTED',
+        ], 200),
+    ]);
+
+    $this->get(route('transactions.deposit.status', $transaction))
+        ->assertOk()
+        ->assertSee(route('transactions.deposit'), false);
+});
+
 test('checking a completed deposit status credits the wallet once', function () {
     $user = User::factory()->create();
     $wallet = makeWallet($user);
