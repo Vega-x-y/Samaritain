@@ -61,8 +61,8 @@ class PawapayService
             }
             foreach ((array) ($countryConfiguration['providers'] ?? []) as $provider) {
                 $operation = $this->operationConfiguration($provider, $operationType);
-
-                if (! $operation || ($operation['status'] ?? null) !== 'OPERATIONAL') {
+                $status = strtoupper(trim((string) ($operation['status'] ?? '')));
+                if (! $operation || $status === '' || $status === 'CLOSED') {
                     continue;
                 }
 
@@ -92,8 +92,8 @@ class PawapayService
 
         foreach ((array) ($countryConfiguration['providers'] ?? []) as $provider) {
             $operation = $this->operationConfiguration($provider, $operationType);
-
-            if (! $operation || ($operation['status'] ?? null) !== 'OPERATIONAL') {
+            $status = strtoupper(trim((string) ($operation['status'] ?? '')));
+            if (! $operation || $status === '' || $status === 'CLOSED') {
                 continue;
             }
 
@@ -118,8 +118,12 @@ class PawapayService
     /** @return array<string, mixed>|null */
     private function operationConfiguration(array $provider, string $operationType): ?array
     {
+        $targetCurrency = strtoupper(trim((string) config('services.pawapay.currency', 'XAF')));
+
         foreach ((array) ($provider['currencies'] ?? []) as $currency) {
-            if (($currency['currency'] ?? null) !== config('services.pawapay.currency', 'XAF')) {
+            $apiCurrency = strtoupper(trim((string) ($currency['currency'] ?? '')));
+            
+            if ($apiCurrency !== $targetCurrency) {
                 continue;
             }
 
@@ -130,7 +134,7 @@ class PawapayService
                     return $configuration;
                 }
 
-                if (($operation['operationType'] ?? null) === $operationType) {
+                if (strtoupper((string) ($operation['operationType'] ?? '')) === strtoupper($operationType)) {
                     return $operation;
                 }
             }
