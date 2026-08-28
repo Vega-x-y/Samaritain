@@ -3,61 +3,71 @@
 @section('title', 'Payer le pass visite')
 
 @section('content')
-    <div class="max-w-xl mx-auto px-6 py-12">
-        <h1 class="text-2xl font-semibold mb-6">Payer le pass visite</h1>
-        <livewire:payment.initiate-deposit
-            :amount="$visitPass->amount"
-            purpose="visit_pass"
-            :reference-id="$visitPass->reference"
-        />
-    </div>
-@endsection@extends('layouts.base')
+    <div class="font-body min-h-screen bg-background text-[#0F0E0C] dark:bg-gray-950 dark:text-white">
+        <div class="mx-auto max-w-xl px-6 py-12">
+            <a href="{{ route('my-visit-passes.show', $visitPass) }}"
+                class="mb-6 inline-flex items-center gap-2 text-sm text-gray-500 hover:text-primary dark:text-gray-400">
+                <i data-lucide="arrow-left" class="h-4 w-4"></i>
+                Retour au pass
+            </a>
 
-@section('title', 'Paiement du pass visite')
+            <div class="rounded-xl border border-gray-200 bg-white p-6 shadow-sm dark:border-gray-700 dark:bg-gray-800">
+                <h1 class="text-2xl font-semibold">Payer le pass visite</h1>
+                <p class="mt-2 text-sm text-gray-500 dark:text-gray-400">
+                    Montant à payer :
+                    <strong class="text-gray-900 dark:text-white">
+                        {{ number_format($visitPass->amount, 0, ',', ' ') }} {{ $currency }}
+                    </strong>
+                </p>
 
-@section('content')
-<div class="font-body bg-background dark:bg-gray-950 text-[#0F0E0C] dark:text-white antialiased min-h-screen">
-    <div class="max-w-4xl mx-auto px-6 py-10 pb-20">
+                @if (session('error'))
+                    <div class="mt-5 rounded-lg border border-red-200 bg-red-50 p-3 text-sm text-red-700 dark:border-red-800 dark:bg-red-900/20 dark:text-red-300">
+                        {{ session('error') }}
+                    </div>
+                @endif
 
-        {{-- Breadcrumb --}}
-        <nav aria-label="Fil d'Ariane" class="flex items-center gap-2 text-xs text-[#6B6660] dark:text-gray-400 mb-10 font-body">
-            <a href="{{ route('index') }}" class="hover:text-primary dark:hover:text-primary-400 transition-colors">Accueil</a>
-            <i data-lucide="chevron-right" class="w-3 h-3"></i>
-            <a href="{{ route('my-visit-passes.index') }}" class="hover:text-primary dark:hover:text-primary-400 transition-colors">Mes pass visite</a>
-            <i data-lucide="chevron-right" class="w-3 h-3"></i>
-            <span class="dark:text-gray-300">{{ $visitPass->reference }}</span>
-        </nav>
+                <form action="{{ route('my-visit-passes.initiate-payment', $visitPass) }}" method="POST" class="mt-6 space-y-5">
+                    @csrf
 
-        <h1 class="font-display font-semibold text-3xl mb-2">Faire le paiement</h1>
-        <p class="text-sm text-gray-500 dark:text-gray-400 mb-8">Saisissez vos coordonnées Mobile Money pour confirmer le paiement.</p>
+                    <div>
+                        <label for="phone_number" class="block text-sm font-medium">Numéro Mobile Money</label>
+                        <div class="mt-1 flex">
+                            <span class="inline-flex items-center rounded-l-lg border border-r-0 border-gray-300 bg-gray-50 px-3 text-sm text-gray-500 dark:border-gray-600 dark:bg-gray-700 dark:text-gray-300">+242</span>
+                            <input id="phone_number" name="phone_number" type="tel" inputmode="numeric"
+                                value="{{ old('phone_number') }}" required minlength="9" maxlength="15"
+                                placeholder="06 123 45 67"
+                                class="block w-full rounded-r-lg border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-white">
+                        </div>
+                        @error('phone_number')
+                            <p class="mt-1 text-sm text-red-600">{{ $message }}</p>
+                        @enderror
+                    </div>
 
-        <form action="{{ route('my-visit-passes.initiate-payment', $visitPass) }}" method="POST">
-            @csrf
+                    <div>
+                        <label for="provider" class="block text-sm font-medium">Opérateur</label>
+                        <select id="provider" name="provider" required
+                            @disabled(empty($providers))
+                            class="mt-1 block w-full rounded-lg border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-white disabled:cursor-not-allowed disabled:bg-gray-100">
+                            <option value="">Choisir l'opérateur</option>
+                            @foreach ($providers as $code => $label)
+                                <option value="{{ $code }}" @selected(old('provider') === $code)>{{ $label }}</option>
+                            @endforeach
+                        </select>
+                        @error('provider')
+                            <p class="mt-1 text-sm text-red-600">{{ $message }}</p>
+                        @enderror
+                        @if ($providerError)
+                            <p class="mt-1 text-sm text-amber-600">{{ $providerError }}</p>
+                        @endif
+                    </div>
 
-            <div class="space-y-4">
-                <input type="text" name="phone_number" required placeholder="Numéro Mobile Money"
-                    class="w-full rounded-lg border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-white">
-                <select name="provider" required
-                    class="w-full rounded-lg border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-white">
-                    <option value="">Choisir l'opérateur</option>
-                    @foreach(config('pawapay.providers', []) as $code => $label)
-                        <option value="{{ $code }}">{{ $label }}</option>
-                    @endforeach
-                </select>
+                    <button type="submit"
+                        class="inline-flex w-full items-center justify-center gap-2 rounded-lg bg-primary px-5 py-3 text-sm font-semibold text-white transition hover:bg-primary/90">
+                        <i data-lucide="wallet" class="h-4 w-4"></i>
+                        Confirmer le paiement
+                    </button>
+                </form>
             </div>
-
-            <div class="mt-6 flex flex-col sm:flex-row items-center gap-3">
-                <button type="submit"
-                    class="inline-flex w-full sm:w-auto items-center justify-center gap-2 rounded-xl bg-primary text-white px-6 py-3 text-sm font-semibold hover:bg-primary/90 transition-colors">
-                    <i data-lucide="wallet" class="w-4 h-4"></i>
-                    Payer {{ number_format($visitPass->amount, 0, ',', ' ') }} {{ $currency }}
-                </button>
-                <a href="{{ route('my-visit-passes.show', $visitPass) }}"
-                    class="inline-flex w-full sm:w-auto items-center justify-center gap-2 rounded-xl border border-gray-200 dark:border-gray-600 px-6 py-3 text-sm font-medium text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors">
-                    Annuler
-                </a>
-            </div>
-        </form>
+        </div>
     </div>
-</div>
 @endsection

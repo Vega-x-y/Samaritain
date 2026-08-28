@@ -57,7 +57,16 @@ class UserVisitPassController extends Controller
                 ->with('info', 'Ce pass visite est déjà payé.');
         }
 
-        return view('visit-passes.pay', compact('visitPass'));
+        try {
+            $providers = $this->pawapay->activeProviders();
+            $providerError = null;
+        } catch (PawaPayException) {
+            $providers = [];
+            $providerError = 'Les opérateurs sont momentanément indisponibles. Veuillez réessayer dans quelques instants.';
+        }
+        $currency = config('services.pawapay.currency', 'XAF');
+
+        return view('visit-passes.pay', compact('visitPass', 'providers', 'currency', 'providerError'));
     }
 
     /**
