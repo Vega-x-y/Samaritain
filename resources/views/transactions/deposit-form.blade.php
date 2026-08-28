@@ -48,8 +48,8 @@
                                 placeholder="0"
                                 required
                                 min="1"
+                                :suffix="config('services.pawapay.currency', 'XAF')"
                             />
-                            <p class="-mt-3 text-xs text-gray-500 dark:text-gray-400">Devise : {{ config('services.pawapay.currency', 'XAF') }}</p>
                         @endif
 
                         <x-form.select
@@ -71,12 +71,13 @@
                                 required
                                 pattern="[0-9]{9}"
                                 maxlength="9"
+                                :prefix="'+'.$payment_config['prefix']"
                             />
                             <p class="-mt-3 text-xs text-gray-500 dark:text-gray-400">Entrez les 9 chiffres après +{{ $payment_config['prefix'] }}</p>
                         </div>
 
                         <div class="pt-2">
-                            <x-btn class="w-full">
+                            <x-btn type="submit" class="w-full">
                                 {{ $visitPass ? 'Payer le pass' : ($rentPayment ? 'Payer le loyer' : 'Déposer') }}
                             </x-btn>
                         </div>
