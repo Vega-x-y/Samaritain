@@ -6,97 +6,79 @@
     </x-slot>
 
     @if (session('error'))
-        <div class="bg-red-300 p-2">
-            <span class="text-red-800">{{ session('error') }}</span>
+        <div class="max-w-xl mx-auto sm:px-6 lg:px-8 mt-4">
+            <div class="rounded-lg border border-red-200 dark:border-red-900 bg-red-50 dark:bg-red-900/20 p-4 text-sm text-red-700 dark:text-red-400">
+                {{ session('error') }}
+            </div>
         </div>
     @endif
 
     <div class="py-12">
         <div class="max-w-xl mx-auto sm:px-6 lg:px-8">
-            <div class="bg-white overflow-hidden shadow-sm sm:rounded-lg">
-                <div class="p-6 text-gray-900">
-                    <form method="POST" action="{{ route('transactions.deposit') }}" class="space-y-6">
+            <div class="bg-white dark:bg-gray-800 overflow-hidden shadow-sm sm:rounded-xl border border-gray-100 dark:border-gray-700">
+                <div class="p-6 sm:p-8">
+                    <form method="POST" action="{{ route('transactions.deposit') }}" class="space-y-5">
                         @csrf
                         @if($visitPass)
                             <input type="hidden" name="visit_pass" value="{{ $visitPass->uuid }}">
-                            <div class="rounded-md bg-gray-50 border border-gray-200 p-4">
-                                <p class="text-sm font-medium text-gray-700">Pass visite</p>
-                                <p class="text-sm text-gray-500 mt-1">Réf. {{ $visitPass->reference }}</p>
-                                <p class="mt-2 text-lg font-semibold text-gray-900">
+                            <div class="rounded-xl bg-gray-50 dark:bg-gray-900/50 border border-gray-200 dark:border-gray-700 p-4">
+                                <p class="text-xs font-medium uppercase tracking-wide text-gray-500 dark:text-gray-400">Pass visite</p>
+                                <p class="text-sm text-gray-500 dark:text-gray-400 mt-1">Réf. {{ $visitPass->reference }}</p>
+                                <p class="mt-2 text-lg font-semibold text-gray-900 dark:text-white">
                                     {{ number_format($visitPass->amount, 0, ',', ' ') }} {{ config('services.pawapay.currency', 'XAF') }}
                                 </p>
                                 <input type="hidden" name="amount" value="{{ $visitPass->amount }}">
                             </div>
                         @elseif($rentPayment)
                             <input type="hidden" name="rent_payment" value="{{ $rentPayment->id }}">
-                            <div class="rounded-md bg-gray-50 border border-gray-200 p-4">
-                                <p class="text-sm font-medium text-gray-700">Loyer</p>
-                                <p class="text-sm text-gray-500 mt-1">Période {{ $rentPayment->month }}/{{ $rentPayment->year }}</p>
-                                <p class="mt-2 text-lg font-semibold text-gray-900">
+                            <div class="rounded-xl bg-gray-50 dark:bg-gray-900/50 border border-gray-200 dark:border-gray-700 p-4">
+                                <p class="text-xs font-medium uppercase tracking-wide text-gray-500 dark:text-gray-400">Loyer</p>
+                                <p class="text-sm text-gray-500 dark:text-gray-400 mt-1">Période {{ $rentPayment->month }}/{{ $rentPayment->year }}</p>
+                                <p class="mt-2 text-lg font-semibold text-gray-900 dark:text-white">
                                     {{ number_format($rentPayment->amount_due, 0, ',', ' ') }} {{ config('services.pawapay.currency', 'XAF') }}
                                 </p>
                                 <input type="hidden" name="amount" value="{{ $rentPayment->amount_due }}">
                             </div>
                         @else
-                            <!-- Amount Input -->
-                            <div>
-                                <label for="amount" class="block text-sm font-medium text-gray-700">Montant</label>
-                                <div class="mt-1 flex rounded-md shadow-sm">
-                                    <input type="number" name="amount" id="amount" min="1" step="0.01"
-                                        required
-                                        class="flex-1 block w-full rounded-none rounded-l-md sm:text-sm border-gray-300"
-                                        placeholder="0,00">
-                                    <span
-                                        class="inline-flex items-center px-3 rounded-r-md border border-l-0 border-gray-300 bg-gray-50 text-gray-500 text-sm">
-                                        {{ config('services.pawapay.currency', 'XAF') }}
-                                    </span>
-                                </div>
-                                @error('amount')
-                                    <p class="mt-1 text-sm text-red-600">{{ $message }}</p>
-                                @enderror
-                            </div>
+                            <x-form.input
+                                name="amount"
+                                type="number"
+                                label="Montant"
+                                icon="banknote"
+                                placeholder="0"
+                                required
+                                min="1"
+                            />
+                            <p class="-mt-3 text-xs text-gray-500 dark:text-gray-400">Devise : {{ config('services.pawapay.currency', 'XAF') }}</p>
                         @endif
 
-                        <!-- Operator Select -->
-                        <div>
-                            <label for="provider" class="block text-sm font-medium text-gray-700">Opérateur</label>
-                            <select id="provider" name="provider" required
-                                class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm">
-                                <option value="">Sélectionner un opérateur</option>
-                                @foreach ($payment_config['providers'] as $item)
-                                    <option value="{{ $item['provider'] }}">{{ $item['displayName'] }}</option>
-                                @endforeach
-                            </select>
-                            @error('provider')
-                                <p class="mt-1 text-sm text-red-600">{{ $message }}</p>
-                            @enderror
-                        </div>
-
-                        <!-- Phone Number Input -->
-                        <div>
-                            <label for="phone" class="block text-sm font-medium text-gray-700">Numéro de
-                                téléphone</label>
-                            <div class="mt-1 flex rounded-md shadow-sm">
-                                <span
-                                    class="inline-flex items-center px-3 rounded-l-md border border-r-0 border-gray-300 bg-gray-50 text-gray-500 text-sm">
-                                    +{{ $payment_config['prefix'] }}
-                                </span>
-                                <input type="tel" name="phone" id="phone" required pattern="[0-9]{9}"
-                                    maxlength="9"
-                                    class="flex-1 block w-full rounded-none rounded-r-md sm:text-sm border-gray-300"
-                                    placeholder="Entrez les 9 chiffres">
-                            </div>
-                            <p class="text-xs text-gray-500 mt-1">Entrez les 9 chiffres après +{{ $payment_config['prefix'] }}</p>
-                            @error('phone')
-                                <p class="mt-1 text-sm text-red-600">{{ $message }}</p>
-                            @enderror
-                        </div>
+                        <x-form.select
+                            name="provider"
+                            label="Opérateur"
+                            icon="smartphone"
+                            placeholder="Sélectionner un opérateur"
+                            required
+                            :options="collect($payment_config['providers'])->mapWithKeys(fn ($item) => [$item['provider'] => $item['displayName']])->all()"
+                        />
 
                         <div>
-                            <button type="submit"
-                                class="inline-flex items-center px-4 py-2 bg-indigo-600 border border-transparent rounded-md font-semibold text-xs text-white uppercase tracking-widest hover:bg-indigo-500 focus:outline-none focus:border-indigo-700 focus:ring focus:ring-indigo-200 active:bg-indigo-600 disabled:opacity-25 transition">
+                            <x-form.input
+                                name="phone"
+                                type="tel"
+                                label="Numéro de téléphone"
+                                icon="phone"
+                                placeholder="Entrez les 9 chiffres"
+                                required
+                                pattern="[0-9]{9}"
+                                maxlength="9"
+                            />
+                            <p class="-mt-3 text-xs text-gray-500 dark:text-gray-400">Entrez les 9 chiffres après +{{ $payment_config['prefix'] }}</p>
+                        </div>
+
+                        <div class="pt-2">
+                            <x-btn class="w-full">
                                 {{ $visitPass ? 'Payer le pass' : ($rentPayment ? 'Payer le loyer' : 'Déposer') }}
-                            </button>
+                            </x-btn>
                         </div>
                     </form>
                 </div>
