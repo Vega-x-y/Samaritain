@@ -9,7 +9,6 @@
         @vite(['resources/css/app.css', 'resources/js/app.js'])
 
         @livewireStyles
-        @fluxAppearance
     </head>
     <body class="bg-background text-foreground antialiased">
         <button type="button" x-on:click="toggleTheme()"
@@ -22,6 +21,5 @@
         @yield('content')
 
         @livewireScripts
-        @fluxScripts
     </body>
 </html>
