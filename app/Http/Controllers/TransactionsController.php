@@ -266,7 +266,7 @@ class TransactionsController extends Controller
             'countryName' => $displayName['fr'] ?? $displayName['en'] ?? null,
             'flag' => isset($countryConfig['flag']) && is_string($countryConfig['flag']) ? $countryConfig['flag'] : null,
             'prefix' => (string) ($countryConfig['prefix'] ?? config('services.pawapay.dial_code', '242')),
-            'providers' => $this->pawapay->providerBranding($countryConfig, $type),
+            'providers' => $providersData['countries'][0]['providers'] ?? [],
         ];
     }
 

@@ -78,43 +78,6 @@ class PawapayService
         return $providers;
     }
 
-    /**
-     * Build the branding payload (logos, display names) for the providers of a
-     * country configuration, keeping only providers operational for the given
-     * operation type and the configured currency.
-     *
-     * @param  array<string, mixed>  $countryConfiguration
-     * @return array<int, array{provider: string, displayName: string, logo: ?string}>
-     */
-    public function providerBranding(array $countryConfiguration, string $operationType = 'DEPOSIT'): array
-    {
-        $providers = [];
-
-        foreach ((array) ($countryConfiguration['providers'] ?? []) as $provider) {
-            $operation = $this->operationConfiguration($provider, $operationType);
-            $status = strtoupper(trim((string) ($operation['status'] ?? '')));
-            if (! $operation || $status === '' || $status === 'CLOSED') {
-                continue;
-            }
-
-            $code = $provider['provider'] ?? null;
-
-            if (! is_string($code) || $code === '') {
-                continue;
-            }
-
-            $label = $provider['displayName'] ?? $code;
-
-            $providers[] = [
-                'provider' => $code,
-                'displayName' => is_string($label) && $label !== '' ? $label : $code,
-                'logo' => isset($provider['logo']) && is_string($provider['logo']) ? $provider['logo'] : null,
-            ];
-        }
-
-        return $providers;
-    }
-
     /** @return array<string, mixed>|null */
     private function operationConfiguration(array $provider, string $operationType): ?array
     {
