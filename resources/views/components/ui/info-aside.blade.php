@@ -28,17 +28,6 @@
             {{ $property->address ?? '' }}{{ $property->address && $property->city ? ', ' : '' }}{{ $property->city->name ?? 'Brazzaville' }}
         </div>
 
-        {{-- Map placeholder --}}
-        <div
-            class="w-full h-36 border border-secondary/10 z-0 dark:border-gray-700 rounded-xl
-                flex flex-col items-center justify-center gap-2
-                font-body text-[0.75rem] mb-6 dark:text-gray-400
-                cursor-pointer transition-colors duration-200
-                hover:border-primary/30 dark:hover:border-primary/30">
-            <i data-lucide="map" class="text-primary dark:text-primary-400"></i>
-            <span>Voir sur la carte</span>
-        </div>
-
         {{-- CTAs --}}
         <div class="flex flex-col gap-2.5 mb-4">
             <a href="{{ route($property->property_type?->value && $property->property_type->value !== 'residential' ? $property->property_type->value . '.contact.create' : 'property.contact.create', $property) }}"
