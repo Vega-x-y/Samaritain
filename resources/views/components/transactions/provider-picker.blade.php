@@ -9,7 +9,7 @@
         {{ $label }}
     </label>
 
-    <div class="grid grid-cols-2 sm:grid-cols-3 gap-3" role="radiogroup" aria-label="{{ $label }}">
+    <div class="grid grid-cols-2 gap-3" role="radiogroup" aria-label="{{ $label }}">
         @foreach($providers as $provider)
             <label class="relative cursor-pointer">
                 <input
