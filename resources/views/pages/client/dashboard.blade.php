@@ -23,22 +23,23 @@
                 ];
             @endphp
 
-            @foreach($dashboardCards as $card)
-                <div class="bg-sidebar dark:bg-gray-800 rounded-xl shadow-sm p-5 border border-accent dark:border-gray-700">
-                    <div class="flex items-center justify-between">
-                        <div>
-                            <p class="text-gray-500 dark:text-gray-400 text-sm font-medium">{{ $card['label'] }}</p>
-                            <p class="text-3xl font-bold {{ $card['text'] }} mt-1">{{ $card['value'] }}</p>
-                        </div>
-                        <div class="w-12 h-12 {{ $card['iconBackground'] }} rounded-xl flex items-center justify-center">
-                            <i data-lucide="{{ $card['icon'] }}" class="w-6 h-6 {{ $card['text'] }}"></i>
+            <div class="grid grid-cols-1 gap-4 sm:grid-cols-2 xl:grid-cols-3">
+                @foreach($dashboardCards as $card)
+                    <div class="bg-sidebar dark:bg-gray-800 rounded-xl shadow-sm p-5 border border-accent dark:border-gray-700 min-h-[126px]">
+                        <div class="flex items-center justify-between gap-3 h-full">
+                            <div class="min-w-0">
+                                <p class="text-gray-500 dark:text-gray-400 text-sm font-medium">{{ $card['label'] }}</p>
+                                <p class="text-3xl font-bold {{ $card['text'] }} mt-1">{{ $card['value'] }}</p>
+                            </div>
+                            <div class="w-12 h-12 {{ $card['iconBackground'] }} rounded-xl flex items-center justify-center shrink-0">
+                                <i data-lucide="{{ $card['icon'] }}" class="w-6 h-6 {{ $card['text'] }}"></i>
+                            </div>
                         </div>
                     </div>
-                </div>
-            @endforeach
+                @endforeach
             </div>
 
-            <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+            <div class="grid grid-cols-1 lg:grid-cols-2 gap-6 mt-6">
                 <div class="bg-sidebar dark:bg-gray-800 rounded-xl shadow-sm border border-accent dark:border-gray-700 overflow-hidden">
                     <div class="px-6 py-4 border-b border-gray-100 dark:border-gray-700 flex justify-between items-center">
                         <h2 class="text-lg font-semibold text-gray-900 dark:text-white">Chantiers récents</h2>

@@ -40,6 +40,16 @@ test('client dashboard loads successfully', function () {
         ->assertSee('Mon espace client');
 });
 
+test('client dashboard includes responsive card grid classes', function () {
+    $this->actingAs($this->user)
+        ->get(route('client.dashboard'))
+        ->assertOk()
+        ->assertSee('grid-cols-1', false)
+        ->assertSee('md:grid-cols-2', false)
+        ->assertSee('xl:grid-cols-3', false)
+        ->assertSee('lg:grid-cols-2', false);
+});
+
 test('client dashboard shows chantiers linked to user', function () {
     Chantier::create([
         'artisan_id' => $this->artisan->id,
