@@ -21,7 +21,11 @@
                         @csrf
 
                         @include('transactions.partials.branding-header')
-
+                        
+                        <p class="-mt-3 text-xs text-gray-500 dark:text-gray-400">
+                            Solde disponible : {{ number_format($balance, 0, ',', ' ') }} {{ config('services.pawapay.currency', 'XAF') }}
+                        </p>
+                        
                         <div>
                             <x-form.input
                                 name="amount"
@@ -34,9 +38,6 @@
                                 max="{{ $balance }}"
                                 :suffix="config('services.pawapay.currency', 'XAF')"
                             />
-                            <p class="-mt-3 text-xs text-gray-500 dark:text-gray-400">
-                                Solde disponible : {{ number_format($balance, 0, ',', ' ') }} {{ config('services.pawapay.currency', 'XAF') }}
-                            </p>
                         </div>
 
                         <x-transactions.provider-picker :providers="$providers" />
@@ -53,7 +54,6 @@
                                 maxlength="9"
                                 :prefix="'+'.$payment_config['prefix']"
                             />
-                            <p class="-mt-3 text-xs text-gray-500 dark:text-gray-400">+{{ $payment_config['prefix'] }}</p>
                         </div>
 
                         <div class="pt-2">

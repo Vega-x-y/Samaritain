@@ -69,7 +69,6 @@
                                 maxlength="9"
                                 :prefix="'+'.$payment_config['prefix']"
                             />
-                            <p class="-mt-3 text-xs text-gray-500 dark:text-gray-400">+{{ $payment_config['prefix'] }}</p>
                         </div>
 
                         <div class="pt-2">
