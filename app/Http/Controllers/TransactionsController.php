@@ -14,6 +14,8 @@ use App\Services\OwnerWalletService;
 use App\Services\PawapayService;
 use App\Services\RentPaymentService;
 use App\Services\VisitPassService;
+use App\Models\ArtisanRequest;
+use App\Services\ArtisanPaymentService;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
@@ -27,6 +29,7 @@ class TransactionsController extends Controller
         protected PawapayService $pawapay,
         protected OwnerWalletService $wallet,
         protected VisitPassService $visitPassService,
+        protected ArtisanPaymentService $artisanPaymentService,
     ) {}
 
     public function getDepositForm(Request $request): View|RedirectResponse
@@ -43,6 +46,12 @@ class TransactionsController extends Controller
             return $rentPayment;
         }
 
+        $artisanRequest = $this->resolveArtisanRequest($request->query('artisan_request'));
+
+        if ($artisanRequest instanceof RedirectResponse) {
+            return $artisanRequest;
+        }
+
         $providers_data = $this->getProvidersAvailable();
 
         if (empty($providers_data) || empty($providers_data['countries'][0]['providers'])) {
@@ -54,6 +63,7 @@ class TransactionsController extends Controller
             'branding' => $this->buildBranding($providers_data, 'DEPOSIT'),
             'visitPass' => $visitPass,
             'rentPayment' => $rentPayment,
+            'artisanRequest' => $artisanRequest,
         ]);
     }
 
@@ -98,14 +108,21 @@ class TransactionsController extends Controller
             return $rentPayment;
         }
 
+        $artisanRequest = $this->resolveArtisanRequest($request->input('artisan_request'));
+
+        if ($artisanRequest instanceof RedirectResponse) {
+            return $artisanRequest;
+        }
+
         $transaction = Transaction::create([
             'user_id' => Auth::id(),
             'visit_pass_id' => $visitPass?->id,
             'rent_payment_id' => $rentPayment?->id,
+            'artisan_request_id' => $artisanRequest?->id,
             'type' => TransactionType::DEPOSIT,
             'amount' => $rentPayment
                 ? (int) $rentPayment->amount_due
-                : ($visitPass ? (int) $visitPass->amount : (int) $request->amount),
+                : ($artisanRequest ? (int) $artisanRequest->down_payment_amount : ($visitPass ? (int) $visitPass->amount : (int) $request->amount)),
             'status' => TransactionStatus::PENDING,
             'provider' => $request->provider,
             'currency' => config('services.pawapay.currency'),
@@ -220,6 +237,9 @@ class TransactionsController extends Controller
                 // (via creditRentOwner). Mark the rent as paid + generate the receipt.
                 // The tenant wallet is NOT credited.
                 app(RentPaymentService::class)->handleSuccessfulPayment($transaction->rentPayment);
+            } elseif ($transaction->artisan_request_id && $transaction->artisanRequest) {
+                // Artisan down payment
+                $this->artisanPaymentService->handleSuccessfulDownPayment($transaction);
             } elseif ($transaction->type === TransactionType::DEPOSIT) {
                 $this->wallet->creditDeposit($transaction);
             }
@@ -341,5 +361,34 @@ class TransactionsController extends Controller
         }
 
         return $rentPayment;
+    }
+
+    /**
+     * Resolve an optional artisan request from the deposit context.
+     *
+     * Returns null when no request is provided. Returns a RedirectResponse
+     * when the request is invalid, does not belong to the user, or is already paid.
+     */
+    protected function resolveArtisanRequest(mixed $artisanRequestKey): ArtisanRequest|null|RedirectResponse
+    {
+        if (! $artisanRequestKey) {
+            return null;
+        }
+
+        $artisanRequest = ArtisanRequest::find($artisanRequestKey);
+
+        if (! $artisanRequest || $artisanRequest->user_id !== Auth::id()) {
+            return redirect()->back()->with('error', 'Cette demande de service est introuvable.');
+        }
+
+        if ($artisanRequest->payment_status !== 'UNPAID') {
+            return redirect()->back()->with('info', 'L\'acompte pour cette prestation a déjà été payé.');
+        }
+
+        if (!$artisanRequest->down_payment_amount) {
+            return redirect()->back()->with('error', 'Le montant de l\'acompte n\'a pas encore été défini par l\'artisan.');
+        }
+
+        return $artisanRequest;
     }
 }

@@ -178,6 +178,10 @@ Route::prefix('/admin/dashboard')->middleware(['auth', 'verified', StaffMiddlewa
     Route::get('/', [DashboardController::class, 'index'])->name('index');
     Route::resource('property', AdminPropertyController::class);
 
+    // Settings
+    Route::get('/settings', [\App\Http\Controllers\Admin\SettingController::class, 'index'])->name('settings.index');
+    Route::put('/settings', [\App\Http\Controllers\Admin\SettingController::class, 'update'])->name('settings.update');
+
     foreach (['boutique', 'bureau'] as $commercialType) {
         Route::get("{$commercialType}", [AdminCommercialPropertyController::class, 'index'])->defaults('type', $commercialType)->name("{$commercialType}.index");
         Route::get("{$commercialType}/create", [AdminCommercialPropertyController::class, 'create'])->defaults('type', $commercialType)->name("{$commercialType}.create");

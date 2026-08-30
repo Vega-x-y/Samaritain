@@ -51,6 +51,7 @@ class Transaction extends Model
         'user_id',
         'visit_pass_id',
         'rent_payment_id',
+        'artisan_request_id',
         'type',
         'status',
         'amount',
@@ -108,6 +109,14 @@ class Transaction extends Model
     public function rentPayment(): BelongsTo
     {
         return $this->belongsTo(RentPayment::class);
+    }
+
+    /**
+     * Get the artisan request associated with this transaction.
+     */
+    public function artisanRequest(): BelongsTo
+    {
+        return $this->belongsTo(ArtisanRequest::class);
     }
 
     /**

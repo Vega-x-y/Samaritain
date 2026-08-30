@@ -16,12 +16,17 @@ class ArtisanRequest extends Model
         'type',
         'message',
         'statut',
+        'total_amount',
+        'down_payment_amount',
+        'payment_status',
         'reponse',
         'date_reponse',
     ];
 
     protected $casts = [
         'date_reponse' => 'datetime',
+        'total_amount' => 'integer',
+        'down_payment_amount' => 'integer',
     ];
 
     public function artisan(): BelongsTo
