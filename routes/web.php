@@ -16,7 +16,9 @@ use App\Http\Controllers\Admin\ParcelleCategoryController;
 use App\Http\Controllers\Admin\ParcelleController;
 use App\Http\Controllers\Admin\PropertyController as AdminPropertyController;
 use App\Http\Controllers\Admin\RoleController;
+use App\Http\Controllers\Admin\SettingController;
 use App\Http\Controllers\AgencyContactController;
+use App\Http\Controllers\Artisan\ArtisanPaymentLinkController;
 use App\Http\Controllers\Artisan\ChantierController;
 use App\Http\Controllers\Artisan\ClientController;
 use App\Http\Controllers\Artisan\DocumentController as ArtisanDocumentController;
@@ -25,6 +27,7 @@ use App\Http\Controllers\Artisan\FinancesController;
 use App\Http\Controllers\Artisan\MembreEquipeController;
 use App\Http\Controllers\Artisan\MessagerieController;
 use App\Http\Controllers\Artisan\StockController;
+use App\Http\Controllers\Artisan\WalletController;
 use App\Http\Controllers\ArtisanContactController;
 use App\Http\Controllers\ArtisanController;
 use App\Http\Controllers\ArtisanProjectController;
@@ -179,8 +182,8 @@ Route::prefix('/admin/dashboard')->middleware(['auth', 'verified', StaffMiddlewa
     Route::resource('property', AdminPropertyController::class);
 
     // Settings
-    Route::get('/settings', [\App\Http\Controllers\Admin\SettingController::class, 'index'])->name('settings.index');
-    Route::put('/settings', [\App\Http\Controllers\Admin\SettingController::class, 'update'])->name('settings.update');
+    Route::get('/settings', [SettingController::class, 'index'])->name('settings.index');
+    Route::put('/settings', [SettingController::class, 'update'])->name('settings.update');
 
     foreach (['boutique', 'bureau'] as $commercialType) {
         Route::get("{$commercialType}", [AdminCommercialPropertyController::class, 'index'])->defaults('type', $commercialType)->name("{$commercialType}.index");
@@ -334,6 +337,15 @@ Route::middleware(['auth', 'verified'])->group(function () {
     Route::get('/artisan/demandes-recues', [ArtisanRequestController::class, 'index'])->name('artisan.requests');
     Route::patch('/artisan/demandes-recues/{demande}', [ArtisanRequestController::class, 'update'])->name('artisan.requests.update');
     Route::delete('/artisan/demandes-recues/{demande}', [ArtisanRequestController::class, 'destroy'])->name('artisan.requests.destroy');
+
+    // Wallet artisan
+    Route::get('/artisan/wallet', [WalletController::class, 'index'])->name('artisan.wallet');
+
+    // Lien de paiement depuis la messagerie
+    Route::post('/artisan/messagerie/conversation/{conversation}/payment-link', [ArtisanPaymentLinkController::class, 'store'])->name('artisan.payment-link.store');
+
+    // Historique des transactions client
+    Route::get('/client/transactions', [ClientDashboardController::class, 'transactions'])->name('client.transactions');
 
     // Édition profil artisan
     Route::get('/artisan/{artisan}/edit', [ArtisanController::class, 'edit'])->name('artisan.edit');

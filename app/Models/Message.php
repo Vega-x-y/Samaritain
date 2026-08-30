@@ -15,6 +15,8 @@ class Message extends Model
         'expediteur_type',
         'expediteur_id',
         'contenu',
+        'type',
+        'metadata',
         'lu',
         'fichier_path',
         'fichier_nom',
@@ -28,6 +30,7 @@ class Message extends Model
         return [
             'lu' => 'boolean',
             'fichier_taille' => 'integer',
+            'metadata' => 'array',
         ];
     }
 

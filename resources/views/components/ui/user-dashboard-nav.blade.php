@@ -64,8 +64,14 @@
                         [
                             'route' => 'my-visit-passes.index',
                             'icon' => 'ticket',
-                            'label' => 'Pass vistite',
+                            'label' => 'Pass visite',
                             'show' => true
+                        ],
+                        [
+                            'route' => 'client.transactions',
+                            'icon' => 'receipt',
+                            'label' => 'Transactions',
+                            'show' => true,
                         ],
                         [
                             'route' => 'profile.show',

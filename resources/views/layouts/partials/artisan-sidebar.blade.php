@@ -111,6 +111,21 @@
                     </a>
                 </li>
 
+                <!-- Mon Wallet -->
+                <li class="relative list-none">
+                    <a href="{{ route('artisan.wallet') }}"
+                        class="flex items-center px-3 py-2 rounded-md text-xs font-medium transition-all group select-none
+                            {{ request()->routeIs('artisan.wallet') ? 'bg-[var(--sidebar-primary)] text-[var(--sidebar-primary-foreground)]' : 'text-[var(--sidebar-foreground)] hover:text-[var(--foreground)] hover:bg-[var(--sidebar-border)]' }}">
+                        <span class="shrink-0 flex items-center justify-center w-4 h-4">
+                            <i data-lucide="piggy-bank" class="w-4 h-4 transition-colors"></i>
+                        </span>
+                        <span x-show="sidebarOpen" x-transition:enter="transition ease-out duration-150"
+                            x-transition:enter-start="opacity-0 translate-x-1"
+                            x-transition:enter-end="opacity-100 translate-x-0"
+                            class="ml-2 truncate">Mon Wallet</span>
+                    </a>
+                </li>
+
                 <!-- Documents -->
                 <li class="relative list-none">
                     <a href="{{ route('artisan.documents.index') }}"

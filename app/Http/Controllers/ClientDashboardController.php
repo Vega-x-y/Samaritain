@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Models\Chantier;
 use App\Models\Document;
 use App\Models\Message;
+use App\Models\Transaction;
 use App\Models\User;
 use App\Models\VisitPass;
 use Illuminate\Http\Request;
@@ -80,5 +81,26 @@ class ClientDashboardController extends Controller
         ];
 
         return view('pages.client.chantiers.index', compact('chantiers', 'stats'));
+    }
+
+    public function transactions(Request $request): View
+    {
+        /** @var User $user */
+        $user = $request->user();
+
+        $transactions = Transaction::query()
+            ->where('user_id', $user->id)
+            ->with(['artisanRequest', 'visitPass', 'rentPayment'])
+            ->latest()
+            ->paginate(20);
+
+        $stats = [
+            'total_spent' => Transaction::where('user_id', $user->id)->where('status', 'COMPLETED')->sum('amount'),
+            'total_count' => Transaction::where('user_id', $user->id)->count(),
+            'completed_count' => Transaction::where('user_id', $user->id)->where('status', 'COMPLETED')->count(),
+            'pending_count' => Transaction::where('user_id', $user->id)->where('status', 'PENDING')->count(),
+        ];
+
+        return view('pages.client.transactions.index', compact('transactions', 'stats'));
     }
 }
