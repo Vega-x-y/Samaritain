@@ -7,15 +7,16 @@ use App\DataTransferObjects\Pawapay\PayoutRequest;
 use App\Enums\TransactionStatus;
 use App\Enums\TransactionType;
 use App\Exceptions\PawaPayException;
+use App\Models\ArtisanRequest;
 use App\Models\RentPayment;
 use App\Models\Transaction;
 use App\Models\VisitPass;
+use App\Services\ArtisanPaymentService;
+use App\Services\ArtisanWalletService;
 use App\Services\OwnerWalletService;
 use App\Services\PawapayService;
 use App\Services\RentPaymentService;
 use App\Services\VisitPassService;
-use App\Models\ArtisanRequest;
-use App\Services\ArtisanPaymentService;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
@@ -28,6 +29,7 @@ class TransactionsController extends Controller
     public function __construct(
         protected PawapayService $pawapay,
         protected OwnerWalletService $wallet,
+        protected ArtisanWalletService $artisanWallets,
         protected VisitPassService $visitPassService,
         protected ArtisanPaymentService $artisanPaymentService,
     ) {}
@@ -224,7 +226,12 @@ class TransactionsController extends Controller
         $status = TransactionStatus::tryFrom(strtoupper((string) ($data['status'] ?? '')));
 
         if ($status === TransactionStatus::COMPLETED) {
-            $this->wallet->settle($transaction, TransactionStatus::COMPLETED);
+            if ($transaction->type === TransactionType::PAYOUT && $this->artisanWallets->hasPayoutReservation($transaction)) {
+                // A payout initiated from the artisan wallet: settle it there.
+                $this->artisanWallets->settle($transaction, TransactionStatus::COMPLETED);
+            } else {
+                $this->wallet->settle($transaction, TransactionStatus::COMPLETED);
+            }
 
             if ($transaction->type === TransactionType::PAYOUT) {
                 // Handled by settle() above (reservation + debit/release).
@@ -248,6 +255,10 @@ class TransactionsController extends Controller
                 'status' => TransactionStatus::FAILED,
                 'raw_response' => $data,
             ]);
+
+            if ($transaction->type === TransactionType::PAYOUT && $this->artisanWallets->hasPayoutReservation($transaction)) {
+                $this->artisanWallets->settle($transaction, TransactionStatus::FAILED);
+            }
         }
 
         $transaction->refresh();
@@ -385,7 +396,7 @@ class TransactionsController extends Controller
             return redirect()->back()->with('info', 'L\'acompte pour cette prestation a déjà été payé.');
         }
 
-        if (!$artisanRequest->down_payment_amount) {
+        if (! $artisanRequest->down_payment_amount) {
             return redirect()->back()->with('error', 'Le montant de l\'acompte n\'a pas encore été défini par l\'artisan.');
         }
 

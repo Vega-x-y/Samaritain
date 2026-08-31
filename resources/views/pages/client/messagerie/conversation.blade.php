@@ -41,6 +41,40 @@
         <div class="flex-1 overflow-y-auto mb-4 space-y-3" id="messages-container">
             @foreach ($conversation->messages as $message)
                 <div class="flex {{ $message->expediteur_type === 'client' ? 'justify-end' : 'justify-start' }}">
+                    @if ($message->type === 'payment_link')
+                        {{-- Carte de paiement envoyée par l'artisan --}}
+                        {{-- metadata may be double-encoded (legacy rows), decode defensively --}}
+@php $meta = is_array($message->metadata) ? $message->metadata : ((array) json_decode((string) $message->metadata, true)); @endphp
+                        <div class="max-w-[85%] sm:max-w-[70%] bg-white dark:bg-gray-800 border border-orange-200 dark:border-orange-700 rounded-xl shadow-sm p-4">
+                            <div class="flex items-center gap-2 mb-3">
+                                <div class="w-8 h-8 bg-orange-100 dark:bg-orange-900/30 rounded-full flex items-center justify-center">
+                                    <i data-lucide="link" class="w-4 h-4 text-orange-600 dark:text-orange-400"></i>
+                                </div>
+                                <span class="text-sm font-semibold text-gray-800 dark:text-white">Demande de paiement</span>
+                            </div>
+                            <div class="text-xs text-gray-500 dark:text-gray-400 space-y-1 mb-3">
+                                <div class="flex justify-between">
+                                    <span>Montant total</span>
+                                    <span class="font-medium text-gray-800 dark:text-white">{{ number_format($meta['total_amount'] ?? 0, 0, ',', ' ') }} FCFA</span>
+                                </div>
+                                <div class="flex justify-between">
+                                    <span>Acompte demandé</span>
+                                    <span class="font-medium text-orange-600 dark:text-orange-400">{{ number_format($meta['down_payment_amount'] ?? 0, 0, ',', ' ') }} FCFA</span>
+                                </div>
+                            </div>
+                            @if ($message->expediteur_type !== 'client')
+                                <a href="{{ $meta['deposit_url'] ?? '#' }}"
+                                   class="block w-full text-center bg-orange-500 hover:bg-orange-600 text-white text-sm font-medium py-2 px-4 rounded-lg transition">
+                                    Payer l'acompte
+                                </a>
+                            @else
+                                <span class="block w-full text-center text-xs text-gray-400 dark:text-gray-500 py-2">Lien envoyé au client</span>
+                            @endif
+                            <div class="text-xs mt-2 text-gray-400 dark:text-gray-500 text-right">
+                                {{ $message->created_at->format('d/m/Y H:i') }}
+                            </div>
+                        </div>
+                    @else
                     <div class="max-w-[85%] sm:max-w-[70%] {{ $message->expediteur_type === 'client' ? 'bg-orange-500 text-white' : 'bg-gray-200 dark:bg-gray-700 text-gray-900 dark:text-white' }} rounded-lg px-4 py-2">
                         <div class="text-xs font-medium mb-1 {{ $message->expediteur_type === 'client' ? 'text-orange-100' : 'text-gray-500 dark:text-gray-400' }}">
                             {{ $message->expediteur_nom }}
@@ -83,6 +117,7 @@
                             @endif
                         </div>
                     </div>
+                    @endif
                     <form method="POST" action="{{ route('client.messagerie.message.destroy', $message) }}" onsubmit="return confirm('Supprimer ce message ?')" class="ml-2">
                         @csrf @method('DELETE')
                         <button type="submit" class="text-gray-400 hover:text-red-500 dark:text-gray-500 dark:hover:text-red-400 p-1 rounded transition">

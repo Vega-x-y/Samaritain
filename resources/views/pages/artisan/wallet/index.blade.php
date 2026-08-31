@@ -46,7 +46,7 @@
                 </p>
                 <p class="text-xs text-gray-400 dark:text-gray-500 mt-1">Total retiré</p>
             </div>
-            <a href="{{ route('transactions.withdraw') }}"
+            <a href="{{ route('artisan.wallet.withdraw.form') }}"
                class="mt-4 block text-center bg-gray-900 hover:bg-gray-700 dark:bg-white dark:hover:bg-gray-100 text-white dark:text-gray-900 font-medium py-2.5 px-4 rounded-lg transition text-sm">
                 <span class="flex items-center justify-center gap-2">
                     <i data-lucide="arrow-up-from-line" class="w-4 h-4"></i>

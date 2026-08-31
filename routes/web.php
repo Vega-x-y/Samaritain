@@ -340,6 +340,8 @@ Route::middleware(['auth', 'verified'])->group(function () {
 
     // Wallet artisan
     Route::get('/artisan/wallet', [WalletController::class, 'index'])->name('artisan.wallet');
+    Route::get('/artisan/withdraw', [WalletController::class, 'withdrawForm'])->name('artisan.wallet.withdraw.form');
+    Route::post('/artisan/withdraw', [WalletController::class, 'initWithdraw'])->name('artisan.wallet.withdraw');
 
     // Lien de paiement depuis la messagerie
     Route::post('/artisan/messagerie/conversation/{conversation}/payment-link', [ArtisanPaymentLinkController::class, 'store'])->name('artisan.payment-link.store');

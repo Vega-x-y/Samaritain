@@ -18,7 +18,7 @@
         <div class="max-w-xl mx-auto sm:px-6 lg:px-8">
             <div class="bg-white dark:bg-gray-800 overflow-hidden shadow-sm sm:rounded-xl border border-gray-100 dark:border-gray-700">
                 <div class="p-6 sm:p-8">
-                    <form method="POST" action="{{ route('transactions.withdraw') }}" class="space-y-6">
+                    <form method="POST" action="{{ $action ?? route('transactions.withdraw') }}" class="space-y-6">
                         @csrf
 
                         @include('transactions.partials.branding-header')

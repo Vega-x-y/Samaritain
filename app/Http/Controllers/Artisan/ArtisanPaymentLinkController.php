@@ -55,12 +55,12 @@ class ArtisanPaymentLinkController extends Controller
             'expediteur_nom' => $artisan->nom ?? $user->name,
             'contenu' => null,
             'type' => 'payment_link',
-            'metadata' => json_encode([
+            'metadata' => [
                 'artisan_request_id' => $artisanRequest->id,
                 'total_amount' => $validated['total_amount'],
                 'down_payment_amount' => $validated['down_payment_amount'],
                 'deposit_url' => $depositUrl,
-            ]),
+            ],
             'lu' => false,
         ]);
 

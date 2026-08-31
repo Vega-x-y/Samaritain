@@ -1,7 +1,7 @@
 <x-app-layout>
     <x-slot name="header">
         <h2 class="font-semibold text-xl text-gray-800 dark:text-gray-100 leading-tight">
-            {{ $visitPass ? 'Payer le pass visite' : ($rentPayment ? 'Payer le loyer' : 'Dépôt') }}
+            {{ $visitPass ? 'Payer le pass visite' : ($rentPayment ? 'Payer le loyer' : ($artisanRequest ? "Payer l'acompte" : 'Dépôt')) }}
         </h2>
     </x-slot>
 
@@ -53,6 +53,21 @@
                                 </p>
                                 <input type="hidden" name="amount" value="{{ $rentPayment->amount_due }}">
                             </div>
+                        @elseif($artisanRequest)
+                            <input type="hidden" name="artisan_request" value="{{ $artisanRequest->id }}">
+                            <div class="flex items-center gap-3 rounded-xl bg-gray-50 dark:bg-gray-900/50 border border-gray-200 dark:border-gray-700 p-4">
+                                <div class="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-primary/10">
+                                    <i data-lucide="hammer" class="w-5 h-5 text-primary"></i>
+                                </div>
+                                <div class="min-w-0 flex-1">
+                                    <p class="text-xs font-medium uppercase tracking-wide text-gray-500 dark:text-gray-400">Acompte prestation</p>
+                                    <p class="text-sm text-gray-500 dark:text-gray-400 truncate">Total : {{ number_format($artisanRequest->total_amount, 0, ',', ' ') }} {{ config('services.pawapay.currency', 'XAF') }}</p>
+                                </div>
+                                <p class="text-lg font-semibold text-gray-900 dark:text-white whitespace-nowrap">
+                                    {{ number_format($artisanRequest->down_payment_amount, 0, ',', ' ') }} {{ config('services.pawapay.currency', 'XAF') }}
+                                </p>
+                                <input type="hidden" name="amount" value="{{ $artisanRequest->down_payment_amount }}">
+                            </div>
                         @else
                             <x-form.input
                                 name="amount"
@@ -86,7 +101,7 @@
 
                         <div class="pt-2">
                             <x-btn type="submit" class="w-full">
-                                {{ $visitPass ? 'Payer le pass' : ($rentPayment ? 'Payer le loyer' : 'Déposer') }}
+                                {{ $visitPass ? 'Payer le pass' : ($rentPayment ? 'Payer le loyer' : ($artisanRequest ? "Payer l'acompte" : 'Déposer')) }}
                             </x-btn>
                             <p class="mt-3 flex items-center justify-center gap-1.5 text-xs text-gray-400 dark:text-gray-500">
                                 <i data-lucide="lock" class="w-3.5 h-3.5"></i>

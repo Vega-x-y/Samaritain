@@ -43,7 +43,8 @@
                 <div class="flex {{ $message->expediteur_type === 'artisan' ? 'justify-end' : 'justify-start' }}">
                     @if ($message->type === 'payment_link')
                         {{-- Carte de paiement --}}
-                        @php $meta = $message->metadata ?? []; @endphp
+                        {{-- metadata may be double-encoded (legacy rows), decode defensively --}}
+@php $meta = is_array($message->metadata) ? $message->metadata : ((array) json_decode((string) $message->metadata, true)); @endphp
                         <div class="max-w-[70%] bg-white dark:bg-gray-800 border border-orange-200 dark:border-orange-700 rounded-xl shadow-sm p-4">
                             <div class="flex items-center gap-2 mb-3">
                                 <div class="w-8 h-8 bg-orange-100 dark:bg-orange-900/30 rounded-full flex items-center justify-center">
