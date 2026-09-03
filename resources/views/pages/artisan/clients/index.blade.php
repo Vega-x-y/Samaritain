@@ -182,7 +182,7 @@
                     <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
                         <div>
                             <label class="block font-semibold text-sm mb-1 text-gray-900 dark:text-white">Type *</label>
-                            <x-form.select name="type" label="Type *" :options="$types->mapWithKeys(fn ($type) => [$type->value => $type->label()])" required />
+                            <x-form.select name="type" label="Type *" :options="collect($types)->mapWithKeys(fn ($type) => [$type->value => $type->label()])" required />
                         </div>
                     </div>
 
