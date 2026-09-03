@@ -13,7 +13,7 @@
     @php
         $categorieLabels = [
             'materiaux' => 'Matériaux',
-            'main_oeuvre' => "Main d'�"uvre",
+            'main_oeuvre' => "Main d'oeuvre",
             'transport' => 'Transport',
             'autre' => 'Autre',
         ];
@@ -116,7 +116,7 @@
                     <label class="block text-sm font-medium text-foreground mb-2">Type *</label>
                     <select name="categorie" required class="w-full rounded-lg border-border focus:border-primary focus:ring-primary bg-background">
                         <option value="materiaux">Matériaux</option>
-                        <option value="main_oeuvre">Main d'�"uvre</option>
+                        <option value="main_oeuvre">Main d'oeuvre</option>
                         <option value="transport">Transport</option>
                         <option value="autre">Autre</option>
                     </select>
