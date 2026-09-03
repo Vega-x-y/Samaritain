@@ -54,7 +54,7 @@
 
         <!-- ===== SOUS-HEADER ===== -->
         <x-card>
-            <div class="flex flex-wrap items-center justify-between gap-4 rounded-2xl shadow-sm px-5 py-4">
+            <div class="flex flex-wrap items-center justify-between gap-4 px-5 py-4">
                 <div class="flex items-center gap-3">
                     <div class="w-10 h-10 rounded-full bg-primary/10 dark:bg-primary/20 flex items-center justify-center transition-all duration-300 hover:scale-110">
                         <i data-lucide="pie-chart" class="w-5 h-5 text-primary"></i>
@@ -75,7 +75,7 @@
         <!-- ===== CARTES KPI ===== -->
         <div class="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-4">
             @foreach ($kpis as $kpi)
-                <x-card>
+                <x-card class="px-3 py-2">
                     <p class="text-[11px] font-semibold uppercase tracking-wider text-muted-foreground">
                         {{ $kpi['label'] }}
                     </p>
