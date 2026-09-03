@@ -19,7 +19,7 @@
         </div>
         <x-btn href="{{ route('artisan.stock.create') }}" size="lg">
             <x-slot:prefix><i data-lucide="plus" class="w-4 h-4"></i></x-slot:prefix>
-            + Nouvel article
+            Nouvel article
         </x-btn>
     </div>
 
