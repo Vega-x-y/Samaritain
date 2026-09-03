@@ -50,7 +50,8 @@
                         <span class="text-xs text-gray-500 dark:text-gray-400">{{ $document->created_at->format('d/m/Y') }}</span>
                         @if($document->client)
                             <span class="text-xs text-gray-500 dark:text-gray-400 font-medium">
-                                👤 {{ $document->client->nom }}
+                                <i data-lucide="user" class="inline-block w-3.5 h-3.5 mr-1" aria-hidden="true"></i>
+                                {{ $document->client->nom }}
                             </span>
                         @endif
                         @if($document->date_modification)

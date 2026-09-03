@@ -84,22 +84,26 @@
     <div class="bg-card rounded-lg shadow-sm border border-border p-6 transition-all duration-300">
         <form method="GET" action="{{ route('artisan.documents.index') }}" class="grid grid-cols-1 md:grid-cols-3 gap-4 items-end">
             <div>
-                <label class="block text-sm font-medium text-foreground mb-2">Client</label>
-                <select name="client_id" class="w-full max-w-xs rounded-lg border-border focus:border-primary focus:ring-primary bg-background">
-                    <option value="">Tous les clients</option>
-                    @foreach($clients as $client)
-                        <option value="{{ $client->id }}" {{ request('client_id') == $client->id ? 'selected' : '' }}>{{ $client->nom }}</option>
-                    @endforeach
-                </select>
+                <x-form.select
+                    name="client_id"
+                    label="Client"
+                    placeholder="Tous les clients"
+                    :options="$clients"
+                    optionValue="id"
+                    optionLabel="nom"
+                    :value="request('client_id')"
+                    class="max-w-xs"
+                />
             </div>
             <div>
-                <label class="block text-sm font-medium text-foreground mb-2">Type</label>
-                <select name="type" class="w-full max-w-xs rounded-lg border-border focus:border-primary focus:ring-primary bg-background">
-                    <option value="">Tous les types</option>
-                    @foreach($types as $key => $label)
-                        <option value="{{ $key }}" {{ request('type') == $key ? 'selected' : '' }}>{{ $label }}</option>
-                    @endforeach
-                </select>
+                <x-form.select
+                    name="type"
+                    label="Type"
+                    placeholder="Tous les types"
+                    :options="$types"
+                    :value="request('type')"
+                    class="max-w-xs"
+                />
             </div>
             <div class="flex items-end">
                 <button type="submit" class="w-full max-w-xs px-4 py-2 bg-primary hover:bg-primary/90 text-white rounded-lg transition">
