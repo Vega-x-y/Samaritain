@@ -71,9 +71,9 @@
                     <span class="text-gray-500 dark:text-gray-400">Priorité</span>
                     <span class="font-medium text-gray-900 dark:text-white">
                         @switch($chantier->priorite)
-                            @case('haute') �Y"� Haute @break
-                            @case('moyenne') �YY� Moyenne @break
-                            @case('basse') �YY� Basse @break
+                            @case('haute') <i data-lucide="package" class="w-4 h-4 inline-block align-middle mr-1"></i> Haute @break
+                            @case('moyenne') Moyenne @break
+                            @case('basse') Basse @break
                             @default �?"
                         @endswitch
                     </span>
@@ -91,26 +91,26 @@
 
         <!-- Paiements -->
         <div class="bg-white dark:bg-gray-800 rounded-xl p-5 border border-gray-100 dark:border-gray-700">
-            <h3 class="text-xs uppercase font-semibold text-gray-400 dark:text-gray-500 mb-3 border-b border-gray-100 dark:border-gray-700 pb-2">�Y'� Paiements</h3>
+            <h3 class="text-xs uppercase font-semibold text-gray-400 dark:text-gray-500 mb-3 border-b border-gray-100 dark:border-gray-700 pb-2"><i data-lucide="wallet" class="w-4 h-4 inline-block align-middle mr-1"></i> Paiements</h3>
             <div class="space-y-3">
                 <div class="flex justify-between items-center">
                     <span class="text-sm text-gray-600 dark:text-gray-400">Acompte (30%)</span>
                     <span class="font-bold text-gray-900 dark:text-white">{{ number_format(($chantier->budget ?? 0) * 0.3, 0, ',', ' ') }} FCFA</span>
                     <span class="text-xs font-semibold px-2 py-0.5 rounded-full {{ $chantier->acompte_paye ? 'bg-emerald-100 text-emerald-700 dark:bg-emerald-900/30 dark:text-emerald-300' : 'bg-amber-100 text-amber-700 dark:bg-amber-900/30 dark:text-amber-300' }}">
-                        {{ $chantier->acompte_paye ? '�o. Payé' : '⏳ En attente' }}
+                        {{ $chantier->acompte_paye ? '<i data-lucide="circle-check" class="w-4 h-4 inline-block align-middle mr-1"></i> Payé' : '<i data-lucide="clock-3" class="w-4 h-4 inline-block align-middle mr-1"></i> En attente' }}
                     </span>
                 </div>
                 <div class="flex justify-between items-center">
                     <span class="text-sm text-gray-600 dark:text-gray-400">Solde (70%)</span>
                     <span class="font-bold text-gray-900 dark:text-white">{{ number_format(($chantier->budget ?? 0) * 0.7, 0, ',', ' ') }} FCFA</span>
                     <span class="text-xs font-semibold px-2 py-0.5 rounded-full {{ $chantier->solde_paye ? 'bg-emerald-100 text-emerald-700 dark:bg-emerald-900/30 dark:text-emerald-300' : 'bg-amber-100 text-amber-700 dark:bg-amber-900/30 dark:text-amber-300' }}">
-                        {{ $chantier->solde_paye ? '�o. Payé' : '⏳ En attente' }}
+                        {{ $chantier->solde_paye ? '<i data-lucide="circle-check" class="w-4 h-4 inline-block align-middle mr-1"></i> Payé' : '<i data-lucide="clock-3" class="w-4 h-4 inline-block align-middle mr-1"></i> En attente' }}
                     </span>
                 </div>
                 <div class="flex justify-between items-center pt-2 border-t border-gray-100 dark:border-gray-700">
                     <span class="text-sm font-semibold text-gray-700 dark:text-gray-300">Réception</span>
                     <span class="text-xs font-semibold px-2 py-0.5 rounded-full {{ $chantier->reception_validee ? 'bg-emerald-100 text-emerald-700 dark:bg-emerald-900/30 dark:text-emerald-300' : 'bg-gray-100 text-gray-500 dark:bg-gray-700 dark:text-gray-400' }}">
-                        {{ $chantier->reception_validee ? '�o. Validée' : '⏳ En attente' }}
+                        {{ $chantier->reception_validee ? '<i data-lucide="circle-check" class="w-4 h-4 inline-block align-middle mr-1"></i> Validée' : '<i data-lucide="clock-3" class="w-4 h-4 inline-block align-middle mr-1"></i> En attente' }}
                     </span>
                 </div>
             </div>
@@ -119,7 +119,7 @@
         <!-- Matériel -->
         @if ($chantier->materiel)
         <div class="bg-white dark:bg-gray-800 rounded-xl p-5 border border-gray-100 dark:border-gray-700">
-            <h3 class="text-xs uppercase font-semibold text-gray-400 dark:text-gray-500 mb-3 border-b border-gray-100 dark:border-gray-700 pb-2">�Y"� Matériel nécessaire</h3>
+            <h3 class="text-xs uppercase font-semibold text-gray-400 dark:text-gray-500 mb-3 border-b border-gray-100 dark:border-gray-700 pb-2"><i data-lucide="package" class="w-4 h-4 inline-block align-middle mr-1"></i> Matériel nécessaire</h3>
             <p class="text-sm text-gray-700 dark:text-gray-300 whitespace-pre-wrap">{{ $chantier->materiel }}</p>
         </div>
         @endif
@@ -127,14 +127,14 @@
         <!-- Note client -->
         @if ($chantier->note_client)
         <div class="bg-white dark:bg-gray-800 rounded-xl p-5 border border-gray-100 dark:border-gray-700">
-            <h3 class="text-xs uppercase font-semibold text-gray-400 dark:text-gray-500 mb-3 border-b border-gray-100 dark:border-gray-700 pb-2">�Y"� Note client</h3>
+            <h3 class="text-xs uppercase font-semibold text-gray-400 dark:text-gray-500 mb-3 border-b border-gray-100 dark:border-gray-700 pb-2"><i data-lucide="package" class="w-4 h-4 inline-block align-middle mr-1"></i> Note client</h3>
             <p class="text-sm text-gray-700 dark:text-gray-300 whitespace-pre-wrap">{{ $chantier->note_client }}</p>
         </div>
         @endif
 
         <!-- Avancement -->
         <div class="bg-white dark:bg-gray-800 rounded-xl p-5 border border-gray-100 dark:border-gray-700">
-            <h3 class="text-xs uppercase font-semibold text-gray-400 dark:text-gray-500 mb-3 border-b border-gray-100 dark:border-gray-700 pb-2">�Y"< Avancement</h3>
+            <h3 class="text-xs uppercase font-semibold text-gray-400 dark:text-gray-500 mb-3 border-b border-gray-100 dark:border-gray-700 pb-2"><i data-lucide="clipboard-list" class="w-4 h-4 inline-block align-middle mr-1"></i> Avancement</h3>
             <div class="relative w-full h-2 bg-gray-200 dark:bg-gray-700 rounded-full overflow-hidden mb-2">
                 <div class="h-full bg-primary rounded-full transition-all" style="width: {{ $chantier->progress }}%"></div>
             </div>
@@ -150,7 +150,7 @@
 
         <!-- Checklist -->
         <div class="bg-white dark:bg-gray-800 rounded-xl p-5 border border-gray-100 dark:border-gray-700">
-            <h3 class="text-xs uppercase font-semibold text-gray-400 dark:text-gray-500 mb-3 border-b border-gray-100 dark:border-gray-700 pb-2">�o. Points de contrôle</h3>
+            <h3 class="text-xs uppercase font-semibold text-gray-400 dark:text-gray-500 mb-3 border-b border-gray-100 dark:border-gray-700 pb-2"><i data-lucide="circle-check" class="w-4 h-4 inline-block align-middle mr-1"></i> Points de contrôle</h3>
             @php $checklist = $chantier->checklist ?? []; @endphp
             @if (!empty($checklist))
                 <div class="space-y-2">
@@ -178,26 +178,26 @@
                         @csrf
                         @method('PUT')
                         <input type="hidden" name="statut" value="en_cours">
-                        <button type="submit" class="bg-gray-200 dark:bg-gray-700 hover:bg-gray-300 dark:hover:bg-gray-600 px-4 py-2 rounded-full text-sm font-medium transition text-gray-800 dark:text-gray-200">�-�️ Démarrer</button>
+                        <button type="submit" class="bg-gray-200 dark:bg-gray-700 hover:bg-gray-300 dark:hover:bg-gray-600 px-4 py-2 rounded-full text-sm font-medium transition text-gray-800 dark:text-gray-200"><i data-lucide="play" class="w-4 h-4 inline-block align-middle mr-1"></i> Démarrer</button>
                     </form>
                     <form method="POST" action="{{ route('artisan.chantiers.update', $chantier) }}" class="inline">
                         @csrf
                         @method('PUT')
                         <input type="hidden" name="statut" value="attente">
-                        <button type="submit" class="bg-gray-200 dark:bg-gray-700 hover:bg-gray-300 dark:hover:bg-gray-600 px-4 py-2 rounded-full text-sm font-medium transition text-gray-800 dark:text-gray-200">⏳ En attente</button>
+                        <button type="submit" class="bg-gray-200 dark:bg-gray-700 hover:bg-gray-300 dark:hover:bg-gray-600 px-4 py-2 rounded-full text-sm font-medium transition text-gray-800 dark:text-gray-200"><i data-lucide="clock-3" class="w-4 h-4 inline-block align-middle mr-1"></i> En attente</button>
                     </form>
                 @endif
                 <form method="POST" action="{{ route('artisan.chantiers.update', $chantier) }}" class="inline">
                     @csrf
                     @method('PUT')
                     <input type="hidden" name="statut" value="arret">
-                    <button type="submit" class="bg-gray-200 dark:bg-gray-700 hover:bg-gray-300 dark:hover:bg-gray-600 px-4 py-2 rounded-full text-sm font-medium transition text-gray-800 dark:text-gray-200">�Y>' En arrêt</button>
+                    <button type="submit" class="bg-gray-200 dark:bg-gray-700 hover:bg-gray-300 dark:hover:bg-gray-600 px-4 py-2 rounded-full text-sm font-medium transition text-gray-800 dark:text-gray-200"><i data-lucide="octagon-stop" class="w-4 h-4 inline-block align-middle mr-1"></i>' En arrêt</button>
                 </form>
                 <form method="POST" action="{{ route('artisan.chantiers.update', $chantier) }}" class="inline">
                     @csrf
                     @method('PUT')
                     <input type="hidden" name="statut" value="termine">
-                    <button type="submit" class="bg-emerald-500 hover:bg-emerald-600 text-white px-4 py-2 rounded-full text-sm font-medium transition">�o. Terminer</button>
+                    <button type="submit" class="bg-emerald-500 hover:bg-emerald-600 text-white px-4 py-2 rounded-full text-sm font-medium transition"><i data-lucide="circle-check" class="w-4 h-4 inline-block align-middle mr-1"></i> Terminer</button>
                 </form>
             @endif
         </div>

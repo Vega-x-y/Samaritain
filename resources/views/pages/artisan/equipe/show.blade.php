@@ -77,7 +77,7 @@
 
         <!-- Chantiers du membre -->
         <div class="bg-white dark:bg-gray-800 rounded-xl p-5 border border-gray-100 dark:border-gray-700 md:col-span-2">
-            <h3 class="text-xs uppercase font-semibold text-gray-400 dark:text-gray-500 mb-3 border-b border-gray-100 dark:border-gray-700 pb-2">�Y"< Chantiers assignés</h3>
+            <h3 class="text-xs uppercase font-semibold text-gray-400 dark:text-gray-500 mb-3 border-b border-gray-100 dark:border-gray-700 pb-2"><i data-lucide="clipboard-list" class="w-4 h-4 inline-block align-middle mr-1"></i> Chantiers assignés</h3>
             @php $membreChantiers = $membre->chantiers()->latest()->get(); @endphp
             @if ($membreChantiers->count() > 0)
                 <div class="space-y-2">
@@ -106,11 +106,11 @@
     <!-- Actions rapides -->
     <div class="mt-8 flex flex-wrap gap-3">
         <a href="tel:{{ $membre->telephone }}" class="bg-green-500 hover:bg-green-600 text-white px-5 py-2.5 rounded-full text-sm font-medium transition shadow-md hover:shadow-lg">
-            �Y"z Appeler
+            <i data-lucide="phone" class="w-4 h-4 inline-block align-middle mr-1"></i>Appeler
         </a>
         @if ($membre->email)
             <a href="mailto:{{ $membre->email }}" class="bg-blue-500 hover:bg-blue-600 text-white px-5 py-2.5 rounded-full text-sm font-medium transition shadow-md hover:shadow-lg">
-                �Y"� Envoyer un email
+                <i data-lucide="package" class="w-4 h-4 inline-block align-middle mr-1"></i> Envoyer un email
             </a>
         @endif
     </div>

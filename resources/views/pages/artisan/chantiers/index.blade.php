@@ -25,35 +25,35 @@
     <!-- Statistiques -->
     <div class="grid grid-cols-2 md:grid-cols-5 gap-3 mb-6">
         <div class="bg-white dark:bg-gray-800 rounded-xl p-3 border border-gray-100 dark:border-gray-700 shadow-sm flex items-center gap-3">
-            <div class="w-11 h-11 bg-primary/10 dark:bg-primary/20 rounded-full flex items-center justify-center text-xl">�Y"<</div>
+            <div class="w-11 h-11 bg-primary/10 dark:bg-primary/20 rounded-full flex items-center justify-center text-xl"><i data-lucide="clipboard-list" class="w-4 h-4 inline-block align-middle mr-1"></i></div>
             <div>
                 <div class="text-xl font-bold text-gray-900 dark:text-white">{{ $stats['total'] }}</div>
                 <div class="text-xs text-gray-500 dark:text-gray-400">Total</div>
             </div>
         </div>
         <div class="bg-white dark:bg-gray-800 rounded-xl p-3 border border-gray-100 dark:border-gray-700 shadow-sm flex items-center gap-3">
-            <div class="w-11 h-11 bg-blue-50 dark:bg-blue-900/30 rounded-full flex items-center justify-center text-xl">�s�</div>
+            <div class="w-11 h-11 bg-blue-50 dark:bg-blue-900/30 rounded-full flex items-center justify-center text-xl"><i data-lucide="zap" class="w-4 h-4 inline-block align-middle mr-1"></i></div>
             <div>
                 <div class="text-xl font-bold text-blue-600 dark:text-blue-400">{{ $stats['en_cours'] }}</div>
                 <div class="text-xs text-gray-500 dark:text-gray-400">En cours</div>
             </div>
         </div>
         <div class="bg-white dark:bg-gray-800 rounded-xl p-3 border border-gray-100 dark:border-gray-700 shadow-sm flex items-center gap-3">
-            <div class="w-11 h-11 bg-amber-50 dark:bg-amber-900/30 rounded-full flex items-center justify-center text-xl">⏳</div>
+            <div class="w-11 h-11 bg-amber-50 dark:bg-amber-900/30 rounded-full flex items-center justify-center text-xl"><i data-lucide="clock-3" class="w-4 h-4 inline-block align-middle mr-1"></i></div>
             <div>
                 <div class="text-xl font-bold text-amber-600 dark:text-amber-400">{{ $stats['attente'] }}</div>
                 <div class="text-xs text-gray-500 dark:text-gray-400">En attente</div>
             </div>
         </div>
         <div class="bg-white dark:bg-gray-800 rounded-xl p-3 border border-gray-100 dark:border-gray-700 shadow-sm flex items-center gap-3">
-            <div class="w-11 h-11 bg-emerald-50 dark:bg-emerald-900/30 rounded-full flex items-center justify-center text-xl">�o.</div>
+            <div class="w-11 h-11 bg-emerald-50 dark:bg-emerald-900/30 rounded-full flex items-center justify-center text-xl"><i data-lucide="circle-check" class="w-4 h-4 inline-block align-middle mr-1"></i></div>
             <div>
                 <div class="text-xl font-bold text-emerald-600 dark:text-emerald-400">{{ $stats['termine'] }}</div>
                 <div class="text-xs text-gray-500 dark:text-gray-400">Terminés</div>
             </div>
         </div>
         <div class="bg-white dark:bg-gray-800 rounded-xl p-3 border border-gray-100 dark:border-gray-700 shadow-sm flex items-center gap-3">
-            <div class="w-11 h-11 bg-red-50 dark:bg-red-900/30 rounded-full flex items-center justify-center text-xl">�Y>'</div>
+            <div class="w-11 h-11 bg-red-50 dark:bg-red-900/30 rounded-full flex items-center justify-center text-xl"><i data-lucide="octagon-stop" class="w-4 h-4 inline-block align-middle mr-1"></i>'</div>
             <div>
                 <div class="text-xl font-bold text-red-600 dark:text-red-400">{{ $stats['arret'] }}</div>
                 <div class="text-xs text-gray-500 dark:text-gray-400">En arrêt</div>
@@ -71,7 +71,7 @@
         <a href="{{ route('artisan.chantiers.index') }}"
             class="px-4 py-1.5 rounded-full text-sm font-medium border transition
                 {{ !request('statut') && !request('type') ? 'bg-gray-900 text-white border-gray-900 dark:bg-white dark:text-gray-900' : 'bg-white dark:bg-gray-800 text-gray-500 dark:text-gray-400 border-gray-200 dark:border-gray-700 hover:border-primary' }}">
-            �Y"S Tous
+            <i data-lucide="chart-no-axes-column" class="w-4 h-4 inline-block align-middle mr-1"></i> Tous
         </a>
         @foreach ($types as $value => $label)
             <a href="{{ route('artisan.chantiers.index', ['type' => $value]) }}"
@@ -107,7 +107,7 @@
                 </div>
 
                 <div class="flex flex-wrap gap-4 text-sm text-gray-500 dark:text-gray-400 mt-3">
-                    <span>�Y". {{ $chantier->created_at->format('d/m/Y') }}</span>
+                    <span><i data-lucide="calendar-days" class="w-4 h-4 inline-block align-middle mr-1"></i> {{ $chantier->created_at->format('d/m/Y') }}</span>
                     <span class="inline-flex items-center gap-1.5 px-2 py-0.5 rounded-full text-xs font-semibold {{ $chantier->statut->colorClass() }}">
                         <span class="w-1.5 h-1.5 rounded-full {{ $chantier->statut->dotColorClass() }}"></span>
                         {{ $chantier->statut->label() }}
@@ -143,20 +143,20 @@
                 </div>
                 <div class="flex gap-2 mt-3">
                     <a href="{{ route('artisan.chantiers.edit', $chantier) }}" class="flex-1 bg-blue-500 hover:bg-blue-600 text-white text-center py-2 rounded-full text-sm font-medium transition">
-                        �o�️ Modifier
+                        <i data-lucide="pencil" class="w-4 h-4 inline-block align-middle mr-1"></i> Modifier
                     </a>
-                    <form method="POST" action="{{ route('artisan.chantiers.destroy', $chantier) }}" class="inline" onsubmit="return confirm('�Stes-vous sûr de vouloir supprimer ce chantier ?');">
+                    <form method="POST" action="{{ route('artisan.chantiers.destroy', $chantier) }}" class="inline" onsubmit="return confirm('Êtes-vous sûr de vouloir supprimer ce chantier ?');">
                         @csrf
                         @method('DELETE')
                         <button type="submit" class="px-3 py-2 bg-red-500 hover:bg-red-600 text-white rounded-full text-sm font-medium transition">
-                            �Y-'️
+                            <i data-lucide="trash-2" class="w-4 h-4 inline-block align-middle mr-1"></i>
                         </button>
                     </form>
                 </div>
             </div>
         @empty
             <div class="col-span-full text-center py-16 text-gray-500 dark:text-gray-400">
-                <div class="text-5xl mb-2">�Y"<</div>
+                <div class="text-5xl mb-2"><i data-lucide="clipboard-list" class="w-4 h-4 inline-block align-middle mr-1"></i></div>
                 <p>Aucun chantier pour le moment.</p>
                 <p class="text-sm mt-1">Créez votre premier chantier avec le bouton ci-dessus.</p>
             </div>
@@ -172,7 +172,7 @@
     <div x-show="modalOpen" x-cloak class="fixed inset-0 bg-black/50 backdrop-blur-sm z-[1000] flex items-center justify-center p-4">
         <div class="bg-white dark:bg-gray-800 rounded-2xl max-w-2xl w-full max-h-[90vh] overflow-y-auto p-6 shadow-2xl">
             <div class="flex justify-between items-center mb-6">
-                <h2 class="text-xl font-bold text-gray-900 dark:text-white">�Y"< Nouveau chantier</h2>
+                <h2 class="text-xl font-bold text-gray-900 dark:text-white"><i data-lucide="clipboard-list" class="w-4 h-4 inline-block align-middle mr-1"></i> Nouveau chantier</h2>
                 <button @click="modalOpen = false" class="text-2xl text-gray-400 hover:text-gray-600 dark:hover:text-gray-300">&times;</button>
             </div>
 
@@ -221,9 +221,9 @@
                             <select name="priorite"
                                 class="w-full px-4 py-2.5 border border-gray-200 dark:border-gray-600 rounded-lg focus:border-primary focus:ring-2 focus:ring-primary/10 dark:focus:ring-primary/20 outline-none transition bg-white dark:bg-gray-700 text-gray-900 dark:text-white">
                                 <option value="">-- Priorité --</option>
-                                <option value="haute" {{ old('priorite') === 'haute' ? 'selected' : '' }}>�Y"� Haute</option>
-                                <option value="moyenne" {{ old('priorite') === 'moyenne' ? 'selected' : '' }}>�YY� Moyenne</option>
-                                <option value="basse" {{ old('priorite') === 'basse' ? 'selected' : '' }}>�YY� Basse</option>
+                                <option value="haute" {{ old('priorite') === 'haute' ? 'selected' : '' }}><i data-lucide="package" class="w-4 h-4 inline-block align-middle mr-1"></i> Haute</option>
+                                <option value="moyenne" {{ old('priorite') === 'moyenne' ? 'selected' : '' }}>Moyenne</option>
+                                <option value="basse" {{ old('priorite') === 'basse' ? 'selected' : '' }}>Basse</option>
                             </select>
                             @error('priorite') <p class="text-red-500 text-xs mt-1">{{ $message }}</p> @enderror
                         </div>

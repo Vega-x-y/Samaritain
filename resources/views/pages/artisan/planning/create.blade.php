@@ -17,7 +17,7 @@
 <div class="container mx-auto px-4 py-8">
     <!-- En-tête -->
     <div class="mb-8">
-        <h1 class="text-xl md:text-2xl font-bold text-gray-900 dark:text-white">�Y". Nouvel <span class="text-primary">événement</span></h1>
+        <h1 class="text-xl md:text-2xl font-bold text-gray-900 dark:text-white"><i data-lucide="calendar-days" class="w-4 h-4 inline-block align-middle mr-1"></i> Nouvel <span class="text-primary">événement</span></h1>
         <p class="text-gray-500 dark:text-gray-400 mt-1 text-sm">Planifiez un nouveau rendez-vous ou intervention</p>
     </div>
 

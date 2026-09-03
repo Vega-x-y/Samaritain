@@ -78,14 +78,14 @@
         <!-- Notes -->
         @if ($client->notes)
         <div class="bg-white dark:bg-gray-800 rounded-xl p-5 border border-gray-100 dark:border-gray-700">
-            <h3 class="text-xs uppercase font-semibold text-gray-400 dark:text-gray-500 mb-3 border-b border-gray-100 dark:border-gray-700 pb-2">�Y"� Notes</h3>
+            <h3 class="text-xs uppercase font-semibold text-gray-400 dark:text-gray-500 mb-3 border-b border-gray-100 dark:border-gray-700 pb-2"><i data-lucide="package" class="w-4 h-4 inline-block align-middle mr-1"></i> Notes</h3>
             <p class="text-sm text-gray-700 dark:text-gray-300 whitespace-pre-wrap">{{ $client->notes }}</p>
         </div>
         @endif
 
         <!-- Chantiers du client -->
         <div class="bg-white dark:bg-gray-800 rounded-xl p-5 border border-gray-100 dark:border-gray-700 md:col-span-2">
-            <h3 class="text-xs uppercase font-semibold text-gray-400 dark:text-gray-500 mb-3 border-b border-gray-100 dark:border-gray-700 pb-2">�Y"< Chantiers associés</h3>
+            <h3 class="text-xs uppercase font-semibold text-gray-400 dark:text-gray-500 mb-3 border-b border-gray-100 dark:border-gray-700 pb-2"><i data-lucide="clipboard-list" class="w-4 h-4 inline-block align-middle mr-1"></i> Chantiers associés</h3>
             @php $clientChantiers = $client->chantiers()->latest()->get(); @endphp
             @if ($clientChantiers->count() > 0)
                 <div class="space-y-2">
@@ -114,15 +114,15 @@
     <!-- Actions rapides -->
     <div class="mt-8 flex flex-wrap gap-3">
         <a href="tel:{{ $client->telephone }}" class="bg-green-500 hover:bg-green-600 text-white px-5 py-2.5 rounded-full text-sm font-medium transition shadow-md hover:shadow-lg">
-            �Y"z Appeler
+            <i data-lucide="phone" class="w-4 h-4 inline-block align-middle mr-1"></i>Appeler
         </a>
         @if ($client->email)
             <a href="mailto:{{ $client->email }}" class="bg-blue-500 hover:bg-blue-600 text-white px-5 py-2.5 rounded-full text-sm font-medium transition shadow-md hover:shadow-lg">
-                �Y"� Envoyer un email
+                <i data-lucide="package" class="w-4 h-4 inline-block align-middle mr-1"></i> Envoyer un email
             </a>
         @endif
         <a href="{{ route('artisan.chantiers.index', ['client_id' => $client->id]) }}" class="bg-primary hover:bg-primary/90 text-white px-5 py-2.5 rounded-full text-sm font-medium transition shadow-md hover:shadow-lg">
-            �Y"< Voir ses chantiers
+            <i data-lucide="clipboard-list" class="w-4 h-4 inline-block align-middle mr-1"></i> Voir ses chantiers
         </a>
     </div>
 </div>

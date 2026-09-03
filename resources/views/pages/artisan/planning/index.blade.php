@@ -32,7 +32,7 @@
         <a href="{{ route('artisan.planning.index') }}"
             class="px-4 py-1.5 rounded-full text-sm font-medium border transition
                 {{ !request('type') && !request('chantier_id') ? 'bg-gray-900 text-white border-gray-900 dark:bg-white dark:text-gray-900' : 'bg-white dark:bg-gray-800 text-gray-500 dark:text-gray-400 border-gray-200 dark:border-gray-700 hover:border-primary' }}">
-            �Y"S Tous
+            <i data-lucide="chart-no-axes-column" class="w-4 h-4 inline-block align-middle mr-1"></i> Tous
         </a>
         @foreach ($types as $type)
             <a href="{{ route('artisan.planning.index', ['type' => $type->value]) }}"
@@ -94,11 +94,11 @@
                                     {{ $event->type->icon() }} {{ $event->titre }}
                                 </a>
                                 <div class="hidden group-hover:flex absolute z-10 left-0 top-full mt-1 bg-white dark:bg-gray-800 rounded-lg shadow-lg border border-gray-200 dark:border-gray-700 p-2 gap-1">
-                                    <a href="{{ route('artisan.planning.edit', $event) }}" class="px-2 py-1 bg-blue-500 text-white rounded text-xs hover:bg-blue-600 transition">�o�️</a>
+                                    <a href="{{ route('artisan.planning.edit', $event) }}" class="px-2 py-1 bg-blue-500 text-white rounded text-xs hover:bg-blue-600 transition"><i data-lucide="pencil" class="w-4 h-4 inline-block align-middle mr-1"></i></a>
                                     <form method="POST" action="{{ route('artisan.planning.destroy', $event) }}" class="inline" onsubmit="return confirm('Supprimer cet événement ?');">
                                         @csrf
                                         @method('DELETE')
-                                        <button type="submit" class="px-2 py-1 bg-red-500 text-white rounded text-xs hover:bg-red-600 transition">�Y-'️</button>
+                                        <button type="submit" class="px-2 py-1 bg-red-500 text-white rounded text-xs hover:bg-red-600 transition"><i data-lucide="trash-2" class="w-4 h-4 inline-block align-middle mr-1"></i></button>
                                     </form>
                                 </div>
                             </div>
@@ -193,7 +193,7 @@
     <div x-show="modalOpen" x-cloak class="fixed inset-0 bg-black/50 backdrop-blur-sm z-[1000] flex items-center justify-center p-4">
         <div class="bg-white dark:bg-gray-800 rounded-2xl max-w-2xl w-full max-h-[90vh] overflow-y-auto p-6 shadow-2xl">
             <div class="flex justify-between items-center mb-6">
-                <h2 class="text-xl font-bold text-gray-900 dark:text-white">�Y". Nouvel événement</h2>
+                <h2 class="text-xl font-bold text-gray-900 dark:text-white"><i data-lucide="calendar-days" class="w-4 h-4 inline-block align-middle mr-1"></i> Nouvel événement</h2>
                 <button @click="modalOpen = false" class="text-2xl text-gray-400 hover:text-gray-600 dark:hover:text-gray-300">&times;</button>
             </div>
 

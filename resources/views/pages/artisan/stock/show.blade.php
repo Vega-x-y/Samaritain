@@ -19,7 +19,7 @@
     <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 mb-8">
         <div class="flex items-center gap-4">
             <div class="w-16 h-16 rounded-full bg-primary/10 dark:bg-primary/20 flex items-center justify-center text-2xl font-bold text-primary dark:text-primary">
-                �Y"�
+                <i data-lucide="package" class="w-4 h-4 inline-block align-middle mr-1"></i>
             </div>
             <div>
                 <h1 class="text-xl md:text-2xl font-bold text-gray-900 dark:text-white">{{ $article->nom }}</h1>
@@ -89,15 +89,15 @@
 
         <!-- Formulaire mouvement -->
         <div class="bg-white dark:bg-gray-800 rounded-xl p-5 border border-gray-100 dark:border-gray-700">
-            <h3 class="text-xs uppercase font-semibold text-gray-400 dark:text-gray-500 mb-3 border-b border-gray-100 dark:border-gray-700 pb-2">�Y"� Enregistrer un mouvement</h3>
+            <h3 class="text-xs uppercase font-semibold text-gray-400 dark:text-gray-500 mb-3 border-b border-gray-100 dark:border-gray-700 pb-2"><i data-lucide="package" class="w-4 h-4 inline-block align-middle mr-1"></i> Enregistrer un mouvement</h3>
             <form method="POST" action="{{ route('artisan.stock.mouvement', $article) }}" class="space-y-4">
                 @csrf
                 <div>
                     <label class="block font-semibold text-sm mb-1 text-gray-900 dark:text-white">Type *</label>
                     <select name="type" required
                         class="w-full px-4 py-2.5 border border-gray-200 dark:border-gray-600 rounded-lg focus:border-primary focus:ring-2 focus:ring-primary/10 dark:focus:ring-primary/20 outline-none transition bg-white dark:bg-gray-700 text-gray-900 dark:text-white">
-                        <option value="entree">�Y"� Entrée</option>
-                        <option value="sortie">�Y"� Sortie</option>
+                        <option value="entree"><i data-lucide="package" class="w-4 h-4 inline-block align-middle mr-1"></i> Entrée</option>
+                        <option value="sortie"><i data-lucide="package" class="w-4 h-4 inline-block align-middle mr-1"></i> Sortie</option>
                     </select>
                 </div>
 
@@ -122,7 +122,7 @@
 
         <!-- Historique des mouvements -->
         <div class="bg-white dark:bg-gray-800 rounded-xl p-5 border border-gray-100 dark:border-gray-700 md:col-span-2">
-            <h3 class="text-xs uppercase font-semibold text-gray-400 dark:text-gray-500 mb-3 border-b border-gray-100 dark:border-gray-700 pb-2">�Y"< Historique des mouvements</h3>
+            <h3 class="text-xs uppercase font-semibold text-gray-400 dark:text-gray-500 mb-3 border-b border-gray-100 dark:border-gray-700 pb-2"><i data-lucide="clipboard-list" class="w-4 h-4 inline-block align-middle mr-1"></i> Historique des mouvements</h3>
             @php $mouvements = $article->mouvements()->latest()->get(); @endphp
             @if ($mouvements->count() > 0)
                 <div class="space-y-2">

@@ -17,7 +17,7 @@
 <div class="container mx-auto px-4 py-8">
     <!-- En-tête -->
     <div class="mb-8">
-        <h1 class="text-xl md:text-2xl font-bold text-gray-900 dark:text-white">�Y"< Nouveau <span class="text-primary">chantier</span></h1>
+        <h1 class="text-xl md:text-2xl font-bold text-gray-900 dark:text-white"><i data-lucide="clipboard-list" class="w-4 h-4 inline-block align-middle mr-1"></i> Nouveau <span class="text-primary">chantier</span></h1>
         <p class="text-gray-500 dark:text-gray-400 mt-1 text-sm">Créez un nouveau projet</p>
     </div>
 
@@ -84,9 +84,9 @@
                             <select name="priorite"
                                 class="w-full px-4 py-2.5 border border-gray-200 dark:border-gray-600 rounded-lg focus:border-primary focus:ring-2 focus:ring-primary/10 dark:focus:ring-primary/20 outline-none transition bg-white dark:bg-gray-700 text-gray-900 dark:text-white">
                                 <option value="">-- Priorité --</option>
-                                <option value="haute" {{ old('priorite') === 'haute' ? 'selected' : '' }}>�Y"� Haute</option>
-                                <option value="moyenne" {{ old('priorite') === 'moyenne' ? 'selected' : '' }}>�YY� Moyenne</option>
-                                <option value="basse" {{ old('priorite') === 'basse' ? 'selected' : '' }}>�YY� Basse</option>
+                                <option value="haute" {{ old('priorite') === 'haute' ? 'selected' : '' }}><i data-lucide="package" class="w-4 h-4 inline-block align-middle mr-1"></i> Haute</option>
+                                <option value="moyenne" {{ old('priorite') === 'moyenne' ? 'selected' : '' }}>Moyenne</option>
+                                <option value="basse" {{ old('priorite') === 'basse' ? 'selected' : '' }}>Basse</option>
                             </select>
                             @error('priorite') <p class="text-red-500 text-xs mt-1">{{ $message }}</p> @enderror
                         </div>

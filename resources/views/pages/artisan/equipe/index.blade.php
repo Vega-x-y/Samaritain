@@ -25,14 +25,14 @@
     <!-- Statistiques -->
     <div class="grid grid-cols-2 md:grid-cols-3 gap-3 mb-6">
         <div class="bg-white dark:bg-gray-800 rounded-xl p-3 border border-gray-100 dark:border-gray-700 shadow-sm flex items-center gap-3">
-            <div class="w-11 h-11 bg-primary/10 dark:bg-primary/20 rounded-full flex items-center justify-center text-xl">�Y'�</div>
+            <div class="w-11 h-11 bg-primary/10 dark:bg-primary/20 rounded-full flex items-center justify-center text-xl"><i data-lucide="wallet" class="w-4 h-4 inline-block align-middle mr-1"></i></div>
             <div>
                 <div class="text-xl font-bold text-gray-900 dark:text-white">{{ $stats['total'] }}</div>
                 <div class="text-xs text-gray-500 dark:text-gray-400">Total</div>
             </div>
         </div>
         <div class="bg-white dark:bg-gray-800 rounded-xl p-3 border border-gray-100 dark:border-gray-700 shadow-sm flex items-center gap-3">
-            <div class="w-11 h-11 bg-emerald-50 dark:bg-emerald-900/30 rounded-full flex items-center justify-center text-xl">�o.</div>
+            <div class="w-11 h-11 bg-emerald-50 dark:bg-emerald-900/30 rounded-full flex items-center justify-center text-xl"><i data-lucide="circle-check" class="w-4 h-4 inline-block align-middle mr-1"></i></div>
             <div>
                 <div class="text-xl font-bold text-emerald-600 dark:text-emerald-400">{{ $stats['actif'] }}</div>
                 <div class="text-xs text-gray-500 dark:text-gray-400">Actifs</div>
@@ -57,7 +57,7 @@
         <a href="{{ route('artisan.equipe.index') }}"
             class="px-4 py-1.5 rounded-full text-sm font-medium border transition
                 {{ !request('statut') && !request('search') ? 'bg-gray-900 text-white border-gray-900 dark:bg-white dark:text-gray-900' : 'bg-white dark:bg-gray-800 text-gray-500 dark:text-gray-400 border-gray-200 dark:border-gray-700 hover:border-primary' }}">
-            �Y"S Tous
+            <i data-lucide="chart-no-axes-column" class="w-4 h-4 inline-block align-middle mr-1"></i> Tous
         </a>
         @foreach ($statuts as $statut)
             <a href="{{ route('artisan.equipe.index', ['statut' => $statut->value]) }}"
@@ -108,20 +108,20 @@
                         Voir détails
                     </a>
                     <a href="{{ route('artisan.equipe.edit', $membre) }}" class="px-3 py-2 bg-blue-500 hover:bg-blue-600 text-white rounded-full text-sm font-medium transition" title="Modifier">
-                        �o�️
+                        <i data-lucide="pencil" class="w-4 h-4 inline-block align-middle mr-1"></i>
                     </a>
-                    <form method="POST" action="{{ route('artisan.equipe.destroy', $membre) }}" class="inline" onsubmit="return confirm('�Stes-vous sûr de vouloir supprimer ce membre ?');">
+                    <form method="POST" action="{{ route('artisan.equipe.destroy', $membre) }}" class="inline" onsubmit="return confirm('Êtes-vous sûr de vouloir supprimer ce membre ?');">
                         @csrf
                         @method('DELETE')
                         <button type="submit" class="px-3 py-2 bg-red-500 hover:bg-red-600 text-white rounded-full text-sm font-medium transition" title="Supprimer">
-                            �Y-'️
+                            <i data-lucide="trash-2" class="w-4 h-4 inline-block align-middle mr-1"></i>
                         </button>
                     </form>
                 </div>
             </div>
         @empty
             <div class="col-span-full text-center py-16 text-gray-500 dark:text-gray-400">
-                <div class="text-5xl mb-2">�Y'�</div>
+                <div class="text-5xl mb-2"><i data-lucide="wallet" class="w-4 h-4 inline-block align-middle mr-1"></i></div>
                 <p>Aucun membre pour le moment.</p>
                 <p class="text-sm mt-1">Ajoutez votre premier membre avec le bouton ci-dessus.</p>
             </div>
@@ -137,7 +137,7 @@
     <div x-show="modalOpen" x-cloak class="fixed inset-0 bg-black/50 backdrop-blur-sm z-[1000] flex items-center justify-center p-4">
         <div class="bg-white dark:bg-gray-800 rounded-2xl max-w-2xl w-full max-h-[90vh] overflow-y-auto p-6 shadow-2xl">
             <div class="flex justify-between items-center mb-6">
-                <h2 class="text-xl font-bold text-gray-900 dark:text-white">�Y'� Nouveau membre</h2>
+                <h2 class="text-xl font-bold text-gray-900 dark:text-white"><i data-lucide="wallet" class="w-4 h-4 inline-block align-middle mr-1"></i> Nouveau membre</h2>
                 <button @click="modalOpen = false" class="text-2xl text-gray-400 hover:text-gray-600 dark:hover:text-gray-300">&times;</button>
             </div>
 

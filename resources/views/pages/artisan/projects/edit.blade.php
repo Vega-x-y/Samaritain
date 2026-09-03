@@ -136,9 +136,9 @@
                             <div>
                                 <p class="text-sm text-primary-800 dark:text-primary-300 font-medium mb-1">Conseils pour une belle réalisation :</p>
                                 <ul class="text-sm text-primary-700 dark:text-primary-400 space-y-1">
-                                    <li class="flex items-center gap-2">�o" Photo de bonne qualité, bien éclairée</li>
-                                    <li class="flex items-center gap-2">�o" Montrez le résultat final de votre travail</li>
-                                    <li class="flex items-center gap-2">�o" Une description détaillée valorise votre savoir-faire</li>
+                                    <li class="flex items-center gap-2"><i data-lucide="check" class="w-4 h-4 inline-block align-middle mr-1"></i>Photo de bonne qualité, bien éclairée</li>
+                                    <li class="flex items-center gap-2"><i data-lucide="check" class="w-4 h-4 inline-block align-middle mr-1"></i>Montrez le résultat final de votre travail</li>
+                                    <li class="flex items-center gap-2"><i data-lucide="check" class="w-4 h-4 inline-block align-middle mr-1"></i>Une description détaillée valorise votre savoir-faire</li>
                                 </ul>
                             </div>
                         </div>

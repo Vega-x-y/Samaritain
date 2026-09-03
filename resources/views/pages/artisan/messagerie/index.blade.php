@@ -34,7 +34,7 @@
         <div class="space-y-6">
             <div class="bg-white dark:bg-gray-800 rounded-xl border border-gray-100 dark:border-gray-700 shadow-sm overflow-hidden">
                 <div class="px-4 py-3 border-b border-gray-200 dark:border-gray-700 flex items-center justify-between">
-                    <h2 class="font-semibold text-gray-900 dark:text-white">�Y'� Conversations</h2>
+                    <h2 class="font-semibold text-gray-900 dark:text-white"><i data-lucide="wallet" class="w-4 h-4 inline-block align-middle mr-1"></i> Conversations</h2>
                     @if ($conversations->isNotEmpty())
                         <form method="POST" action="{{ route('artisan.messagerie.conversation.destroy-all') }}" onsubmit="return confirm('Supprimer toutes les conversations ?')">
                             @csrf @method('DELETE')

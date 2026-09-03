@@ -19,7 +19,7 @@
     <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 mb-8">
         <div class="flex items-center gap-4">
             <div class="w-16 h-16 rounded-full bg-primary/10 dark:bg-primary/20 flex items-center justify-center text-2xl font-bold text-primary dark:text-primary">
-                �Y".
+                <i data-lucide="calendar-days" class="w-4 h-4 inline-block align-middle mr-1"></i>
             </div>
             <div>
                 <h1 class="text-xl md:text-2xl font-bold text-gray-900 dark:text-white">{{ $evenement->titre }}</h1>
@@ -30,7 +30,7 @@
         </div>
         <div class="flex gap-2">
             <a href="{{ route('artisan.planning.edit', $evenement) }}" class="px-4 py-2 rounded-full text-sm font-medium border border-blue-300 text-blue-600 hover:bg-blue-50 dark:border-blue-800 dark:text-blue-400 dark:hover:bg-blue-900/20 transition">
-                �o�️ Modifier
+                <i data-lucide="pencil" class="w-4 h-4 inline-block align-middle mr-1"></i> Modifier
             </a>
             <form method="POST" action="{{ route('artisan.planning.destroy', $evenement) }}" onsubmit="return confirm('Supprimer cet événement ?')">
                 @csrf
@@ -83,7 +83,7 @@
         <!-- Description -->
         @if ($evenement->description)
         <div class="bg-white dark:bg-gray-800 rounded-xl p-5 border border-gray-100 dark:border-gray-700">
-            <h3 class="text-xs uppercase font-semibold text-gray-400 dark:text-gray-500 mb-3 border-b border-gray-100 dark:border-gray-700 pb-2">�Y"� Description</h3>
+            <h3 class="text-xs uppercase font-semibold text-gray-400 dark:text-gray-500 mb-3 border-b border-gray-100 dark:border-gray-700 pb-2"><i data-lucide="package" class="w-4 h-4 inline-block align-middle mr-1"></i> Description</h3>
             <p class="text-sm text-gray-700 dark:text-gray-300 whitespace-pre-wrap">{{ $evenement->description }}</p>
         </div>
         @endif
