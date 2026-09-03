@@ -129,7 +129,7 @@
                     @foreach ($mouvements as $mouvement)
                         <div class="flex items-center justify-between p-3 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-700 transition">
                             <div class="flex items-center gap-3">
-                                <span class="text-2xl">{{ $mouvement->type->icon() }}</span>
+                                <i data-lucide="{{ $mouvement->type->icon() }}" class="w-6 h-6"></i>
                                 <div>
                                     <div class="font-medium text-gray-900 dark:text-white">
                                         {{ $mouvement->type->label() }} de {{ $mouvement->quantite }}

@@ -17,9 +17,10 @@
             <h1 class="text-xl md:text-2xl font-bold text-gray-900 dark:text-white">Mes <span class="text-primary">clients</span></h1>
             <p class="text-gray-500 dark:text-gray-400 mt-1 text-sm">Gérez votre carnet d'adresses</p>
         </div>
-        <a href="{{ route('artisan.clients.create') }}" class="bg-primary hover:bg-primary/90 text-white px-5 py-2.5 rounded-full font-semibold text-sm transition shadow-md hover:shadow-lg">
+        <x-btn href="{{ route('artisan.clients.create') }}" size="lg">
+            <x-slot:prefix><i data-lucide="plus" class="w-4 h-4"></i></x-slot:prefix>
             + Nouveau client
-        </a>
+        </x-btn>
     </div>
 
     <!-- Statistiques -->
@@ -63,7 +64,7 @@
             <a href="{{ route('artisan.clients.index', ['type' => $type->value]) }}"
                 class="px-4 py-1.5 rounded-full text-sm font-medium border transition
                     {{ request('type') === $type->value ? 'bg-gray-900 text-white border-gray-900 dark:bg-white dark:text-gray-900' : 'bg-white dark:bg-gray-800 text-gray-500 dark:text-gray-400 border-gray-200 dark:border-gray-700 hover:border-primary' }}">
-                {{ $type->icon() }} {{ $type->label() }}
+                <i data-lucide="{{ $type->icon() }}" class="w-4 h-4 inline-block align-middle mr-1"></i> {{ $type->label() }}
             </a>
         @endforeach
         <span class="text-xs text-gray-400 dark:text-gray-500 ml-2">{{ $clients->total() }} client(s)</span>
@@ -81,7 +82,7 @@
                         <div>
                             <div class="font-semibold text-gray-900 dark:text-white">{{ $client->nom }}</div>
                             <span class="text-xs px-2 py-0.5 rounded-full {{ $client->type->value === 'particulier' ? 'bg-blue-50 text-blue-700 dark:bg-blue-900/30 dark:text-blue-300' : 'bg-purple-50 text-purple-700 dark:bg-purple-900/30 dark:text-purple-300' }}">
-                                {{ $client->type->icon() }} {{ $client->type->label() }}
+                                <i data-lucide="{{ $client->type->icon() }}" class="w-3 h-3 inline-block align-middle mr-1"></i> {{ $client->type->label() }}
                             </span>
                         </div>
                     </div>
@@ -109,18 +110,18 @@
                 </div>
 
                 <div class="flex gap-2 mt-4 pt-3 border-t border-gray-100 dark:border-gray-700">
-                    <a href="{{ route('artisan.clients.show', $client) }}" class="flex-1 bg-primary hover:bg-primary/90 text-white text-center py-2 rounded-full text-sm font-medium transition">
+                    <x-btn href="{{ route('artisan.clients.show', $client) }}" class="flex-1" size="sm">
                         Voir détails
-                    </a>
-                    <a href="{{ route('artisan.clients.edit', $client) }}" class="px-3 py-2 bg-blue-500 hover:bg-blue-600 text-white rounded-full text-sm font-medium transition" title="Modifier">
-                        <i data-lucide="pencil" class="w-4 h-4 inline-block align-middle mr-1"></i>
-                    </a>
+                    </x-btn>
+                    <x-btn href="{{ route('artisan.clients.edit', $client) }}" style="info" size="icon" title="Modifier">
+                        <i data-lucide="pencil"></i>
+                    </x-btn>
                     <form method="POST" action="{{ route('artisan.clients.destroy', $client) }}" class="inline" onsubmit="return confirm('Êtes-vous sûr de vouloir supprimer ce client ?');">
                         @csrf
                         @method('DELETE')
-                        <button type="submit" class="px-3 py-2 bg-red-500 hover:bg-red-600 text-white rounded-full text-sm font-medium transition" title="Supprimer">
-                            <i data-lucide="trash-2" class="w-4 h-4 inline-block align-middle mr-1"></i>
-                        </button>
+                        <x-btn type="submit" style="destructive" size="icon" title="Supprimer">
+                            <i data-lucide="trash-2"></i>
+                        </x-btn>
                     </form>
                 </div>
             </div>
@@ -185,7 +186,7 @@
                                 class="w-full px-4 py-2.5 border border-gray-200 dark:border-gray-600 rounded-lg focus:border-primary focus:ring-2 focus:ring-primary/10 dark:focus:ring-primary/20 outline-none transition bg-white dark:bg-gray-700 text-gray-900 dark:text-white">
                                 @foreach ($types as $type)
                                     <option value="{{ $type->value }}" {{ old('type') === $type->value ? 'selected' : '' }}>
-                                        {{ $type->icon() }} {{ $type->label() }}
+                                        <i data-lucide="{{ $type->icon() }}" class="w-4 h-4 inline-block align-middle mr-1"></i> {{ $type->label() }}
                                     </option>
                                 @endforeach
                             </select>

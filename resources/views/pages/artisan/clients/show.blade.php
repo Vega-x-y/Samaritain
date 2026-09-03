@@ -24,7 +24,7 @@
             <div>
                 <h1 class="text-xl md:text-2xl font-bold text-gray-900 dark:text-white">{{ $client->nom }}</h1>
                 <p class="text-gray-500 dark:text-gray-400 mt-1 text-sm">
-                    {{ $client->type->icon() }} {{ $client->type->label() }}
+                    <i data-lucide="{{ $client->type->icon() }}" class="w-4 h-4 inline-block align-middle mr-1"></i> {{ $client->type->label() }}
                 </p>
             </div>
         </div>
@@ -50,7 +50,7 @@
             <div class="space-y-2 text-sm">
                 <div class="flex justify-between">
                     <span class="text-gray-500 dark:text-gray-400">Type</span>
-                    <span class="font-medium text-gray-900 dark:text-white">{{ $client->type->icon() }} {{ $client->type->label() }}</span>
+                    <span class="font-medium text-gray-900 dark:text-white"><i data-lucide="{{ $client->type->icon() }}" class="w-4 h-4 inline-block align-middle mr-1"></i> {{ $client->type->label() }}</span>
                 </div>
                 <div class="flex justify-between">
                     <span class="text-gray-500 dark:text-gray-400">Téléphone</span>

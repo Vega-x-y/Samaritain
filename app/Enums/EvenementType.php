@@ -20,9 +20,9 @@ enum EvenementType: string
     public function icon(): string
     {
         return match ($this) {
-            self::INTERVENTION => '🔧',
-            self::REUNION => '👥',
-            self::DEPLACEMENT => '🚗',
+            self::INTERVENTION => 'wrench',
+            self::REUNION => 'users',
+            self::DEPLACEMENT => 'car-front',
         };
     }
 

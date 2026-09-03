@@ -17,9 +17,10 @@
             <h1 class="text-xl md:text-2xl font-bold text-gray-900 dark:text-white">Mes <span class="text-primary">chantiers</span></h1>
             <p class="text-gray-500 dark:text-gray-400 mt-1 text-sm">Gérez vos projets et suivez leur avancement</p>
         </div>
-        <a href="{{ route('artisan.chantiers.create') }}" class="bg-primary hover:bg-primary/90 text-white px-5 py-2.5 rounded-full font-semibold text-sm transition shadow-md hover:shadow-lg">
+        <x-btn href="{{ route('artisan.chantiers.create') }}" size="lg">
+            <x-slot:prefix><i data-lucide="plus" class="w-4 h-4"></i></x-slot:prefix>
             + Nouveau chantier
-        </a>
+        </x-btn>
     </div>
 
     <!-- Statistiques -->

@@ -17,9 +17,10 @@
             <h1 class="text-xl md:text-2xl font-bold text-gray-900 dark:text-white">Mon <span class="text-primary">planning</span></h1>
             <p class="text-gray-500 dark:text-gray-400 mt-1 text-sm">Gérez vos interventions et rendez-vous</p>
         </div>
-        <a href="{{ route('artisan.planning.create') }}" class="bg-primary hover:bg-primary/90 text-white px-5 py-2.5 rounded-full font-semibold text-sm transition shadow-md hover:shadow-lg">
+        <x-btn href="{{ route('artisan.planning.create') }}" size="lg">
+            <x-slot:prefix><i data-lucide="plus" class="w-4 h-4"></i></x-slot:prefix>
             + Nouvel événement
-        </a>
+        </x-btn>
     </div>
 
         <!-- Barre de recherche -->
@@ -38,7 +39,7 @@
             <a href="{{ route('artisan.planning.index', ['type' => $type->value]) }}"
                 class="px-4 py-1.5 rounded-full text-sm font-medium border transition
                     {{ request('type') === $type->value ? 'bg-gray-900 text-white border-gray-900 dark:bg-white dark:text-gray-900' : 'bg-white dark:bg-gray-800 text-gray-500 dark:text-gray-400 border-gray-200 dark:border-gray-700 hover:border-primary' }}">
-                {{ $type->icon() }} {{ $type->label() }}
+                <i data-lucide="{{ $type->icon() }}" class="w-4 h-4 inline-block align-middle mr-1"></i> {{ $type->label() }}
             </a>
         @endforeach
         <span class="text-xs text-gray-400 dark:text-gray-500 ml-2">{{ $evenements->count() }} événement(s)</span>
@@ -91,7 +92,7 @@
                                 <a href="{{ route('artisan.planning.show', $event) }}" 
                                     class="block px-2 py-1 rounded text-xs font-medium {{ $event->type->colorClass() }} hover:opacity-80 transition truncate"
                                     title="{{ $event->titre }} ({{ $event->date_debut->format('H:i') }} - {{ $event->date_fin->format('H:i') }})">
-                                    {{ $event->type->icon() }} {{ $event->titre }}
+                                    <i data-lucide="{{ $event->type->icon() }}" class="w-3 h-3 inline-block align-middle mr-1"></i> {{ $event->titre }}
                                 </a>
                                 <div class="hidden group-hover:flex absolute z-10 left-0 top-full mt-1 bg-white dark:bg-gray-800 rounded-lg shadow-lg border border-gray-200 dark:border-gray-700 p-2 gap-1">
                                     <a href="{{ route('artisan.planning.edit', $event) }}" class="px-2 py-1 bg-blue-500 text-white rounded text-xs hover:bg-blue-600 transition"><i data-lucide="pencil" class="w-4 h-4 inline-block align-middle mr-1"></i></a>
@@ -123,9 +124,9 @@
             <div class="bg-white dark:bg-gray-800 rounded-xl border border-gray-100 dark:border-gray-700 p-8 text-center">
                 <i data-lucide="calendar-off" class="w-12 h-12 mx-auto text-gray-300 dark:text-gray-600 mb-3"></i>
                 <p class="text-gray-500 dark:text-gray-400 text-sm">Aucun événement pour le moment</p>
-                <a href="{{ route('artisan.planning.create') }}" class="inline-block mt-4 bg-primary hover:bg-primary/90 text-white px-5 py-2 rounded-full font-semibold text-sm transition shadow-md hover:shadow-lg">
+                <x-btn href="{{ route('artisan.planning.create') }}" class="mt-4" size="sm">
                     + Créer un événement
-                </a>
+                </x-btn>
             </div>
         @else
             <div class="bg-white dark:bg-gray-800 rounded-xl border border-gray-100 dark:border-gray-700 overflow-hidden">
@@ -143,7 +144,7 @@
                                 <div class="flex items-center gap-2">
                                     <span class="text-sm font-semibold text-gray-900 dark:text-white truncate">{{ $event->titre }}</span>
                                     <span class="shrink-0 text-xs font-medium px-2 py-0.5 rounded-full {{ $event->type->colorClass() }}">
-                                        {{ $event->type->icon() }} {{ $event->type->label() }}
+                                        <i data-lucide="{{ $event->type->icon() }}" class="w-3 h-3 inline-block align-middle mr-1"></i> {{ $event->type->label() }}
                                     </span>
                                 </div>
                                 <div class="flex items-center gap-3 mt-1 text-xs text-gray-500 dark:text-gray-400">
@@ -242,7 +243,7 @@
                             class="w-full px-4 py-2.5 border border-gray-200 dark:border-gray-600 rounded-lg focus:border-primary focus:ring-2 focus:ring-primary/10 dark:focus:ring-primary/20 outline-none transition bg-white dark:bg-gray-700 text-gray-900 dark:text-white">
                             @foreach ($types as $type)
                                 <option value="{{ $type->value }}" {{ old('type') === $type->value ? 'selected' : '' }}>
-                                    {{ $type->icon() }} {{ $type->label() }}
+                                    <i data-lucide="{{ $type->icon() }}" class="w-4 h-4 inline-block align-middle mr-1"></i> {{ $type->label() }}
                                 </option>
                             @endforeach
                         </select>

@@ -17,9 +17,10 @@
             <h1 class="text-xl md:text-2xl font-bold text-gray-900 dark:text-white">Mon <span class="text-primary">stock</span></h1>
             <p class="text-gray-500 dark:text-gray-400 mt-1 text-sm">Gérez vos articles et matériaux</p>
         </div>
-        <a href="{{ route('artisan.stock.create') }}" class="bg-primary hover:bg-primary/90 text-white px-5 py-2.5 rounded-full font-semibold text-sm transition shadow-md hover:shadow-lg">
+        <x-btn href="{{ route('artisan.stock.create') }}" size="lg">
+            <x-slot:prefix><i data-lucide="plus" class="w-4 h-4"></i></x-slot:prefix>
             + Nouvel article
-        </a>
+        </x-btn>
     </div>
 
     <!-- Statistiques -->
@@ -32,7 +33,7 @@
             </div>
         </div>
         <div class="bg-white dark:bg-gray-800 rounded-xl p-3 border border-gray-100 dark:border-gray-700 shadow-sm flex items-center gap-3">
-            <div class="w-11 h-11 bg-red-50 dark:bg-red-900/30 rounded-full flex items-center justify-center text-xl"><i data-lucide="zap" class="w-4 h-4 inline-block align-middle mr-1"></i>️</div>
+            <div class="w-11 h-11 bg-red-50 dark:bg-red-900/30 rounded-full flex items-center justify-center text-red-600 dark:text-red-300"><i data-lucide="zap" class="w-5 h-5"></i></div>
             <div>
                 <div class="text-xl font-bold text-red-600 dark:text-red-400">{{ $stats['stock_alerte'] }}</div>
                 <div class="text-xs text-gray-500 dark:text-gray-400">Alertes stock</div>
@@ -82,7 +83,7 @@
                     </div>
                     @if ($article->stock_alerte)
                         <span class="text-xs font-semibold px-2 py-0.5 rounded-full bg-red-50 text-red-700 dark:bg-red-900/30 dark:text-red-300">
-                            <i data-lucide="zap" class="w-4 h-4 inline-block align-middle mr-1"></i>️ Alerte
+                            <i data-lucide="zap" class="w-4 h-4 inline-block align-middle mr-1"></i> Alerte
                         </span>
                     @endif
                 </div>
@@ -115,18 +116,18 @@
                 </div>
 
                 <div class="flex gap-2 mt-4 pt-3 border-t border-gray-100 dark:border-gray-700">
-                    <a href="{{ route('artisan.stock.show', $article) }}" class="flex-1 bg-primary hover:bg-primary/90 text-white text-center py-2 rounded-full text-sm font-medium transition">
+                    <x-btn href="{{ route('artisan.stock.show', $article) }}" class="flex-1" size="sm">
                         Voir détails
-                    </a>
-                    <a href="{{ route('artisan.stock.edit', $article) }}" class="px-3 py-2 bg-blue-500 hover:bg-blue-600 text-white rounded-full text-sm font-medium transition" title="Modifier">
-                        <i data-lucide="pencil" class="w-4 h-4 inline-block align-middle mr-1"></i>
-                    </a>
+                    </x-btn>
+                    <x-btn href="{{ route('artisan.stock.edit', $article) }}" style="info" size="icon" title="Modifier">
+                        <i data-lucide="pencil"></i>
+                    </x-btn>
                     <form method="POST" action="{{ route('artisan.stock.destroy', $article) }}" class="inline" onsubmit="return confirm('Êtes-vous sûr de vouloir supprimer cet article ?');">
                         @csrf
                         @method('DELETE')
-                        <button type="submit" class="px-3 py-2 bg-red-500 hover:bg-red-600 text-white rounded-full text-sm font-medium transition" title="Supprimer">
-                            <i data-lucide="trash-2" class="w-4 h-4 inline-block align-middle mr-1"></i>
-                        </button>
+                        <x-btn type="submit" style="destructive" size="icon" title="Supprimer">
+                            <i data-lucide="trash-2"></i>
+                        </x-btn>
                     </form>
                 </div>
             </div>

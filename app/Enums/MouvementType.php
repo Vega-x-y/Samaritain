@@ -18,8 +18,8 @@ enum MouvementType: string
     public function icon(): string
     {
         return match ($this) {
-            self::ENTREE => '📥',
-            self::SORTIE => '📤',
+            self::ENTREE => 'package-plus',
+            self::SORTIE => 'package-minus',
         };
     }
 

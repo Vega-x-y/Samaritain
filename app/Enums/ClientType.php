@@ -18,8 +18,8 @@ enum ClientType: string
     public function icon(): string
     {
         return match ($this) {
-            self::PARTICULIER => '👤',
-            self::ENTREPRISE => '🏢',
+            self::PARTICULIER => 'user',
+            self::ENTREPRISE => 'building-2',
         };
     }
 }

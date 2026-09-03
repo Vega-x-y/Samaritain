@@ -24,7 +24,7 @@
             <div>
                 <h1 class="text-xl md:text-2xl font-bold text-gray-900 dark:text-white">{{ $evenement->titre }}</h1>
                 <p class="text-gray-500 dark:text-gray-400 mt-1 text-sm">
-                    {{ $evenement->type->icon() }} {{ $evenement->type->label() }}
+                    <i data-lucide="{{ $evenement->type->icon() }}" class="w-4 h-4 inline-block align-middle mr-1"></i> {{ $evenement->type->label() }}
                 </p>
             </div>
         </div>
@@ -54,7 +54,7 @@
                 <div class="flex justify-between">
                     <span class="text-gray-500 dark:text-gray-400">Type</span>
                     <span class="text-xs font-semibold px-2 py-0.5 rounded-full {{ $evenement->type->colorClass() }}">
-                        {{ $evenement->type->icon() }} {{ $evenement->type->label() }}
+                        <i data-lucide="{{ $evenement->type->icon() }}" class="w-4 h-4 inline-block align-middle mr-1"></i> {{ $evenement->type->label() }}
                     </span>
                 </div>
                 <div class="flex justify-between">

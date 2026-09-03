@@ -17,9 +17,10 @@
             <p class="text-gray-500 dark:text-gray-400 mt-1 text-sm">Conversations</p>
         </div>
         <div class="flex gap-2">
-            <a href="{{ route('artisan.messagerie.conversation.create') }}" class="bg-primary hover:bg-primary/90 text-white px-5 py-2.5 rounded-full font-semibold text-sm transition shadow-md hover:shadow-lg">
+            <x-btn href="{{ route('artisan.messagerie.conversation.create') }}" size="lg">
+                <x-slot:prefix><i data-lucide="plus" class="w-4 h-4"></i></x-slot:prefix>
                 + Nouvelle conversation
-            </a>
+            </x-btn>
         </div>
     </div>
     <!-- Barre de recherche -->
