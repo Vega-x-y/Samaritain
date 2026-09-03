@@ -39,22 +39,22 @@
             </div>
             <div class="flex items-center gap-3">
                 <!-- Cloche notifications -->
-                <a href="{{ route('notifications.api') }}"
-                   class="relative w-10 h-10 rounded-full bg-card border border-border flex items-center justify-center text-muted-foreground hover:text-foreground hover:border-primary transition-all duration-200 hover:rotate-[-5deg]"
-                   aria-label="Notifications">
+                <x-btn href="{{ route('notifications.api') }}" size="icon" style="ghost"
+                       class="relative rounded-full bg-card border border-border text-muted-foreground hover:text-foreground hover:border-primary transition-all duration-200 hover:rotate-[-5deg]"
+                       aria-label="Notifications">
                     <i data-lucide="bell" class="w-5 h-5"></i>
-                </a>
+                </x-btn>
                 <!-- Nouveau projet -->
-                <a href="{{ route('artisan.chantiers.create') }}"
-                   class="inline-flex items-center gap-2 px-5 py-2.5 bg-primary hover:bg-primary/90 text-white font-medium rounded-full transition-all duration-200 hover:scale-105 hover:shadow-lg hover:shadow-primary/30 active:scale-95">
+                <x-btn href="{{ route('artisan.chantiers.create') }}" size="lg"
+                       class="rounded-full px-5 hover:scale-105 hover:shadow-lg hover:shadow-primary/30 active:scale-95">
                     <i data-lucide="plus" class="w-4 h-4"></i>
                     Nouveau projet
-                </a>
+                </x-btn>
             </div>
         </div>
 
         <!-- ===== SOUS-HEADER ===== -->
-        <div class="flex flex-wrap items-center justify-between gap-4 bg-card border border-border rounded-2xl shadow-sm px-5 py-4">
+        <x-card class="flex flex-wrap items-center justify-between gap-4 rounded-2xl shadow-sm px-5 py-4">
             <div class="flex items-center gap-3">
                 <div class="w-10 h-10 rounded-full bg-primary/10 dark:bg-primary/20 flex items-center justify-center transition-all duration-300 hover:scale-110">
                     <i data-lucide="pie-chart" class="w-5 h-5 text-primary"></i>
@@ -64,17 +64,17 @@
                     <p class="text-xs text-muted-foreground">Vue d'ensemble de vos finances</p>
                 </div>
             </div>
-            <button type="button"
-                    class="inline-flex items-center gap-2 px-4 py-2 bg-zinc-800 hover:bg-zinc-700 text-white text-sm font-medium rounded-lg transition-all duration-200 active:scale-95 hover:shadow-lg">
+            <x-btn type="button" style="secondary"
+                   class="rounded-lg bg-zinc-800 text-white hover:bg-zinc-700 active:scale-95 hover:shadow-lg">
                 <i data-lucide="download" class="w-4 h-4"></i>
                 Exporter le bilan
-            </button>
-        </div>
+            </x-btn>
+        </x-card>
 
         <!-- ===== CARTES KPI ===== -->
         <div class="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-4">
             @foreach ($kpis as $kpi)
-                <div class="bg-card border border-border border-l-4 {{ $kpi['border'] }} rounded-2xl shadow-sm p-5 transition-all duration-300 ease-in-out hover:scale-[1.02] hover:shadow-2xl">
+                <x-card class="border-l-4 {{ $kpi['border'] }} rounded-2xl shadow-sm p-5 transition-all duration-300 ease-in-out hover:scale-[1.02] hover:shadow-2xl">
                     <p class="text-[11px] font-semibold uppercase tracking-wider text-muted-foreground">
                         {{ $kpi['label'] }}
                     </p>
@@ -84,7 +84,7 @@
                             {{ $kpi['suffix'] }}
                         </span>
                     </p>
-                </div>
+                </x-card>
             @endforeach
         </div>
         <!-- Barre de recherche -->
@@ -93,7 +93,7 @@
         </div>
 
         <!-- ===== Enregistrement rapide d'une dépense ===== -->
-        <div class="bg-card border border-border rounded-2xl shadow-sm p-6 transition-all duration-300 hover:shadow-lg">
+        <x-card class="rounded-2xl shadow-sm p-6 transition-all duration-300 hover:shadow-lg">
             <div class="flex items-center justify-between gap-4 mb-4">
                 <div>
                     <h3 class="text-lg font-semibold text-foreground">Nouvelle dépense</h3>
@@ -104,44 +104,30 @@
             <form id="depense-quick-form" method="POST" action="{{ route('artisan.finances.store-depense', $chantiersList->first()?->id ?? 0) }}" enctype="multipart/form-data" class="grid grid-cols-1 md:grid-cols-5 gap-4 items-end">
                 @csrf
                 <div class="md:col-span-2">
-                    <label class="block text-sm font-medium text-foreground mb-2">Chantier *</label>
-                    <select name="chantier_id" id="depense-chantier" required class="w-full rounded-lg border-border focus:border-primary focus:ring-primary bg-background">
-                        <option value="">Sélectionner un chantier</option>
-                        @foreach($chantiersList as $chantier)
-                            <option value="{{ $chantier->id }}">{{ $chantier->nom }}</option>
-                        @endforeach
-                    </select>
+                    <x-form.select name="chantier_id" label="Chantier" placeholder="Sélectionner un chantier" :options="$chantiersList" optionValue="id" optionLabel="nom" required />
                 </div>
                 <div>
-                    <label class="block text-sm font-medium text-foreground mb-2">Type *</label>
-                    <select name="categorie" required class="w-full rounded-lg border-border focus:border-primary focus:ring-primary bg-background">
-                        <option value="materiaux">Matériaux</option>
-                        <option value="main_oeuvre">Main d'oeuvre</option>
-                        <option value="transport">Transport</option>
-                        <option value="autre">Autre</option>
-                    </select>
+                    <x-form.select name="categorie" label="Type" :options="$categorieLabels" required />
                 </div>
                 <div>
-                    <label class="block text-sm font-medium text-foreground mb-2">Montant *</label>
-                    <input type="number" step="0.01" name="montant" required class="w-full rounded-lg border-border focus:border-primary focus:ring-primary bg-background" placeholder="Ex: 15000">
+                    <x-form.input type="number" step="0.01" name="montant" label="Montant" required placeholder="Ex: 15000" />
                 </div>
                 <div>
-                    <label class="block text-sm font-medium text-foreground mb-2">Date</label>
-                    <input type="date" name="date" value="{{ now()->format('Y-m-d') }}" class="w-full rounded-lg border-border focus:border-primary focus:ring-primary bg-background">
+                    <x-form.input type="date" name="date" label="Date" :value="now()->format('Y-m-d')" />
                 </div>
                 <div class="md:col-span-5">
-                    <button type="submit" class="inline-flex items-center gap-2 px-4 py-2 bg-primary hover:bg-primary/90 text-white rounded-lg transition-all duration-200 hover:scale-105 active:scale-95">
+                    <x-btn type="submit" class="rounded-lg hover:scale-105 active:scale-95">
                         <i data-lucide="save" class="w-4 h-4"></i>
                         Enregistrer la dépense
-                    </button>
+                    </x-btn>
                 </div>
             </form>
-        </div>
+        </x-card>
 
         <script>
             (function () {
                 const form = document.getElementById('depense-quick-form');
-                const select = document.getElementById('depense-chantier');
+                const select = document.getElementById('chantier_id');
                 if (!form || !select) {
                     return;
                 }
@@ -161,7 +147,7 @@
         <!-- ===== BLocs revenus / dépenses ===== -->
         <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
             <!-- Répartition des revenus -->
-            <div class="bg-card border border-border rounded-2xl shadow-sm p-6 transition-all duration-300 hover:scale-[1.01] hover:shadow-2xl">
+            <x-card class="rounded-2xl shadow-sm p-6 transition-all duration-300 hover:scale-[1.01] hover:shadow-2xl">
                 <h3 class="text-sm font-semibold uppercase tracking-wider text-muted-foreground mb-5">
                     Répartition des revenus
                 </h3>
@@ -177,19 +163,19 @@
                                     {{ number_format($item['montant'], 0, ',', ' ') }} FCFA
                                 </span>
                             </div>
-                            <div class="mt-2 h-2 w-full bg-muted rounded-full overflow-hidden">
-                                <div class="h-full bg-primary rounded-full transition-all group-hover:brightness-110"
-                                     style="width: {{ $maxRevenu > 0 ? (int) round(($item['montant'] / $maxRevenu) * 100) : 0 }}%"></div>
-                            </div>
+                            <x-blade-components::progress-bar
+                                :progress="$maxRevenu > 0 ? (int) round(($item['montant'] / $maxRevenu) * 100) : 0"
+                                class="mt-2"
+                            />
                         </div>
                     @empty
                         <p class="text-sm text-muted-foreground">Aucun revenu pour le moment.</p>
                     @endforelse
                 </div>
-            </div>
+            </x-card>
 
             <!-- Dépenses par type -->
-            <div class="bg-card border border-border rounded-2xl shadow-sm p-6 transition-all duration-300 hover:scale-[1.01] hover:shadow-2xl">
+            <x-card class="rounded-2xl shadow-sm p-6 transition-all duration-300 hover:scale-[1.01] hover:shadow-2xl">
                 <h3 class="text-sm font-semibold uppercase tracking-wider text-muted-foreground mb-5">
                     Dépenses par type
                 </h3>
@@ -207,10 +193,10 @@
                         <p class="text-sm text-muted-foreground">Aucune dépense pour le moment.</p>
                     @endforelse
                 </div>
-            </div>
+            </x-card>
 
             <!-- Dernières dépenses -->
-            <div class="mt-6 bg-card border border-border rounded-2xl shadow-sm overflow-hidden transition-all duration-300 hover:shadow-lg">
+            <x-card class="mt-6 rounded-2xl shadow-sm overflow-hidden transition-all duration-300 hover:shadow-lg">
                 <div class="px-6 py-4 border-b border-border">
                     <h3 class="text-lg font-semibold text-foreground">Dernières dépenses</h3>
                 </div>
@@ -233,9 +219,9 @@
                                         </a>
                                     </td>
                                     <td class="px-6 py-3 text-sm text-gray-900 dark:text-gray-100">
-                                        <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-primary/10 dark:bg-primary/20 text-primary dark:text-white/80">
+                                        <x-blade-components::badge style="primary">
                                             {{ $categorieLabels[$depense->categorie] ?? ucfirst($depense->categorie) }}
-                                        </span>
+                                        </x-blade-components::badge>
                                     </td>
                                     <td class="px-6 py-3 text-sm text-gray-900 dark:text-gray-100">{{ $depense->date?->format('d/m/Y') }}</td>
                                     <td class="px-6 py-3 text-right text-sm font-medium text-red-600 dark:text-red-400">
@@ -250,7 +236,7 @@
                         </tbody>
                     </table>
                 </div>
-            </div>
+            </x-card>
         </div>
     </div>
 @endsection
