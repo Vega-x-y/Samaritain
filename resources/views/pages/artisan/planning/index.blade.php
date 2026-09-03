@@ -19,13 +19,13 @@
         </div>
         <x-btn href="{{ route('artisan.planning.create') }}" size="lg">
             <x-slot:prefix><i data-lucide="plus" class="w-4 h-4"></i></x-slot:prefix>
-            + Nouvel événement
+            Nouvel événement
         </x-btn>
     </div>
 
         <!-- Barre de recherche -->
     <div class="mb-4">
-        @include('components.artisan.search-bar', ['placeholder' => 'Rechercher un événement�?�'])
+        @include('components.artisan.search-bar', ['placeholder' => 'Rechercher un événement'])
     </div>
 
     <!-- Filtres -->
@@ -125,7 +125,8 @@
                 <i data-lucide="calendar-off" class="w-12 h-12 mx-auto text-gray-300 dark:text-gray-600 mb-3"></i>
                 <p class="text-gray-500 dark:text-gray-400 text-sm">Aucun événement pour le moment</p>
                 <x-btn href="{{ route('artisan.planning.create') }}" class="mt-4" size="sm">
-                    + Créer un événement
+                    <x-slot:prefix><i data-lucide="plus" class="w-4 h-4"></i></x-slot:prefix>
+                    Créer un événement
                 </x-btn>
             </div>
         @else

@@ -37,7 +37,7 @@
                 </button>
             </form>
             <a href="{{ route('artisan.clients.index') }}" class="px-4 py-2 rounded-full text-sm font-medium border border-gray-300 text-gray-600 hover:bg-gray-50 dark:border-gray-600 dark:text-gray-400 dark:hover:bg-gray-800 transition">
-                �?� Retour
+                 Retour
             </a>
         </div>
     </div>

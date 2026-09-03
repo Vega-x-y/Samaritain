@@ -45,36 +45,37 @@
                     <i data-lucide="bell" class="w-5 h-5"></i>
                 </x-btn>
                 <!-- Nouveau projet -->
-                <x-btn href="{{ route('artisan.chantiers.create') }}" size="lg"
-                       class="rounded-full px-5 hover:scale-105 hover:shadow-lg hover:shadow-primary/30 active:scale-95">
-                    <i data-lucide="plus" class="w-4 h-4"></i>
+                <x-btn href="{{ route('artisan.chantiers.create') }}" size="lg">
+                    <x-slot:prefix><i data-lucide="plus" class="w-4 h-4"></i></x-slot:prefix>
                     Nouveau projet
                 </x-btn>
             </div>
         </div>
 
         <!-- ===== SOUS-HEADER ===== -->
-        <x-card class="flex flex-wrap items-center justify-between gap-4 rounded-2xl shadow-sm px-5 py-4">
-            <div class="flex items-center gap-3">
-                <div class="w-10 h-10 rounded-full bg-primary/10 dark:bg-primary/20 flex items-center justify-center transition-all duration-300 hover:scale-110">
-                    <i data-lucide="pie-chart" class="w-5 h-5 text-primary"></i>
+        <x-card>
+            <div class="flex flex-wrap items-center justify-between gap-4 rounded-2xl shadow-sm px-5 py-4">
+                <div class="flex items-center gap-3">
+                    <div class="w-10 h-10 rounded-full bg-primary/10 dark:bg-primary/20 flex items-center justify-center transition-all duration-300 hover:scale-110">
+                        <i data-lucide="pie-chart" class="w-5 h-5 text-primary"></i>
+                    </div>
+                    <div>
+                        <p class="font-semibold text-foreground">Centre financier</p>
+                        <p class="text-xs text-muted-foreground">Vue d'ensemble de vos finances</p>
+                    </div>
                 </div>
-                <div>
-                    <p class="font-semibold text-foreground">Centre financier</p>
-                    <p class="text-xs text-muted-foreground">Vue d'ensemble de vos finances</p>
-                </div>
+                <x-btn type="button" style="secondary"
+                       class="rounded-lg bg-zinc-800 text-white hover:bg-zinc-700 active:scale-95 hover:shadow-lg">
+                    <i data-lucide="download" class="w-4 h-4"></i>
+                    Exporter le bilan
+                </x-btn>
             </div>
-            <x-btn type="button" style="secondary"
-                   class="rounded-lg bg-zinc-800 text-white hover:bg-zinc-700 active:scale-95 hover:shadow-lg">
-                <i data-lucide="download" class="w-4 h-4"></i>
-                Exporter le bilan
-            </x-btn>
         </x-card>
 
         <!-- ===== CARTES KPI ===== -->
         <div class="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-4">
             @foreach ($kpis as $kpi)
-                <x-card class="border-l-4 {{ $kpi['border'] }} rounded-2xl shadow-sm p-5 transition-all duration-300 ease-in-out hover:scale-[1.02] hover:shadow-2xl">
+                <x-card>
                     <p class="text-[11px] font-semibold uppercase tracking-wider text-muted-foreground">
                         {{ $kpi['label'] }}
                     </p>
@@ -89,11 +90,11 @@
         </div>
         <!-- Barre de recherche -->
         <div class="mb-4">
-            @include('components.artisan.search-bar', ['placeholder' => 'Rechercher une transaction�?�'])
+            @include('components.artisan.search-bar', ['placeholder' => 'Rechercher une transaction'])
         </div>
 
         <!-- ===== Enregistrement rapide d'une dépense ===== -->
-        <x-card class="rounded-2xl shadow-sm p-6 transition-all duration-300 hover:shadow-lg">
+        <x-card class="rounded-2xl shadow-sm p-6 transition-all duration-300">
             <div class="flex items-center justify-between gap-4 mb-4">
                 <div>
                     <h3 class="text-lg font-semibold text-foreground">Nouvelle dépense</h3>
@@ -147,7 +148,7 @@
         <!-- ===== BLocs revenus / dépenses ===== -->
         <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
             <!-- Répartition des revenus -->
-            <x-card class="rounded-2xl shadow-sm p-6 transition-all duration-300 hover:scale-[1.01] hover:shadow-2xl">
+            <x-card class="rounded-2xl shadow-sm p-6 transition-all duration-300">
                 <h3 class="text-sm font-semibold uppercase tracking-wider text-muted-foreground mb-5">
                     Répartition des revenus
                 </h3>
@@ -175,7 +176,7 @@
             </x-card>
 
             <!-- Dépenses par type -->
-            <x-card class="rounded-2xl shadow-sm p-6 transition-all duration-300 hover:scale-[1.01] hover:shadow-2xl">
+            <x-card class="rounded-2xl shadow-sm p-6 transition-all duration-300">
                 <h3 class="text-sm font-semibold uppercase tracking-wider text-muted-foreground mb-5">
                     Dépenses par type
                 </h3>
@@ -196,7 +197,7 @@
             </x-card>
 
             <!-- Dernières dépenses -->
-            <x-card class="mt-6 rounded-2xl shadow-sm overflow-hidden transition-all duration-300 hover:shadow-lg">
+            <x-card class="mt-6 rounded-2xl shadow-sm overflow-hidden transition-all duration-300">
                 <div class="px-6 py-4 border-b border-border">
                     <h3 class="text-lg font-semibold text-foreground">Dernières dépenses</h3>
                 </div>

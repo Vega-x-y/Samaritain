@@ -50,7 +50,7 @@
 
         <!-- Barre de recherche -->
     <div class="mb-4">
-        @include('components.artisan.search-bar', ['placeholder' => 'Rechercher un membre�?�'])
+        @include('components.artisan.search-bar', ['placeholder' => 'Rechercher un membre'])
     </div>
 
     <!-- Filtres -->

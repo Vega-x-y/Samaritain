@@ -25,7 +25,7 @@
     <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
         <!-- Barre de recherche -->
         <div class="mb-4">
-            @include('components.artisan.search-bar', ['placeholder' => 'Rechercher un projet�?�'])
+            @include('components.artisan.search-bar', ['placeholder' => 'Rechercher un projet'])
         </div>
 
         @if($projects->isNotEmpty())

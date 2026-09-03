@@ -19,13 +19,13 @@
         <div class="flex gap-2">
             <x-btn href="{{ route('artisan.messagerie.conversation.create') }}" size="lg">
                 <x-slot:prefix><i data-lucide="plus" class="w-4 h-4"></i></x-slot:prefix>
-                + Nouvelle conversation
+                Nouvelle conversation
             </x-btn>
         </div>
     </div>
     <!-- Barre de recherche -->
     <div class="mb-4">
-        @include('components.artisan.search-bar', ['placeholder' => 'Rechercher un message�?�'])
+        @include('components.artisan.search-bar', ['placeholder' => 'Rechercher un message'])
     </div>
 
     <div class="grid grid-cols-1 gap-6">

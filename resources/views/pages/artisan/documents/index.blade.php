@@ -77,7 +77,7 @@
 
         <!-- Barre de recherche -->
     <div class="mb-4">
-        @include('components.artisan.search-bar', ['placeholder' => 'Rechercher un document�?�'])
+        @include('components.artisan.search-bar', ['placeholder' => 'Rechercher un document'])
     </div>
 
     <!-- Filtres -->

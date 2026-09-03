@@ -58,7 +58,7 @@
 
         <!-- Barre de recherche -->
         <div class="mb-4">
-            @include('components.artisan.search-bar', ['placeholder' => 'Rechercher une demande�?�'])
+            @include('components.artisan.search-bar', ['placeholder' => 'Rechercher une demande'])
         </div>
 
         <!-- Liste des demandes -->
