@@ -81,7 +81,7 @@
     </div>
 
     <!-- Filtres -->
-    <div class="bg-card rounded-lg shadow-sm border border-border p-6 transition-all duration-300 hover:shadow-lg">
+    <div class="bg-card rounded-lg shadow-sm border border-border p-6 transition-all duration-300">
         <form method="GET" action="{{ route('artisan.documents.index') }}" class="grid grid-cols-1 md:grid-cols-3 gap-4 items-end">
             <div>
                 <label class="block text-sm font-medium text-foreground mb-2">Client</label>
@@ -110,7 +110,7 @@
     </div>
 
     <!-- Liste des documents -->
-    <div class="bg-card rounded-lg shadow-sm border border-border p-6 transition-all duration-300 hover:shadow-lg">
+    <div class="bg-card rounded-lg shadow-sm border border-border p-6 transition-all duration-300">
         <x-documents-list :documents="$documents" :show-actions="true" :clients="$clients" />
     </div>
 

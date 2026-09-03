@@ -15,7 +15,7 @@
 
 @section('content')
     <div class="max-w-3xl">
-        <div class="bg-card rounded-lg shadow-sm border border-border p-6 transition-all duration-300 hover:shadow-lg">
+        <div class="bg-card rounded-lg shadow-sm border border-border p-6 transition-all duration-300">
             <form action="{{ route('artisan.documents.store') }}" method="POST" enctype="multipart/form-data">
                 @csrf
                 <div class="space-y-6">
@@ -84,11 +84,11 @@
                     </div>
 
                     <div class="flex gap-3 pt-4">
-                        <button type="submit" class="px-6 py-2 bg-primary hover:bg-primary/90 text-white rounded-lg transition-all duration-200 hover:scale-105 active:scale-95">
+                        <button type="submit" class="px-6 py-2 bg-primary hover:bg-primary/90 text-white rounded-lg transition-all duration-200 active:scale-95">
                             Créer
                         </button>
                         <a href="{{ route('artisan.documents.index') }}"
-                           class="px-6 py-2 bg-muted hover:bg-muted/80 text-foreground rounded-lg transition-all duration-200 hover:scale-105 active:scale-95">
+                           class="px-6 py-2 bg-muted hover:bg-muted/80 text-foreground rounded-lg transition-all duration-200 active:scale-95">
                             Annuler
                         </a>
                     </div>

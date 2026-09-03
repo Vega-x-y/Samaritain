@@ -56,7 +56,7 @@
         <x-card>
             <div class="flex flex-wrap items-center justify-between gap-4 px-5 py-4">
                 <div class="flex items-center gap-3">
-                    <div class="w-10 h-10 rounded-full bg-primary/10 dark:bg-primary/20 flex items-center justify-center transition-all duration-300 hover:scale-110">
+                    <div class="w-10 h-10 rounded-full bg-primary/10 dark:bg-primary/20 flex items-center justify-center transition-all duration-300">
                         <i data-lucide="pie-chart" class="w-5 h-5 text-primary"></i>
                     </div>
                     <div>
@@ -65,7 +65,7 @@
                     </div>
                 </div>
                 <x-btn type="button" style="secondary"
-                       class="rounded-lg bg-zinc-800 text-white hover:bg-zinc-700 active:scale-95 hover:shadow-lg">
+                       class="rounded-lg bg-zinc-800 text-white hover:bg-zinc-700 active:scale-95">
                     <i data-lucide="download" class="w-4 h-4"></i>
                     Exporter le bilan
                 </x-btn>
@@ -117,7 +117,7 @@
                     <x-form.input type="date" name="date" label="Date" :value="now()->format('Y-m-d')" />
                 </div>
                 <div class="md:col-span-5">
-                    <x-btn type="submit" class="rounded-lg hover:scale-105 active:scale-95">
+                    <x-btn type="submit" class="rounded-lg active:scale-95">
                         <i data-lucide="save" class="w-4 h-4"></i>
                         Enregistrer la dépense
                     </x-btn>

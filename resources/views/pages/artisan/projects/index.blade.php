@@ -53,15 +53,15 @@
             <!-- Grille des réalisations -->
             <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
                 @foreach($projects as $project)
-                    <div class="group bg-white dark:bg-gray-800 rounded-xl border border-gray-100 dark:border-gray-700 overflow-hidden shadow-sm hover:shadow-lg transition-all duration-300 transform hover:-translate-y-1 dark:hover:shadow-gray-900/50">
+                    <div class="group bg-white dark:bg-gray-800 rounded-xl border border-gray-100 dark:border-gray-700 overflow-hidden shadow-sm transition-all duration-300 transform">
                         <div class="relative h-52 overflow-hidden">
                             @if ($project->images->isNotEmpty())
                                 <img src="{{ Storage::url($project->images->first()->image_path) }}" alt="{{ $project->title }}"
-                                    class="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105">
+                                    class="w-full h-full object-cover transition-transform duration-500">
                                 <div class="absolute inset-0 bg-gradient-to-t from-black/50 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
                             @elseif ($project->image)
                                 <img src="{{ Storage::url($project->image) }}" alt="{{ $project->title }}"
-                                    class="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105">
+                                    class="w-full h-full object-cover transition-transform duration-500">
                                 <div class="absolute inset-0 bg-gradient-to-t from-black/50 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
                             @else
                                 <div class="w-full h-full bg-gradient-to-br from-gray-100 to-gray-200 dark:from-gray-700 dark:to-gray-600 flex items-center justify-center text-gray-400 dark:text-gray-500">

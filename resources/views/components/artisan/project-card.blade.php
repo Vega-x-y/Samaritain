@@ -1,9 +1,9 @@
 @props(['project'])
 
-<div class="group bg-white rounded-xl border border-gray-100 overflow-hidden hover:shadow-lg transition-all duration-300">
+<div class="group bg-white rounded-xl border border-gray-100 overflow-hidden transition-all duration-300">
     <div class="relative overflow-hidden h-48">
         @if($project->image)
-            <img src="{{ Storage::url($project->image) }}" alt="{{ $project->title }}" class="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500">
+            <img src="{{ Storage::url($project->image) }}" alt="{{ $project->title }}" class="w-full h-full object-cover transition-transform duration-500">
         @else
             <div class="w-full h-full bg-gray-100 flex items-center justify-center text-gray-400">
                 <svg class="w-12 h-12" fill="none" stroke="currentColor" viewBox="0 0 24 24">

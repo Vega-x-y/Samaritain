@@ -113,15 +113,15 @@
 
     <!-- Actions rapides -->
     <div class="mt-8 flex flex-wrap gap-3">
-        <a href="tel:{{ $client->telephone }}" class="bg-green-500 hover:bg-green-600 text-white px-5 py-2.5 rounded-full text-sm font-medium transition shadow-md hover:shadow-lg">
+        <a href="tel:{{ $client->telephone }}" class="bg-green-500 hover:bg-green-600 text-white px-5 py-2.5 rounded-full text-sm font-medium transition shadow-md">
             <i data-lucide="phone" class="w-4 h-4 inline-block align-middle mr-1"></i>Appeler
         </a>
         @if ($client->email)
-            <a href="mailto:{{ $client->email }}" class="bg-blue-500 hover:bg-blue-600 text-white px-5 py-2.5 rounded-full text-sm font-medium transition shadow-md hover:shadow-lg">
+            <a href="mailto:{{ $client->email }}" class="bg-blue-500 hover:bg-blue-600 text-white px-5 py-2.5 rounded-full text-sm font-medium transition shadow-md">
                 <i data-lucide="package" class="w-4 h-4 inline-block align-middle mr-1"></i> Envoyer un email
             </a>
         @endif
-        <a href="{{ route('artisan.chantiers.index', ['client_id' => $client->id]) }}" class="bg-primary hover:bg-primary/90 text-white px-5 py-2.5 rounded-full text-sm font-medium transition shadow-md hover:shadow-lg">
+            <a href="{{ route('artisan.chantiers.index', ['client_id' => $client->id]) }}" class="bg-primary hover:bg-primary/90 text-white px-5 py-2.5 rounded-full text-sm font-medium transition shadow-md">
             <i data-lucide="clipboard-list" class="w-4 h-4 inline-block align-middle mr-1"></i> Voir ses chantiers
         </a>
     </div>

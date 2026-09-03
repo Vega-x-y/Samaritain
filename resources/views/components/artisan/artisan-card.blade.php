@@ -1,12 +1,12 @@
 @props(['artisan'])
 
 <a href="{{ route('artisans.show', $artisan) }}"
-    class="group relative block rounded-3xl overflow-hidden aspect-[4/5] bg-muted shadow-sm hover:shadow-xl hover:shadow-foreground/10 transition-all duration-300">
+    class="group relative block rounded-3xl overflow-hidden aspect-[4/5] bg-muted shadow-sm transition-all duration-300">
 
     {{-- Photo --}}
     @if($artisan->avatar)
         <img src="{{ Storage::url($artisan->avatar) }}" alt="{{ $artisan->business_name }}"
-            class="absolute inset-0 w-full h-full object-cover group-hover:scale-105 transition-transform duration-500">
+            class="absolute inset-0 w-full h-full object-cover transition-transform duration-500">
     @else
         <div class="absolute inset-0 bg-gradient-to-br from-primary to-primary/70 flex items-center justify-center">
             <span class="text-primary-foreground text-6xl font-bold">{{ substr($artisan->business_name, 0, 1) }}</span>

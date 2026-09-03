@@ -12,14 +12,14 @@
 @section('content')
     <div class="space-y-6">
         <!-- En-tête du profil -->
-        <div class="bg-card rounded-lg shadow-sm border border-border p-6 transition-all duration-300 hover:shadow-lg">
+        <div class="bg-card rounded-lg shadow-sm border border-border p-6 transition-all duration-300">
             <div class="flex items-start gap-6">
                 <!-- Photo de profil -->
                 <div class="shrink-0">
                     @if($artisan->avatar)
                         <img src="{{ asset('storage/' . $artisan->avatar) }}" 
                              alt="{{ $artisan->business_name }}" 
-                             class="w-24 h-24 rounded-lg object-cover border border-border transition-transform duration-300 hover:scale-110">
+                             class="w-24 h-24 rounded-lg object-cover border border-border transition-transform duration-300">
                     @else
                         <div class="w-24 h-24 rounded-lg bg-primary flex items-center justify-center text-white text-3xl font-bold">
                             {{ substr($artisan->business_name, 0, 2) }}
@@ -51,7 +51,7 @@
         <!-- Informations détaillées -->
         <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
             <!-- Informations personnelles -->
-            <div class="bg-card rounded-lg shadow-sm border border-border p-6 transition-all duration-300 hover:shadow-lg hover:-translate-y-1">
+            <div class="bg-card rounded-lg shadow-sm border border-border p-6 transition-all duration-300">
                 <h3 class="text-lg font-semibold text-foreground mb-4 flex items-center gap-2">
                     <i data-lucide="user" class="w-5 h-5"></i>
                     Informations personnelles
@@ -99,7 +99,7 @@
             </div>
 
             <!-- Informations professionnelles -->
-            <div class="bg-card rounded-lg shadow-sm border border-border p-6 transition-all duration-300 hover:shadow-lg hover:-translate-y-1">
+            <div class="bg-card rounded-lg shadow-sm border border-border p-6 transition-all duration-300">
                 <h3 class="text-lg font-semibold text-foreground mb-4 flex items-center gap-2">
                     <i data-lucide="briefcase" class="w-5 h-5"></i>
                     Informations professionnelles
@@ -143,7 +143,7 @@
         <!-- Bouton modifier -->
         <div class="flex justify-center">
             <a href="{{ route('artisan.edit', $artisan) }}" 
-               class="inline-flex items-center px-6 py-3 bg-primary hover:bg-primary/90 text-white rounded-lg transition-all duration-200 hover:scale-105 active:scale-95">
+               class="inline-flex items-center px-6 py-3 bg-primary hover:bg-primary/90 text-white rounded-lg transition-all duration-200 active:scale-95">
                 <i data-lucide="settings" class="w-5 h-5 mr-2"></i>
                 Modifier mes informations
             </a>

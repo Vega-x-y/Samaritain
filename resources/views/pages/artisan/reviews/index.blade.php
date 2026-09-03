@@ -21,9 +21,9 @@
 
         <!-- Stats -->
         <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
-            <div class="bg-card rounded-lg shadow-sm border border-border p-4 transition-all duration-300 hover:shadow-lg hover:-translate-y-1">
+            <div class="bg-card rounded-lg shadow-sm border border-border p-4 transition-all duration-300">
                 <div class="flex items-center gap-3">
-                    <div class="p-3 bg-primary/10 dark:bg-primary/20 rounded-lg transition-transform duration-300 hover:scale-110">
+                    <div class="p-3 bg-primary/10 dark:bg-primary/20 rounded-lg transition-transform duration-300">
                         <i data-lucide="star" class="w-6 h-6 text-primary"></i>
                     </div>
                     <div>
@@ -32,9 +32,9 @@
                     </div>
                 </div>
             </div>
-            <div class="bg-card rounded-lg shadow-sm border border-border p-4 transition-all duration-300 hover:shadow-lg hover:-translate-y-1">
+            <div class="bg-card rounded-lg shadow-sm border border-border p-4 transition-all duration-300">
                 <div class="flex items-center gap-3">
-                    <div class="p-3 bg-primary/10 dark:bg-primary/20 rounded-lg transition-transform duration-300 hover:scale-110">
+                    <div class="p-3 bg-primary/10 dark:bg-primary/20 rounded-lg transition-transform duration-300">
                         <i data-lucide="message-circle" class="w-6 h-6 text-primary"></i>
                     </div>
                     <div>
@@ -43,9 +43,9 @@
                     </div>
                 </div>
             </div>
-            <div class="bg-card rounded-lg shadow-sm border border-border p-4 transition-all duration-300 hover:shadow-lg hover:-translate-y-1">
+            <div class="bg-card rounded-lg shadow-sm border border-border p-4 transition-all duration-300">
                 <div class="flex items-center gap-3">
-                    <div class="p-3 bg-primary/10 dark:bg-primary/20 rounded-lg transition-transform duration-300 hover:scale-110">
+                    <div class="p-3 bg-primary/10 dark:bg-primary/20 rounded-lg transition-transform duration-300">
                         <i data-lucide="thumbs-up" class="w-6 h-6 text-primary"></i>
                     </div>
                     <div>
@@ -65,7 +65,7 @@
         <!-- Liste des avis -->
 
         <!-- Liste des avis -->
-        <div class="bg-card rounded-lg shadow-sm border border-border transition-all duration-300 hover:shadow-lg">
+        <div class="bg-card rounded-lg shadow-sm border border-border transition-all duration-300">
             @if($avis->count() > 0)
                 <div class="divide-y divide-border">
                     @foreach($avis as $avisItem)
@@ -75,9 +75,9 @@
                                     @if($avisItem->user->profile_image)
                                         <img src="{{ asset('storage/' . $avisItem->user->profile_image) }}" 
                                              alt="{{ $avisItem->user->name }}" 
-                                             class="w-10 h-10 rounded-full object-cover border border-border transition-transform duration-300 hover:scale-110">
+                                             class="w-10 h-10 rounded-full object-cover border border-border transition-transform duration-300">
                                     @else
-                                        <div class="w-10 h-10 rounded-full bg-primary flex items-center justify-center text-white text-sm font-bold transition-transform duration-300 hover:scale-110">
+                                        <div class="w-10 h-10 rounded-full bg-primary flex items-center justify-center text-white text-sm font-bold transition-transform duration-300">
                                             {{ strtoupper(substr($avisItem->user->name, 0, 2)) }}
                                         </div>
                                     @endif

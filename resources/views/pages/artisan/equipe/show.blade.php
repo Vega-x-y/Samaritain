@@ -105,11 +105,11 @@
 
     <!-- Actions rapides -->
     <div class="mt-8 flex flex-wrap gap-3">
-        <a href="tel:{{ $membre->telephone }}" class="bg-green-500 hover:bg-green-600 text-white px-5 py-2.5 rounded-full text-sm font-medium transition shadow-md hover:shadow-lg">
+        <a href="tel:{{ $membre->telephone }}" class="bg-green-500 hover:bg-green-600 text-white px-5 py-2.5 rounded-full text-sm font-medium transition shadow-md">
             <i data-lucide="phone" class="w-4 h-4 inline-block align-middle mr-1"></i>Appeler
         </a>
         @if ($membre->email)
-            <a href="mailto:{{ $membre->email }}" class="bg-blue-500 hover:bg-blue-600 text-white px-5 py-2.5 rounded-full text-sm font-medium transition shadow-md hover:shadow-lg">
+            <a href="mailto:{{ $membre->email }}" class="bg-blue-500 hover:bg-blue-600 text-white px-5 py-2.5 rounded-full text-sm font-medium transition shadow-md">
                 <i data-lucide="package" class="w-4 h-4 inline-block align-middle mr-1"></i> Envoyer un email
             </a>
         @endif

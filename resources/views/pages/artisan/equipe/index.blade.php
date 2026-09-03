@@ -73,7 +73,7 @@
     <!-- Grille des membres -->
     <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5">
         @forelse ($membres as $membre)
-            <div class="bg-white dark:bg-gray-800 rounded-xl p-5 shadow-sm border border-gray-100 dark:border-gray-700 transition hover:-translate-y-1 hover:shadow-md hover:border-primary/40 dark:hover:border-primary">
+            <div class="bg-white dark:bg-gray-800 rounded-xl p-5 shadow-sm border border-gray-100 dark:border-gray-700 transition hover:border-primary/40 dark:hover:border-primary">
                 <div class="flex justify-between items-start mb-3">
                     <div class="flex items-center gap-3">
                         <div class="w-12 h-12 rounded-full bg-primary/10 dark:bg-primary/20 flex items-center justify-center text-lg font-bold text-primary dark:text-primary">

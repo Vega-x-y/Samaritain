@@ -60,7 +60,7 @@
                         <label class="block font-semibold text-sm mb-1 text-gray-900 dark:text-white">Type *</label>
                         <x-form.select name="type" label="Type *" :options="$types->mapWithKeys(fn ($type) => [$type->value => $type->label()])" required />
             <div class="flex gap-3">
-                <button type="submit" class="flex-1 bg-primary hover:bg-primary/90 text-white py-3 rounded-xl font-semibold transition shadow-md hover:shadow-lg">
+                <button type="submit" class="flex-1 bg-primary hover:bg-primary/90 text-white py-3 rounded-xl font-semibold transition shadow-md">
                     Créer l'événement
                 </button>
                 <a href="{{ route('artisan.planning.index') }}" class="px-6 py-3 border border-gray-200 dark:border-gray-600 text-gray-700 dark:text-gray-300 rounded-xl font-semibold hover:bg-gray-50 dark:hover:bg-gray-700 transition">

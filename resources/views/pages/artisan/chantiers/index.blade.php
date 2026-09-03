@@ -87,7 +87,7 @@
     <!-- Grille des chantiers -->
     <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5">
         @forelse ($chantiers as $chantier)
-            <div class="bg-white dark:bg-gray-800 rounded-xl p-5 shadow-sm border border-gray-100 dark:border-gray-700 transition hover:-translate-y-1 hover:shadow-md hover:border-primary/40 dark:hover:border-primary">
+            <div class="bg-white dark:bg-gray-800 rounded-xl p-5 shadow-sm border border-gray-100 dark:border-gray-700 transition hover:border-primary/40 dark:hover:border-primary">
                 <div class="flex justify-between items-start">
                     <div>
                         <div class="font-semibold text-lg text-gray-900 dark:text-white">{{ $chantier->nom }}</div>

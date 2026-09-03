@@ -17,7 +17,7 @@
     <div class="space-y-6">
         <!-- Résumé financier -->
         <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
-            <div class="bg-card rounded-lg shadow-sm border border-border p-6 transition-all duration-300 hover:shadow-lg hover:-translate-y-1">
+            <div class="bg-card rounded-lg shadow-sm border border-border p-6 transition-all duration-300">
                 <div class="flex items-center justify-between">
                     <div>
                         <p class="text-sm font-medium text-muted-foreground">Chiffre d'affaires</p>
@@ -29,7 +29,7 @@
                 </div>
             </div>
 
-            <div class="bg-card rounded-lg shadow-sm border border-border p-6 transition-all duration-300 hover:shadow-lg hover:-translate-y-1">
+            <div class="bg-card rounded-lg shadow-sm border border-border p-6 transition-all duration-300">
                 <div class="flex items-center justify-between">
                     <div>
                         <p class="text-sm font-medium text-muted-foreground">Dépenses totales</p>
@@ -41,7 +41,7 @@
                 </div>
             </div>
 
-            <div class="bg-card rounded-lg shadow-sm border border-border p-6 transition-all duration-300 hover:shadow-lg hover:-translate-y-1">
+            <div class="bg-card rounded-lg shadow-sm border border-border p-6 transition-all duration-300">
                 <div class="flex items-center justify-between">
                     <div>
                         <p class="text-sm font-medium text-muted-foreground">Rentabilité</p>
@@ -57,7 +57,7 @@
         </div>
 
         <!-- Onglets -->
-        <div class="bg-white rounded-lg shadow-sm border border-gray-200 transition-all duration-300 hover:shadow-lg">
+        <div class="bg-white rounded-lg shadow-sm border border-gray-200 transition-all duration-300">
             <div class="border-b border-gray-200">
                 <nav class="flex -mb-px">
                     <button onclick="showTab('devis')" id="tab-devis" class="tab-button active px-6 py-4 text-sm font-medium border-b-2 border-primary text-primary">
@@ -80,7 +80,7 @@
                 <div id="content-devis" class="tab-content">
                     <div class="flex justify-between items-center mb-4">
                         <h3 class="text-lg font-semibold text-gray-900">Devis</h3>
-                        <button onclick="toggleForm('form-devis')" class="px-4 py-2 bg-primary hover:bg-primary/90 text-white rounded-lg transition-all duration-200 hover:scale-105 active:scale-95">
+                        <button onclick="toggleForm('form-devis')" class="px-4 py-2 bg-primary hover:bg-primary/90 text-white rounded-lg transition-all duration-200 active:scale-95">
                             + Nouveau devis
                         </button>
                     </div>
@@ -182,7 +182,7 @@
                 <div id="content-factures" class="tab-content hidden">
                     <div class="flex justify-between items-center mb-4">
                         <h3 class="text-lg font-semibold text-gray-900">Factures</h3>
-                        <button onclick="toggleForm('form-facture')" class="px-4 py-2 bg-primary hover:bg-primary/90 text-white rounded-lg transition-all duration-200 hover:scale-105 active:scale-95">
+                        <button onclick="toggleForm('form-facture')" class="px-4 py-2 bg-primary hover:bg-primary/90 text-white rounded-lg transition-all duration-200 active:scale-95">
                             + Nouvelle facture
                         </button>
                     </div>
@@ -286,7 +286,7 @@
                 <div id="content-depenses" class="tab-content hidden">
                     <div class="flex justify-between items-center mb-4">
                         <h3 class="text-lg font-semibold text-gray-900">Dépenses</h3>
-                        <button onclick="toggleForm('form-depense')" class="px-4 py-2 bg-primary hover:bg-primary/90 text-white rounded-lg transition-all duration-200 hover:scale-105 active:scale-95">
+                        <button onclick="toggleForm('form-depense')" class="px-4 py-2 bg-primary hover:bg-primary/90 text-white rounded-lg transition-all duration-200 active:scale-95">
                             + Nouvelle dépense
                         </button>
                     </div>
@@ -383,7 +383,7 @@
                 <div id="content-transactions" class="tab-content hidden">
                     <div class="flex justify-between items-center mb-4">
                         <h3 class="text-lg font-semibold text-gray-900">Transactions</h3>
-                        <button onclick="toggleForm('form-transaction')" class="px-4 py-2 bg-primary hover:bg-primary/90 text-white rounded-lg transition-all duration-200 hover:scale-105 active:scale-95">
+                        <button onclick="toggleForm('form-transaction')" class="px-4 py-2 bg-primary hover:bg-primary/90 text-white rounded-lg transition-all duration-200 active:scale-95">
                             + Nouvelle transaction
                         </button>
                     </div>

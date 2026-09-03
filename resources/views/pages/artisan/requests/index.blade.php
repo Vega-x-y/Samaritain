@@ -21,9 +21,9 @@
 
         <!-- Stats -->
         <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
-            <div class="bg-card rounded-lg shadow-sm border border-border p-4 transition-all duration-300 hover:shadow-lg hover:-translate-y-1">
+            <div class="bg-card rounded-lg shadow-sm border border-border p-4 transition-all duration-300">
                 <div class="flex items-center gap-3">
-                    <div class="p-3 bg-yellow-100 dark:bg-yellow-900/30 rounded-lg transition-transform duration-300 hover:scale-110">
+                    <div class="p-3 bg-yellow-100 dark:bg-yellow-900/30 rounded-lg transition-transform duration-300">
                         <i data-lucide="clock" class="w-6 h-6 text-yellow-600"></i>
                     </div>
                     <div>
@@ -32,9 +32,9 @@
                     </div>
                 </div>
             </div>
-            <div class="bg-card rounded-lg shadow-sm border border-border p-4 transition-all duration-300 hover:shadow-lg hover:-translate-y-1">
+            <div class="bg-card rounded-lg shadow-sm border border-border p-4 transition-all duration-300">
                 <div class="flex items-center gap-3">
-                    <div class="p-3 bg-green-100 dark:bg-green-900/30 rounded-lg transition-transform duration-300 hover:scale-110">
+                    <div class="p-3 bg-green-100 dark:bg-green-900/30 rounded-lg transition-transform duration-300">
                         <i data-lucide="check-circle" class="w-6 h-6 text-green-600"></i>
                     </div>
                     <div>
@@ -43,9 +43,9 @@
                     </div>
                 </div>
             </div>
-            <div class="bg-card rounded-lg shadow-sm border border-border p-4 transition-all duration-300 hover:shadow-lg hover:-translate-y-1">
+            <div class="bg-card rounded-lg shadow-sm border border-border p-4 transition-all duration-300">
                 <div class="flex items-center gap-3">
-                    <div class="p-3 bg-red-100 dark:bg-red-900/30 rounded-lg transition-transform duration-300 hover:scale-110">
+                    <div class="p-3 bg-red-100 dark:bg-red-900/30 rounded-lg transition-transform duration-300">
                         <i data-lucide="x-circle" class="w-6 h-6 text-red-600"></i>
                     </div>
                     <div>
@@ -63,7 +63,7 @@
 
         <!-- Liste des demandes -->
         <!-- Liste des demandes -->
-        <div class="bg-card rounded-lg shadow-sm border border-border transition-all duration-300 hover:shadow-lg">
+        <div class="bg-card rounded-lg shadow-sm border border-border transition-all duration-300">
             @if($demandes->count() > 0)
                 <div class="divide-y divide-border">
                     @foreach($demandes as $demande)
@@ -73,9 +73,9 @@
                                     @if($demande->user->profile_image)
                                         <img src="{{ asset('storage/' . $demande->user->profile_image) }}" 
                                              alt="{{ $demande->user->name }}" 
-                                             class="w-10 h-10 rounded-full object-cover border border-border transition-transform duration-300 hover:scale-110">
+                                             class="w-10 h-10 rounded-full object-cover border border-border transition-transform duration-300">
                                     @else
-                                        <div class="w-10 h-10 rounded-full bg-blue-500 flex items-center justify-center text-white text-sm font-bold transition-transform duration-300 hover:scale-110">
+                                        <div class="w-10 h-10 rounded-full bg-blue-500 flex items-center justify-center text-white text-sm font-bold transition-transform duration-300">
                                             {{ strtoupper(substr($demande->user->name, 0, 2)) }}
                                         </div>
                                     @endif
@@ -118,7 +118,7 @@
                                                     <textarea name="reponse" rows="2" required 
                                                         placeholder="Votre réponse..."
                                                         class="w-full rounded-lg border-border focus:border-primary focus:ring-primary text-sm bg-background transition-all duration-200 focus:shadow-md"></textarea>
-                                                    <button type="submit" class="px-4 py-2 bg-green-600 hover:bg-green-700 text-white rounded-lg transition-all duration-200 hover:scale-105 active:scale-95 text-sm">
+                                                    <button type="submit" class="px-4 py-2 bg-green-600 hover:bg-green-700 text-white rounded-lg transition-all duration-200 active:scale-95 text-sm">
                                                         Accepter
                                                     </button>
                                                 </div>
@@ -130,7 +130,7 @@
                                                 <textarea name="reponse" rows="2" required 
                                                     placeholder="Motif du refus..."
                                                     class="w-full rounded-lg border-border focus:border-primary focus:ring-primary text-sm bg-background transition-all duration-200 focus:shadow-md"></textarea>
-                                                <button type="submit" class="px-4 py-2 bg-red-600 hover:bg-red-700 text-white rounded-lg transition-all duration-200 hover:scale-105 active:scale-95 text-sm">
+                                                <button type="submit" class="px-4 py-2 bg-red-600 hover:bg-red-700 text-white rounded-lg transition-all duration-200 active:scale-95 text-sm">
                                                     Refuser
                                                 </button>
                                             </form>
