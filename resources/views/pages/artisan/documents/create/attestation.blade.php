@@ -68,7 +68,7 @@
                     <input type="file" name="fichier"
                            accept=".pdf,.jpg,.jpeg,.png,.doc,.docx"
                            class="w-full rounded-lg border-border focus:border-red-500 focus:ring-red-500 bg-background text-sm @error('fichier') border-red-500 @enderror">
-                    <p class="text-xs text-muted-foreground mt-1">PDF, JPG, PNG, DOC, DOCX (max 10MB) — Un PDF sera généré automatiquement</p>
+                    <p class="text-xs text-muted-foreground mt-1">PDF, JPG, PNG, DOC, DOCX (max 10MB) �?" Un PDF sera généré automatiquement</p>
                     @error('fichier') <p class="text-xs text-red-600 mt-1">{{ $message }}</p> @enderror
                 </div>
             </div>

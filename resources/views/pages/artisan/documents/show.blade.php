@@ -27,7 +27,7 @@
                 @php
                     $statusColors = [
                         'draft' => 'bg-gray-100 text-gray-800 dark:bg-gray-700 dark:text-gray-300',
-                        'sent' => 'bg-orange-100 text-orange-800 dark:bg-orange-900/30 dark:text-orange-300',
+                        'sent' => 'bg-primary/10 text-primary dark:bg-primary/20 dark:text-white/80',
                         'signed' => 'bg-green-100 text-green-800 dark:bg-green-900/30 dark:text-green-300',
                     ];
                 @endphp
@@ -153,14 +153,14 @@
                     </div>
                 @else
                     <!-- En attente d'acceptation -->
-                    <div class="bg-orange-50 dark:bg-orange-900/20 border border-orange-200 dark:border-orange-800 rounded-lg p-6">
+                    <div class="bg-primary/10 dark:bg-primary/20 border border-primary/20 dark:border-primary/40 rounded-lg p-6">
                         <div class="flex items-center gap-3">
-                            <i data-lucide="clock" class="w-6 h-6 text-orange-600 dark:text-orange-400"></i>
+                            <i data-lucide="clock" class="w-6 h-6 text-primary dark:text-primary"></i>
                             <div>
-                                <p class="text-sm font-medium text-orange-900 dark:text-orange-100">
+                                <p class="text-sm font-medium text-primary dark:text-white/80">
                                     En attente d'acceptation client
                                 </p>
-                                <p class="text-xs text-orange-700 dark:text-orange-300 mt-1">
+                                <p class="text-xs text-primary dark:text-white/80 mt-1">
                                     Le devis a été envoyé au client. Vous recevrez une notification une fois accepté.
                                 </p>
                             </div>

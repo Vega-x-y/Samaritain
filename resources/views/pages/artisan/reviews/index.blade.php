@@ -23,8 +23,8 @@
         <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
             <div class="bg-card rounded-lg shadow-sm border border-border p-4 transition-all duration-300 hover:shadow-lg hover:-translate-y-1">
                 <div class="flex items-center gap-3">
-                    <div class="p-3 bg-orange-100 dark:bg-orange-900/30 rounded-lg transition-transform duration-300 hover:scale-110">
-                        <i data-lucide="star" class="w-6 h-6 text-orange-500"></i>
+                    <div class="p-3 bg-primary/10 dark:bg-primary/20 rounded-lg transition-transform duration-300 hover:scale-110">
+                        <i data-lucide="star" class="w-6 h-6 text-primary"></i>
                     </div>
                     <div>
                         <p class="text-2xl font-bold text-foreground">{{ $artisan->average_rating }}/5</p>
@@ -34,8 +34,8 @@
             </div>
             <div class="bg-card rounded-lg shadow-sm border border-border p-4 transition-all duration-300 hover:shadow-lg hover:-translate-y-1">
                 <div class="flex items-center gap-3">
-                    <div class="p-3 bg-orange-100 dark:bg-orange-900/30 rounded-lg transition-transform duration-300 hover:scale-110">
-                        <i data-lucide="message-circle" class="w-6 h-6 text-orange-500"></i>
+                    <div class="p-3 bg-primary/10 dark:bg-primary/20 rounded-lg transition-transform duration-300 hover:scale-110">
+                        <i data-lucide="message-circle" class="w-6 h-6 text-primary"></i>
                     </div>
                     <div>
                         <p class="text-2xl font-bold text-foreground">{{ $avis->total() }}</p>
@@ -45,8 +45,8 @@
             </div>
             <div class="bg-card rounded-lg shadow-sm border border-border p-4 transition-all duration-300 hover:shadow-lg hover:-translate-y-1">
                 <div class="flex items-center gap-3">
-                    <div class="p-3 bg-orange-100 dark:bg-orange-900/30 rounded-lg transition-transform duration-300 hover:scale-110">
-                        <i data-lucide="thumbs-up" class="w-6 h-6 text-orange-500"></i>
+                    <div class="p-3 bg-primary/10 dark:bg-primary/20 rounded-lg transition-transform duration-300 hover:scale-110">
+                        <i data-lucide="thumbs-up" class="w-6 h-6 text-primary"></i>
                     </div>
                     <div>
                         <p class="text-2xl font-bold text-foreground">
@@ -59,7 +59,7 @@
         </div>
         <!-- Barre de recherche -->
         <div class="mb-4">
-            @include('components.artisan.search-bar', ['placeholder' => 'Rechercher un avis…'])
+            @include('components.artisan.search-bar', ['placeholder' => 'Rechercher un avis�?�'])
         </div>
 
         <!-- Liste des avis -->
@@ -77,7 +77,7 @@
                                              alt="{{ $avisItem->user->name }}" 
                                              class="w-10 h-10 rounded-full object-cover border border-border transition-transform duration-300 hover:scale-110">
                                     @else
-                                        <div class="w-10 h-10 rounded-full bg-orange-500 flex items-center justify-center text-white text-sm font-bold transition-transform duration-300 hover:scale-110">
+                                        <div class="w-10 h-10 rounded-full bg-primary flex items-center justify-center text-white text-sm font-bold transition-transform duration-300 hover:scale-110">
                                             {{ strtoupper(substr($avisItem->user->name, 0, 2)) }}
                                         </div>
                                     @endif

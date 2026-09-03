@@ -27,7 +27,7 @@
                 'devis' => ['bg' => 'bg-green-50 dark:bg-green-900/20 border-green-200 dark:border-green-800', 'icon' => 'text-green-600 dark:text-green-400', 'badge' => 'bg-green-600 dark:bg-green-700'],
                 'facture' => ['bg' => 'bg-blue-50 dark:bg-blue-900/20 border-blue-200 dark:border-blue-800', 'icon' => 'text-blue-600 dark:text-blue-400', 'badge' => 'bg-blue-600 dark:bg-blue-700'],
                 'attestation' => ['bg' => 'bg-red-50 dark:bg-red-900/20 border-red-200 dark:border-red-800', 'icon' => 'text-red-600 dark:text-red-400', 'badge' => 'bg-red-600 dark:bg-red-700'],
-                'compte_rendu' => ['bg' => 'bg-orange-50 dark:bg-orange-900/20 border-orange-200 dark:border-orange-800', 'icon' => 'text-orange-600 dark:text-orange-400', 'badge' => 'bg-orange-600 dark:bg-orange-700'],
+                'compte_rendu' => ['bg' => 'bg-primary/10 dark:bg-primary/20 border-primary/20 dark:border-primary/40', 'icon' => 'text-primary dark:text-primary', 'badge' => 'bg-primary dark:bg-primary'],
             ];
         @endphp
 
@@ -57,7 +57,7 @@
                 'devis' => 'bg-green-500 hover:bg-green-600',
                 'facture' => 'bg-blue-500 hover:bg-blue-600',
                 'attestation' => 'bg-red-500 hover:bg-red-600',
-                'compte_rendu' => 'bg-orange-500 hover:bg-orange-600',
+                'compte_rendu' => 'bg-primary hover:bg-primary/90',
             ];
             $createLabels = [
                 'devis' => 'Nouveau devis',
@@ -77,7 +77,7 @@
 
         <!-- Barre de recherche -->
     <div class="mb-4">
-        @include('components.artisan.search-bar', ['placeholder' => 'Rechercher un document…'])
+        @include('components.artisan.search-bar', ['placeholder' => 'Rechercher un document�?�'])
     </div>
 
     <!-- Filtres -->
@@ -85,7 +85,7 @@
         <form method="GET" action="{{ route('artisan.documents.index') }}" class="grid grid-cols-1 md:grid-cols-3 gap-4 items-end">
             <div>
                 <label class="block text-sm font-medium text-foreground mb-2">Client</label>
-                <select name="client_id" class="w-full max-w-xs rounded-lg border-border focus:border-orange-500 focus:ring-orange-500 bg-background">
+                <select name="client_id" class="w-full max-w-xs rounded-lg border-border focus:border-primary focus:ring-primary bg-background">
                     <option value="">Tous les clients</option>
                     @foreach($clients as $client)
                         <option value="{{ $client->id }}" {{ request('client_id') == $client->id ? 'selected' : '' }}>{{ $client->nom }}</option>
@@ -94,7 +94,7 @@
             </div>
             <div>
                 <label class="block text-sm font-medium text-foreground mb-2">Type</label>
-                <select name="type" class="w-full max-w-xs rounded-lg border-border focus:border-orange-500 focus:ring-orange-500 bg-background">
+                <select name="type" class="w-full max-w-xs rounded-lg border-border focus:border-primary focus:ring-primary bg-background">
                     <option value="">Tous les types</option>
                     @foreach($types as $key => $label)
                         <option value="{{ $key }}" {{ request('type') == $key ? 'selected' : '' }}>{{ $label }}</option>
@@ -102,7 +102,7 @@
                 </select>
             </div>
             <div class="flex items-end">
-                <button type="submit" class="w-full max-w-xs px-4 py-2 bg-orange-500 hover:bg-orange-600 text-white rounded-lg transition">
+                <button type="submit" class="w-full max-w-xs px-4 py-2 bg-primary hover:bg-primary/90 text-white rounded-lg transition">
                     Filtrer
                 </button>
             </div>

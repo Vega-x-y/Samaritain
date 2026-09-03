@@ -58,7 +58,7 @@
 
         <!-- Barre de recherche -->
         <div class="mb-4">
-            @include('components.artisan.search-bar', ['placeholder' => 'Rechercher une demande…'])
+            @include('components.artisan.search-bar', ['placeholder' => 'Rechercher une demande�?�'])
         </div>
 
         <!-- Liste des demandes -->
@@ -117,7 +117,7 @@
                                                 <div class="flex-1 flex flex-col gap-2">
                                                     <textarea name="reponse" rows="2" required 
                                                         placeholder="Votre réponse..."
-                                                        class="w-full rounded-lg border-border focus:border-orange-500 focus:ring-orange-500 text-sm bg-background transition-all duration-200 focus:shadow-md"></textarea>
+                                                        class="w-full rounded-lg border-border focus:border-primary focus:ring-primary text-sm bg-background transition-all duration-200 focus:shadow-md"></textarea>
                                                     <button type="submit" class="px-4 py-2 bg-green-600 hover:bg-green-700 text-white rounded-lg transition-all duration-200 hover:scale-105 active:scale-95 text-sm">
                                                         Accepter
                                                     </button>
@@ -129,7 +129,7 @@
                                                 <input type="hidden" name="statut" value="refusee">
                                                 <textarea name="reponse" rows="2" required 
                                                     placeholder="Motif du refus..."
-                                                    class="w-full rounded-lg border-border focus:border-orange-500 focus:ring-orange-500 text-sm bg-background transition-all duration-200 focus:shadow-md"></textarea>
+                                                    class="w-full rounded-lg border-border focus:border-primary focus:ring-primary text-sm bg-background transition-all duration-200 focus:shadow-md"></textarea>
                                                 <button type="submit" class="px-4 py-2 bg-red-600 hover:bg-red-700 text-white rounded-lg transition-all duration-200 hover:scale-105 active:scale-95 text-sm">
                                                     Refuser
                                                 </button>

@@ -21,7 +21,7 @@
                              alt="{{ $artisan->business_name }}" 
                              class="w-24 h-24 rounded-lg object-cover border border-border transition-transform duration-300 hover:scale-110">
                     @else
-                        <div class="w-24 h-24 rounded-lg bg-orange-500 flex items-center justify-center text-white text-3xl font-bold">
+                        <div class="w-24 h-24 rounded-lg bg-primary flex items-center justify-center text-white text-3xl font-bold">
                             {{ substr($artisan->business_name, 0, 2) }}
                         </div>
                     @endif
@@ -38,7 +38,7 @@
                     @if($artisan->categories->count() > 0)
                         <div class="flex flex-wrap gap-2 mt-3">
                             @foreach($artisan->categories as $categorie)
-                                <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-orange-100 text-orange-800 dark:bg-orange-900/30 dark:text-orange-300">
+                                <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-primary/10 text-primary dark:bg-primary/20 dark:text-white/80">
                                     {{ $categorie->name }}
                                 </span>
                             @endforeach
@@ -116,7 +116,7 @@
                             <i data-lucide="globe" class="w-4 h-4 text-muted-foreground mt-0.5"></i>
                             <div>
                                 <p class="text-xs text-muted-foreground">Site web</p>
-                                <a href="{{ $artisan->site_web }}" target="_blank" class="text-sm text-orange-500 hover:text-orange-600">
+                                <a href="{{ $artisan->site_web }}" target="_blank" class="text-sm text-primary hover:text-primary">
                                     {{ $artisan->site_web }}
                                 </a>
                             </div>
@@ -143,7 +143,7 @@
         <!-- Bouton modifier -->
         <div class="flex justify-center">
             <a href="{{ route('artisan.edit', $artisan) }}" 
-               class="inline-flex items-center px-6 py-3 bg-orange-500 hover:bg-orange-600 text-white rounded-lg transition-all duration-200 hover:scale-105 active:scale-95">
+               class="inline-flex items-center px-6 py-3 bg-primary hover:bg-primary/90 text-white rounded-lg transition-all duration-200 hover:scale-105 active:scale-95">
                 <i data-lucide="settings" class="w-5 h-5 mr-2"></i>
                 Modifier mes informations
             </a>

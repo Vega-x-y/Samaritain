@@ -20,19 +20,19 @@
 
     {{-- Solde --}}
     <div class="grid grid-cols-1 md:grid-cols-3 gap-5 mb-8">
-        <div class="md:col-span-2 bg-gradient-to-br from-orange-500 to-orange-600 rounded-2xl p-6 text-white shadow-lg">
+        <div class="md:col-span-2 bg-gradient-to-br from-primary to-primary/90 rounded-2xl p-6 text-white shadow-lg">
             <div class="flex items-start justify-between">
                 <div>
-                    <p class="text-orange-100 text-sm font-medium mb-1">Solde disponible</p>
+                    <p class="text-white/80 text-sm font-medium mb-1">Solde disponible</p>
                     <p class="text-4xl font-bold">{{ number_format($wallet->available_balance, 0, ',', ' ') }}</p>
-                    <p class="text-orange-200 text-sm mt-1">FCFA</p>
+                    <p class="text-white/80 text-sm mt-1">FCFA</p>
                 </div>
                 <div class="bg-white/20 rounded-xl p-3">
                     <i data-lucide="wallet" class="w-7 h-7"></i>
                 </div>
             </div>
             @if($wallet->reserved_balance > 0)
-                <div class="mt-4 pt-4 border-t border-white/20 text-sm text-orange-100">
+                <div class="mt-4 pt-4 border-t border-white/20 text-sm text-white/80">
                     <span>En réserve : <strong class="text-white">{{ number_format($wallet->reserved_balance, 0, ',', ' ') }} FCFA</strong></span>
                 </div>
             @endif

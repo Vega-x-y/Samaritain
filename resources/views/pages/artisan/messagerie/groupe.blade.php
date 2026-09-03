@@ -19,7 +19,7 @@
         <!-- En-tête du groupe -->
         <div class="flex items-center gap-4 mb-4 pb-4 border-b border-gray-200 dark:border-gray-700">
             <div class="w-12 h-12 rounded-full bg-blue-100 dark:bg-blue-900/30 flex items-center justify-center text-lg font-bold text-blue-600 dark:text-blue-400">
-                👥
+                �Y'�
             </div>
             <div>
                 <h1 class="text-lg font-bold text-gray-900 dark:text-white">{{ $groupe->nom }}</h1>
@@ -33,12 +33,12 @@
         <div class="flex-1 overflow-y-auto mb-4 space-y-3" id="messages-container">
             @foreach ($groupe->messages as $message)
                 <div class="flex {{ $message->expediteur_type === 'artisan' ? 'justify-end' : 'justify-start' }}">
-                    <div class="max-w-[70%] {{ $message->expediteur_type === 'artisan' ? 'bg-orange-500 text-white' : 'bg-gray-200 dark:bg-gray-700 text-gray-900 dark:text-white' }} rounded-lg px-4 py-2">
-                        <div class="text-xs font-medium mb-1 {{ $message->expediteur_type === 'artisan' ? 'text-orange-100' : 'text-gray-500 dark:text-gray-400' }}">
+                    <div class="max-w-[70%] {{ $message->expediteur_type === 'artisan' ? 'bg-primary text-white' : 'bg-gray-200 dark:bg-gray-700 text-gray-900 dark:text-white' }} rounded-lg px-4 py-2">
+                        <div class="text-xs font-medium mb-1 {{ $message->expediteur_type === 'artisan' ? 'text-white/80' : 'text-gray-500 dark:text-gray-400' }}">
                             {{ $message->expediteur_nom }}
                         </div>
                         <div class="text-sm whitespace-pre-wrap">{{ $message->contenu }}</div>
-                        <div class="text-xs mt-1 {{ $message->expediteur_type === 'artisan' ? 'text-orange-100' : 'text-gray-500 dark:text-gray-400' }}">
+                        <div class="text-xs mt-1 {{ $message->expediteur_type === 'artisan' ? 'text-white/80' : 'text-gray-500 dark:text-gray-400' }}">
                             {{ $message->created_at->format('d/m/Y H:i') }}
                         </div>
                     </div>
@@ -49,9 +49,9 @@
         <!-- Formulaire d'envoi -->
         <form method="POST" action="{{ route('artisan.messagerie.groupes.message', $groupe) }}" class="flex gap-2">
             @csrf
-            <input type="text" name="contenu" required placeholder="Écrivez votre message..."
-                class="flex-1 px-4 py-2.5 border border-gray-200 dark:border-gray-600 rounded-lg focus:border-orange-500 focus:ring-2 focus:ring-orange-100 dark:focus:ring-orange-900 outline-none transition bg-white dark:bg-gray-700 text-gray-900 dark:text-white">
-            <button type="submit" class="bg-orange-500 hover:bg-orange-600 text-white px-6 py-2.5 rounded-lg font-medium transition">
+            <input type="text" name="contenu" required placeholder="�?crivez votre message..."
+                class="flex-1 px-4 py-2.5 border border-gray-200 dark:border-gray-600 rounded-lg focus:border-primary focus:ring-2 focus:ring-primary/10 dark:focus:ring-primary/20 outline-none transition bg-white dark:bg-gray-700 text-gray-900 dark:text-white">
+            <button type="submit" class="bg-primary hover:bg-primary/90 text-white px-6 py-2.5 rounded-lg font-medium transition">
                 Envoyer
             </button>
         </form>

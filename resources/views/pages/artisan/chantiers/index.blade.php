@@ -14,46 +14,46 @@
     <!-- En-tête -->
     <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 mb-8">
         <div>
-            <h1 class="text-xl md:text-2xl font-bold text-gray-900 dark:text-white">Mes <span class="text-orange-500">chantiers</span></h1>
+            <h1 class="text-xl md:text-2xl font-bold text-gray-900 dark:text-white">Mes <span class="text-primary">chantiers</span></h1>
             <p class="text-gray-500 dark:text-gray-400 mt-1 text-sm">Gérez vos projets et suivez leur avancement</p>
         </div>
-        <a href="{{ route('artisan.chantiers.create') }}" class="bg-orange-500 hover:bg-orange-600 text-white px-5 py-2.5 rounded-full font-semibold text-sm transition shadow-md hover:shadow-lg">
+        <a href="{{ route('artisan.chantiers.create') }}" class="bg-primary hover:bg-primary/90 text-white px-5 py-2.5 rounded-full font-semibold text-sm transition shadow-md hover:shadow-lg">
             + Nouveau chantier
         </a>
     </div>
 
     <!-- Statistiques -->
     <div class="grid grid-cols-2 md:grid-cols-5 gap-3 mb-6">
-        <div class="bg-sidebar dark:bg-gray-800 rounded-xl p-3 border border-accent dark:border-gray-700 shadow-sm flex items-center gap-3">
-            <div class="w-11 h-11 bg-orange-50 dark:bg-orange-900/30 rounded-full flex items-center justify-center text-xl">📋</div>
+        <div class="bg-white dark:bg-gray-800 rounded-xl p-3 border border-gray-100 dark:border-gray-700 shadow-sm flex items-center gap-3">
+            <div class="w-11 h-11 bg-primary/10 dark:bg-primary/20 rounded-full flex items-center justify-center text-xl">�Y"<</div>
             <div>
                 <div class="text-xl font-bold text-gray-900 dark:text-white">{{ $stats['total'] }}</div>
                 <div class="text-xs text-gray-500 dark:text-gray-400">Total</div>
             </div>
         </div>
-        <div class="bg-sidebar dark:bg-gray-800 rounded-xl p-3 border border-accent dark:border-gray-700 shadow-sm flex items-center gap-3">
-            <div class="w-11 h-11 bg-blue-50 dark:bg-blue-900/30 rounded-full flex items-center justify-center text-xl">⚡</div>
+        <div class="bg-white dark:bg-gray-800 rounded-xl p-3 border border-gray-100 dark:border-gray-700 shadow-sm flex items-center gap-3">
+            <div class="w-11 h-11 bg-blue-50 dark:bg-blue-900/30 rounded-full flex items-center justify-center text-xl">�s�</div>
             <div>
                 <div class="text-xl font-bold text-blue-600 dark:text-blue-400">{{ $stats['en_cours'] }}</div>
                 <div class="text-xs text-gray-500 dark:text-gray-400">En cours</div>
             </div>
         </div>
-        <div class="bg-sidebar dark:bg-gray-800 rounded-xl p-3 border border-accent dark:border-gray-700 shadow-sm flex items-center gap-3">
+        <div class="bg-white dark:bg-gray-800 rounded-xl p-3 border border-gray-100 dark:border-gray-700 shadow-sm flex items-center gap-3">
             <div class="w-11 h-11 bg-amber-50 dark:bg-amber-900/30 rounded-full flex items-center justify-center text-xl">⏳</div>
             <div>
                 <div class="text-xl font-bold text-amber-600 dark:text-amber-400">{{ $stats['attente'] }}</div>
                 <div class="text-xs text-gray-500 dark:text-gray-400">En attente</div>
             </div>
         </div>
-        <div class="bg-sidebar dark:bg-gray-800 rounded-xl p-3 border border-accent dark:border-gray-700 shadow-sm flex items-center gap-3">
-            <div class="w-11 h-11 bg-emerald-50 dark:bg-emerald-900/30 rounded-full flex items-center justify-center text-xl">✅</div>
+        <div class="bg-white dark:bg-gray-800 rounded-xl p-3 border border-gray-100 dark:border-gray-700 shadow-sm flex items-center gap-3">
+            <div class="w-11 h-11 bg-emerald-50 dark:bg-emerald-900/30 rounded-full flex items-center justify-center text-xl">�o.</div>
             <div>
                 <div class="text-xl font-bold text-emerald-600 dark:text-emerald-400">{{ $stats['termine'] }}</div>
                 <div class="text-xs text-gray-500 dark:text-gray-400">Terminés</div>
             </div>
         </div>
-        <div class="bg-sidebar dark:bg-gray-800 rounded-xl p-3 border border-accent dark:border-gray-700 shadow-sm flex items-center gap-3">
-            <div class="w-11 h-11 bg-red-50 dark:bg-red-900/30 rounded-full flex items-center justify-center text-xl">🛑</div>
+        <div class="bg-white dark:bg-gray-800 rounded-xl p-3 border border-gray-100 dark:border-gray-700 shadow-sm flex items-center gap-3">
+            <div class="w-11 h-11 bg-red-50 dark:bg-red-900/30 rounded-full flex items-center justify-center text-xl">�Y>'</div>
             <div>
                 <div class="text-xl font-bold text-red-600 dark:text-red-400">{{ $stats['arret'] }}</div>
                 <div class="text-xs text-gray-500 dark:text-gray-400">En arrêt</div>
@@ -63,20 +63,20 @@
 
         <!-- Barre de recherche -->
     <div class="mb-4">
-        @include('components.artisan.search-bar', ['placeholder' => 'Rechercher un chantier…'])
+        @include('components.artisan.search-bar', ['placeholder' => 'Rechercher un chantier�?�'])
     </div>
 
     <!-- Filtres -->
     <div class="flex flex-wrap gap-2 items-center mb-6">
         <a href="{{ route('artisan.chantiers.index') }}"
             class="px-4 py-1.5 rounded-full text-sm font-medium border transition
-                {{ !request('statut') && !request('type') ? 'bg-gray-900 text-white border-gray-900 dark:bg-white dark:text-gray-900' : 'bg-white dark:bg-gray-800 text-gray-500 dark:text-gray-400 border-gray-200 dark:border-gray-700 hover:border-orange-500' }}">
-            📊 Tous
+                {{ !request('statut') && !request('type') ? 'bg-gray-900 text-white border-gray-900 dark:bg-white dark:text-gray-900' : 'bg-white dark:bg-gray-800 text-gray-500 dark:text-gray-400 border-gray-200 dark:border-gray-700 hover:border-primary' }}">
+            �Y"S Tous
         </a>
         @foreach ($types as $value => $label)
             <a href="{{ route('artisan.chantiers.index', ['type' => $value]) }}"
                 class="px-4 py-1.5 rounded-full text-sm font-medium border transition
-                    {{ request('type') === $value ? 'bg-gray-900 text-white border-gray-900 dark:bg-white dark:text-gray-900' : 'bg-white dark:bg-gray-800 text-gray-500 dark:text-gray-400 border-gray-200 dark:border-gray-700 hover:border-orange-500' }}">
+                    {{ request('type') === $value ? 'bg-gray-900 text-white border-gray-900 dark:bg-white dark:text-gray-900' : 'bg-white dark:bg-gray-800 text-gray-500 dark:text-gray-400 border-gray-200 dark:border-gray-700 hover:border-primary' }}">
                 {{ $label }}
             </a>
         @endforeach
@@ -86,7 +86,7 @@
     <!-- Grille des chantiers -->
     <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5">
         @forelse ($chantiers as $chantier)
-            <div class="bg-sidebar dark:bg-gray-800 rounded-xl p-5 shadow-sm border border-accent dark:border-gray-700 transition hover:-translate-y-1 hover:shadow-md hover:border-orange-300 dark:hover:border-orange-700">
+            <div class="bg-white dark:bg-gray-800 rounded-xl p-5 shadow-sm border border-gray-100 dark:border-gray-700 transition hover:-translate-y-1 hover:shadow-md hover:border-primary/40 dark:hover:border-primary">
                 <div class="flex justify-between items-start">
                     <div>
                         <div class="font-semibold text-lg text-gray-900 dark:text-white">{{ $chantier->nom }}</div>
@@ -97,7 +97,7 @@
                     <span class="text-xs font-semibold uppercase px-2 py-0.5 rounded-full"
                         @class([
                             'bg-blue-50 text-blue-700 dark:bg-blue-900/30 dark:text-blue-300' => $chantier->type === 'plomberie',
-                            'bg-orange-50 text-orange-700 dark:bg-orange-900/30 dark:text-orange-300' => $chantier->type === 'electricite',
+                            'bg-primary/10 text-primary dark:bg-primary/20 dark:text-white/80' => $chantier->type === 'electricite',
                             'bg-pink-50 text-pink-700 dark:bg-pink-900/30 dark:text-pink-300' => $chantier->type === 'peinture',
                             'bg-emerald-50 text-emerald-700 dark:bg-emerald-900/30 dark:text-emerald-300' => $chantier->type === 'maconnerie',
                             'bg-lime-50 text-lime-700 dark:bg-lime-900/30 dark:text-lime-300' => $chantier->type === 'menuiserie',
@@ -107,7 +107,7 @@
                 </div>
 
                 <div class="flex flex-wrap gap-4 text-sm text-gray-500 dark:text-gray-400 mt-3">
-                    <span>📅 {{ $chantier->created_at->format('d/m/Y') }}</span>
+                    <span>�Y". {{ $chantier->created_at->format('d/m/Y') }}</span>
                     <span class="inline-flex items-center gap-1.5 px-2 py-0.5 rounded-full text-xs font-semibold {{ $chantier->statut->colorClass() }}">
                         <span class="w-1.5 h-1.5 rounded-full {{ $chantier->statut->dotColorClass() }}"></span>
                         {{ $chantier->statut->label() }}
@@ -123,7 +123,7 @@
                     @php
                         $statutsButtons = [
                             'termine' => ['label' => 'Terminé', 'cls' => 'bg-emerald-500 hover:bg-emerald-600'],
-                            'en_cours' => ['label' => 'En cours', 'cls' => 'bg-orange-500 hover:bg-orange-600'],
+                            'en_cours' => ['label' => 'En cours', 'cls' => 'bg-primary hover:bg-primary/90'],
                             'arret' => ['label' => 'En arrêt', 'cls' => 'bg-red-500 hover:bg-red-600'],
                             'attente' => ['label' => 'En attente', 'cls' => 'bg-amber-500 hover:bg-amber-600'],
                         ];
@@ -143,20 +143,20 @@
                 </div>
                 <div class="flex gap-2 mt-3">
                     <a href="{{ route('artisan.chantiers.edit', $chantier) }}" class="flex-1 bg-blue-500 hover:bg-blue-600 text-white text-center py-2 rounded-full text-sm font-medium transition">
-                        ✏️ Modifier
+                        �o�️ Modifier
                     </a>
-                    <form method="POST" action="{{ route('artisan.chantiers.destroy', $chantier) }}" class="inline" onsubmit="return confirm('Êtes-vous sûr de vouloir supprimer ce chantier ?');">
+                    <form method="POST" action="{{ route('artisan.chantiers.destroy', $chantier) }}" class="inline" onsubmit="return confirm('�Stes-vous sûr de vouloir supprimer ce chantier ?');">
                         @csrf
                         @method('DELETE')
                         <button type="submit" class="px-3 py-2 bg-red-500 hover:bg-red-600 text-white rounded-full text-sm font-medium transition">
-                            🗑️
+                            �Y-'️
                         </button>
                     </form>
                 </div>
             </div>
         @empty
             <div class="col-span-full text-center py-16 text-gray-500 dark:text-gray-400">
-                <div class="text-5xl mb-2">📋</div>
+                <div class="text-5xl mb-2">�Y"<</div>
                 <p>Aucun chantier pour le moment.</p>
                 <p class="text-sm mt-1">Créez votre premier chantier avec le bouton ci-dessus.</p>
             </div>
@@ -172,7 +172,7 @@
     <div x-show="modalOpen" x-cloak class="fixed inset-0 bg-black/50 backdrop-blur-sm z-[1000] flex items-center justify-center p-4">
         <div class="bg-white dark:bg-gray-800 rounded-2xl max-w-2xl w-full max-h-[90vh] overflow-y-auto p-6 shadow-2xl">
             <div class="flex justify-between items-center mb-6">
-                <h2 class="text-xl font-bold text-gray-900 dark:text-white">📋 Nouveau chantier</h2>
+                <h2 class="text-xl font-bold text-gray-900 dark:text-white">�Y"< Nouveau chantier</h2>
                 <button @click="modalOpen = false" class="text-2xl text-gray-400 hover:text-gray-600 dark:hover:text-gray-300">&times;</button>
             </div>
 
@@ -182,14 +182,14 @@
                     <div>
                         <label class="block font-semibold text-sm mb-1 text-gray-900 dark:text-white">Nom du projet *</label>
                         <input type="text" name="nom" value="{{ old('nom') }}" required
-                            class="w-full px-4 py-2.5 border border-gray-200 dark:border-gray-600 rounded-lg focus:border-orange-500 focus:ring-2 focus:ring-orange-100 dark:focus:ring-orange-900 outline-none transition bg-white dark:bg-gray-700 text-gray-900 dark:text-white">
+                            class="w-full px-4 py-2.5 border border-gray-200 dark:border-gray-600 rounded-lg focus:border-primary focus:ring-2 focus:ring-primary/10 dark:focus:ring-primary/20 outline-none transition bg-white dark:bg-gray-700 text-gray-900 dark:text-white">
                         @error('nom') <p class="text-red-500 text-xs mt-1">{{ $message }}</p> @enderror
                     </div>
 
                     <div>
                         <label class="block font-semibold text-sm mb-1 text-gray-900 dark:text-white">Client</label>
                         <select name="client_id"
-                            class="w-full px-4 py-2.5 border border-gray-200 dark:border-gray-600 rounded-lg focus:border-orange-500 focus:ring-2 focus:ring-orange-100 dark:focus:ring-orange-900 outline-none transition bg-white dark:bg-gray-700 text-gray-900 dark:text-white">
+                            class="w-full px-4 py-2.5 border border-gray-200 dark:border-gray-600 rounded-lg focus:border-primary focus:ring-2 focus:ring-primary/10 dark:focus:ring-primary/20 outline-none transition bg-white dark:bg-gray-700 text-gray-900 dark:text-white">
                             <option value="">-- Sélectionner un client --</option>
                             @foreach ($clients as $client)
                                 <option value="{{ $client->id }}" {{ old('client_id') == $client->id ? 'selected' : '' }}>{{ $client->nom }}</option>
@@ -201,7 +201,7 @@
                     <div>
                         <label class="block font-semibold text-sm mb-1 text-gray-900 dark:text-white">Type *</label>
                         <select name="type" required
-                            class="w-full px-4 py-2.5 border border-gray-200 dark:border-gray-600 rounded-lg focus:border-orange-500 focus:ring-2 focus:ring-orange-100 dark:focus:ring-orange-900 outline-none transition bg-white dark:bg-gray-700 text-gray-900 dark:text-white">
+                            class="w-full px-4 py-2.5 border border-gray-200 dark:border-gray-600 rounded-lg focus:border-primary focus:ring-2 focus:ring-primary/10 dark:focus:ring-primary/20 outline-none transition bg-white dark:bg-gray-700 text-gray-900 dark:text-white">
                             @foreach ($types as $value => $label)
                                 <option value="{{ $value }}" {{ old('type') === $value ? 'selected' : '' }}>{{ $label }}</option>
                             @endforeach
@@ -213,17 +213,17 @@
                         <div>
                             <label class="block font-semibold text-sm mb-1 text-gray-900 dark:text-white">Budget (FCFA HT)</label>
                             <input type="number" name="budget" value="{{ old('budget') }}"
-                                class="w-full px-4 py-2.5 border border-gray-200 dark:border-gray-600 rounded-lg focus:border-orange-500 focus:ring-2 focus:ring-orange-100 dark:focus:ring-orange-900 outline-none transition bg-white dark:bg-gray-700 text-gray-900 dark:text-white" min="0" step="100">
+                                class="w-full px-4 py-2.5 border border-gray-200 dark:border-gray-600 rounded-lg focus:border-primary focus:ring-2 focus:ring-primary/10 dark:focus:ring-primary/20 outline-none transition bg-white dark:bg-gray-700 text-gray-900 dark:text-white" min="0" step="100">
                             @error('budget') <p class="text-red-500 text-xs mt-1">{{ $message }}</p> @enderror
                         </div>
                         <div>
                             <label class="block font-semibold text-sm mb-1 text-gray-900 dark:text-white">Priorité</label>
                             <select name="priorite"
-                                class="w-full px-4 py-2.5 border border-gray-200 dark:border-gray-600 rounded-lg focus:border-orange-500 focus:ring-2 focus:ring-orange-100 dark:focus:ring-orange-900 outline-none transition bg-white dark:bg-gray-700 text-gray-900 dark:text-white">
+                                class="w-full px-4 py-2.5 border border-gray-200 dark:border-gray-600 rounded-lg focus:border-primary focus:ring-2 focus:ring-primary/10 dark:focus:ring-primary/20 outline-none transition bg-white dark:bg-gray-700 text-gray-900 dark:text-white">
                                 <option value="">-- Priorité --</option>
-                                <option value="haute" {{ old('priorite') === 'haute' ? 'selected' : '' }}>🔴 Haute</option>
-                                <option value="moyenne" {{ old('priorite') === 'moyenne' ? 'selected' : '' }}>🟡 Moyenne</option>
-                                <option value="basse" {{ old('priorite') === 'basse' ? 'selected' : '' }}>🟢 Basse</option>
+                                <option value="haute" {{ old('priorite') === 'haute' ? 'selected' : '' }}>�Y"� Haute</option>
+                                <option value="moyenne" {{ old('priorite') === 'moyenne' ? 'selected' : '' }}>�YY� Moyenne</option>
+                                <option value="basse" {{ old('priorite') === 'basse' ? 'selected' : '' }}>�YY� Basse</option>
                             </select>
                             @error('priorite') <p class="text-red-500 text-xs mt-1">{{ $message }}</p> @enderror
                         </div>
@@ -233,13 +233,13 @@
                         <div>
                             <label class="block font-semibold text-sm mb-1 text-gray-900 dark:text-white">Date de début</label>
                             <input type="date" name="date_debut" value="{{ old('date_debut') }}"
-                                class="w-full px-4 py-2.5 border border-gray-200 dark:border-gray-600 rounded-lg focus:border-orange-500 focus:ring-2 focus:ring-orange-100 dark:focus:ring-orange-900 outline-none transition bg-white dark:bg-gray-700 text-gray-900 dark:text-white">
+                                class="w-full px-4 py-2.5 border border-gray-200 dark:border-gray-600 rounded-lg focus:border-primary focus:ring-2 focus:ring-primary/10 dark:focus:ring-primary/20 outline-none transition bg-white dark:bg-gray-700 text-gray-900 dark:text-white">
                             @error('date_debut') <p class="text-red-500 text-xs mt-1">{{ $message }}</p> @enderror
                         </div>
                         <div>
                             <label class="block font-semibold text-sm mb-1 text-gray-900 dark:text-white">Date de fin</label>
                             <input type="date" name="date_fin" value="{{ old('date_fin') }}"
-                                class="w-full px-4 py-2.5 border border-gray-200 dark:border-gray-600 rounded-lg focus:border-orange-500 focus:ring-2 focus:ring-orange-100 dark:focus:ring-orange-900 outline-none transition bg-white dark:bg-gray-700 text-gray-900 dark:text-white">
+                                class="w-full px-4 py-2.5 border border-gray-200 dark:border-gray-600 rounded-lg focus:border-primary focus:ring-2 focus:ring-primary/10 dark:focus:ring-primary/20 outline-none transition bg-white dark:bg-gray-700 text-gray-900 dark:text-white">
                             @error('date_fin') <p class="text-red-500 text-xs mt-1">{{ $message }}</p> @enderror
                         </div>
                     </div>
@@ -247,14 +247,14 @@
                     <div>
                         <label class="block font-semibold text-sm mb-1 text-gray-900 dark:text-white">Matériel nécessaire</label>
                         <textarea name="materiel" rows="2"
-                            class="w-full px-4 py-2.5 border border-gray-200 dark:border-gray-600 rounded-lg focus:border-orange-500 focus:ring-2 focus:ring-orange-100 dark:focus:ring-orange-900 outline-none transition bg-white dark:bg-gray-700 text-gray-900 dark:text-white">{{ old('materiel') }}</textarea>
+                            class="w-full px-4 py-2.5 border border-gray-200 dark:border-gray-600 rounded-lg focus:border-primary focus:ring-2 focus:ring-primary/10 dark:focus:ring-primary/20 outline-none transition bg-white dark:bg-gray-700 text-gray-900 dark:text-white">{{ old('materiel') }}</textarea>
                         @error('materiel') <p class="text-red-500 text-xs mt-1">{{ $message }}</p> @enderror
                     </div>
 
                     <div>
                         <label class="block font-semibold text-sm mb-1 text-gray-900 dark:text-white">Note client</label>
                         <textarea name="note_client" rows="2"
-                            class="w-full px-4 py-2.5 border border-gray-200 dark:border-gray-600 rounded-lg focus:border-orange-500 focus:ring-2 focus:ring-orange-100 dark:focus:ring-orange-900 outline-none transition bg-white dark:bg-gray-700 text-gray-900 dark:text-white">{{ old('note_client') }}</textarea>
+                            class="w-full px-4 py-2.5 border border-gray-200 dark:border-gray-600 rounded-lg focus:border-primary focus:ring-2 focus:ring-primary/10 dark:focus:ring-primary/20 outline-none transition bg-white dark:bg-gray-700 text-gray-900 dark:text-white">{{ old('note_client') }}</textarea>
                         @error('note_client') <p class="text-red-500 text-xs mt-1">{{ $message }}</p> @enderror
                     </div>
 
@@ -265,17 +265,17 @@
                             <template x-for="(item, index) in checklist" :key="index">
                                 <div class="flex items-center gap-2">
                                     <input type="text" x-model="checklist[index]" :name="'checklist['+index+']'"
-                                        class="flex-1 px-3 py-1.5 border border-gray-200 dark:border-gray-600 rounded-lg text-sm focus:border-orange-500 focus:ring-2 focus:ring-orange-100 outline-none transition bg-white dark:bg-gray-700 text-gray-900 dark:text-white" placeholder="Nom de l'étape">
+                                        class="flex-1 px-3 py-1.5 border border-gray-200 dark:border-gray-600 rounded-lg text-sm focus:border-primary focus:ring-2 focus:ring-primary/10 outline-none transition bg-white dark:bg-gray-700 text-gray-900 dark:text-white" placeholder="Nom de l'étape">
                                     <button type="button" @click="checklist.splice(index, 1)" class="text-red-500 hover:text-red-700 text-sm font-bold">&times;</button>
                                 </div>
                             </template>
                         </div>
-                        <button type="button" @click="checklist.push('')" class="mt-2 text-sm text-orange-500 hover:text-orange-600 font-medium">+ Ajouter une étape</button>
+                        <button type="button" @click="checklist.push('')" class="mt-2 text-sm text-primary hover:text-primary font-medium">+ Ajouter une étape</button>
                     </div>
                 </div>
 
                 <div class="mt-6">
-                    <button type="submit" class="w-full bg-orange-500 hover:bg-orange-600 text-white py-3 rounded-xl font-semibold transition">Créer le chantier</button>
+                    <button type="submit" class="w-full bg-primary hover:bg-primary/90 text-white py-3 rounded-xl font-semibold transition">Créer le chantier</button>
                 </div>
             </form>
         </div>

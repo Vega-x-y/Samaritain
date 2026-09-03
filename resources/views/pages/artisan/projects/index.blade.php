@@ -25,7 +25,7 @@
     <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
         <!-- Barre de recherche -->
         <div class="mb-4">
-            @include('components.artisan.search-bar', ['placeholder' => 'Rechercher un projet…'])
+            @include('components.artisan.search-bar', ['placeholder' => 'Rechercher un projet�?�'])
         </div>
 
         @if($projects->isNotEmpty())
@@ -119,7 +119,7 @@
                 </div>
             @endif
         @else
-            <!-- État vide amélioré -->
+            <!-- �?tat vide amélioré -->
             <div class="text-center py-16 bg-gray-50 dark:bg-gray-800/50 rounded-2xl border-2 border-dashed border-gray-200 dark:border-gray-700">
                 <div class="w-24 h-24 bg-gray-100 dark:bg-gray-700 rounded-full flex items-center justify-center mx-auto mb-4">
                     <i data-lucide="images" class="w-12 h-12 text-gray-400 dark:text-gray-500"></i>

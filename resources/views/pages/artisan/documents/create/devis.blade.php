@@ -4,7 +4,7 @@
 
 @section('breadcrumbs')
     <nav class="flex items-center gap-2 text-sm text-muted-foreground">
-        <a href="{{ route('artisan.documents.index') }}" class="hover:text-orange-500 transition-colors">
+        <a href="{{ route('artisan.documents.index') }}" class="hover:text-primary transition-colors">
             <i data-lucide="folder" class="w-4 h-4"></i>
             <span>Documents</span>
         </a>
@@ -43,7 +43,7 @@
                 <div>
                     <label class="block text-sm font-medium text-foreground mb-1">Client *</label>
                     <select name="client_id" required
-                            class="w-full rounded-lg border-border focus:border-orange-500 focus:ring-orange-500 bg-background text-sm @error('client_id') border-red-500 @enderror">
+                            class="w-full rounded-lg border-border focus:border-primary focus:ring-primary bg-background text-sm @error('client_id') border-red-500 @enderror">
                         <option value="">Sélectionnez un client</option>
                         @foreach($clients as $client)
                             <option value="{{ $client->id }}" {{ old('client_id') == $client->id ? 'selected' : '' }}>{{ $client->nom }}</option>
@@ -55,7 +55,7 @@
                 <div>
                     <label class="block text-sm font-medium text-foreground mb-1">Projet (optionnel)</label>
                     <select name="chantier_id"
-                            class="w-full rounded-lg border-border focus:border-orange-500 focus:ring-orange-500 bg-background text-sm">
+                            class="w-full rounded-lg border-border focus:border-primary focus:ring-primary bg-background text-sm">
                         <option value="">Aucun projet</option>
                         @foreach($chantiers as $chantier)
                             <option value="{{ $chantier->id }}" {{ old('chantier_id') == $chantier->id ? 'selected' : '' }}>{{ $chantier->nom }}</option>
@@ -73,14 +73,14 @@
                     <div>
                         <label class="block text-sm font-medium text-foreground mb-1">Référence devis *</label>
                         <input type="text" name="reference_devis" value="{{ old('reference_devis') }}" required
-                               class="w-full rounded-lg border-border focus:border-orange-500 focus:ring-orange-500 bg-background text-sm @error('reference_devis') border-red-500 @enderror">
+                               class="w-full rounded-lg border-border focus:border-primary focus:ring-primary bg-background text-sm @error('reference_devis') border-red-500 @enderror">
                         @error('reference_devis') <p class="text-xs text-red-600 mt-1">{{ $message }}</p> @enderror
                     </div>
 
                     <div>
                         <label class="block text-sm font-medium text-foreground mb-1">Date d'émission *</label>
                         <input type="date" name="date_emission_devis" value="{{ old('date_emission_devis') }}" required
-                               class="w-full rounded-lg border-border focus:border-orange-500 focus:ring-orange-500 bg-background text-sm @error('date_emission_devis') border-red-500 @enderror">
+                               class="w-full rounded-lg border-border focus:border-primary focus:ring-primary bg-background text-sm @error('date_emission_devis') border-red-500 @enderror">
                         @error('date_emission_devis') <p class="text-xs text-red-600 mt-1">{{ $message }}</p> @enderror
                     </div>
                 </div>
@@ -108,7 +108,7 @@
                 <div class="mb-4">
                     <label class="block text-sm font-medium text-foreground mb-1">Conditions générales</label>
                     <textarea name="conditions_generales" rows="3"
-                              class="w-full rounded-lg border-border focus:border-orange-500 focus:ring-orange-500 bg-background text-sm"
+                              class="w-full rounded-lg border-border focus:border-primary focus:ring-primary bg-background text-sm"
                               placeholder="Saisissez les conditions générales...">{{ old('conditions_generales') }}</textarea>
                 </div>
 
@@ -117,7 +117,7 @@
                     <label class="block text-sm font-medium text-foreground mb-1">Image des conditions (optionnel)</label>
                     <input type="file" name="conditions_image"
                            accept="image/*"
-                           class="w-full rounded-lg border-border focus:border-orange-500 focus:ring-orange-500 bg-background text-sm">
+                           class="w-full rounded-lg border-border focus:border-primary focus:ring-primary bg-background text-sm">
                     @error('conditions_image') <p class="text-xs text-red-600 mt-1">{{ $message }}</p> @enderror
                 </div>
             </div>
@@ -126,7 +126,7 @@
             <div class="border-t border-border pt-4">
                 <div class="flex gap-3">
                     <button type="submit"
-                            class="px-6 py-2 bg-orange-500 hover:bg-orange-600 text-white rounded-lg text-sm font-medium transition flex items-center gap-2">
+                            class="px-6 py-2 bg-primary hover:bg-primary/90 text-white rounded-lg text-sm font-medium transition flex items-center gap-2">
                         <i data-lucide="save" class="w-4 h-4"></i>
                         Enregistrer le devis
                     </button>
@@ -160,7 +160,7 @@
                        name="lignes[${ligneIndex}][libelle]"
                        value="${libelle}"
                        required
-                       class="w-full rounded-lg border-border focus:border-orange-500 focus:ring-orange-500 bg-background text-sm">
+                       class="w-full rounded-lg border-border focus:border-primary focus:ring-primary bg-background text-sm">
             </div>
             <div>
                 <label class="block text-xs text-muted-foreground mb-1">Qté</label>
@@ -168,7 +168,7 @@
                        name="lignes[${ligneIndex}][quantite]"
                        value="${quantite}"
                        step="0.01" min="1" required
-                       class="w-full rounded-lg border-border focus:border-orange-500 focus:ring-orange-500 bg-background text-sm">
+                       class="w-full rounded-lg border-border focus:border-primary focus:ring-primary bg-background text-sm">
             </div>
             <div class="flex items-end gap-2">
                 <div class="flex-1">
@@ -177,7 +177,7 @@
                            name="lignes[${ligneIndex}][prix_unitaire]"
                            value="${prixUnitaire}"
                            step="0.01" min="0" required
-                           class="w-full rounded-lg border-border focus:border-orange-500 focus:ring-orange-500 bg-background text-sm">
+                           class="w-full rounded-lg border-border focus:border-primary focus:ring-primary bg-background text-sm">
                 </div>
                 <button type="button"
                         onclick="this.closest('.grid').remove()"

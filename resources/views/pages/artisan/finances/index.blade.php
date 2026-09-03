@@ -13,7 +13,7 @@
     @php
         $categorieLabels = [
             'materiaux' => 'Matériaux',
-            'main_oeuvre' => "Main d'œuvre",
+            'main_oeuvre' => "Main d'�"uvre",
             'transport' => 'Transport',
             'autre' => 'Autre',
         ];
@@ -23,7 +23,7 @@
             ['label' => 'Dépenses totales', 'value' => $totalDepenses, 'suffix' => 'FCFA', 'border' => 'border-red-500', 'text' => 'text-red-500'],
             ['label' => 'Bénéfice net', 'value' => $beneficeNet, 'suffix' => 'FCFA', 'border' => 'border-emerald-500', 'text' => 'text-emerald-500'],
             ['label' => 'Marge', 'value' => $marge, 'suffix' => '%', 'border' => 'border-blue-500', 'text' => 'text-blue-500'],
-            ['label' => 'Acomptes reçus', 'value' => $acomptesRecus, 'suffix' => 'FCFA', 'border' => 'border-orange-500', 'text' => 'text-orange-500'],
+            ['label' => 'Acomptes reçus', 'value' => $acomptesRecus, 'suffix' => 'FCFA', 'border' => 'border-primary', 'text' => 'text-primary'],
             ['label' => 'Impayés', 'value' => $impayes, 'suffix' => 'FCFA', 'border' => 'border-red-500', 'text' => 'text-red-500'],
         ];
 
@@ -46,7 +46,7 @@
                 </a>
                 <!-- Nouveau projet -->
                 <a href="{{ route('artisan.chantiers.create') }}"
-                   class="inline-flex items-center gap-2 px-5 py-2.5 bg-orange-500 hover:bg-orange-600 text-white font-medium rounded-full transition-all duration-200 hover:scale-105 hover:shadow-lg hover:shadow-orange-500/30 active:scale-95">
+                   class="inline-flex items-center gap-2 px-5 py-2.5 bg-primary hover:bg-primary/90 text-white font-medium rounded-full transition-all duration-200 hover:scale-105 hover:shadow-lg hover:shadow-primary/30 active:scale-95">
                     <i data-lucide="plus" class="w-4 h-4"></i>
                     Nouveau projet
                 </a>
@@ -56,8 +56,8 @@
         <!-- ===== SOUS-HEADER ===== -->
         <div class="flex flex-wrap items-center justify-between gap-4 bg-card border border-border rounded-2xl shadow-sm px-5 py-4">
             <div class="flex items-center gap-3">
-                <div class="w-10 h-10 rounded-full bg-orange-100 dark:bg-orange-900/30 flex items-center justify-center transition-all duration-300 hover:scale-110">
-                    <i data-lucide="pie-chart" class="w-5 h-5 text-orange-500"></i>
+                <div class="w-10 h-10 rounded-full bg-primary/10 dark:bg-primary/20 flex items-center justify-center transition-all duration-300 hover:scale-110">
+                    <i data-lucide="pie-chart" class="w-5 h-5 text-primary"></i>
                 </div>
                 <div>
                     <p class="font-semibold text-foreground">Centre financier</p>
@@ -89,7 +89,7 @@
         </div>
         <!-- Barre de recherche -->
         <div class="mb-4">
-            @include('components.artisan.search-bar', ['placeholder' => 'Rechercher une transaction…'])
+            @include('components.artisan.search-bar', ['placeholder' => 'Rechercher une transaction�?�'])
         </div>
 
         <!-- ===== Enregistrement rapide d'une dépense ===== -->
@@ -105,7 +105,7 @@
                 @csrf
                 <div class="md:col-span-2">
                     <label class="block text-sm font-medium text-foreground mb-2">Chantier *</label>
-                    <select name="chantier_id" id="depense-chantier" required class="w-full rounded-lg border-border focus:border-orange-500 focus:ring-orange-500 bg-background">
+                    <select name="chantier_id" id="depense-chantier" required class="w-full rounded-lg border-border focus:border-primary focus:ring-primary bg-background">
                         <option value="">Sélectionner un chantier</option>
                         @foreach($chantiersList as $chantier)
                             <option value="{{ $chantier->id }}">{{ $chantier->nom }}</option>
@@ -114,23 +114,23 @@
                 </div>
                 <div>
                     <label class="block text-sm font-medium text-foreground mb-2">Type *</label>
-                    <select name="categorie" required class="w-full rounded-lg border-border focus:border-orange-500 focus:ring-orange-500 bg-background">
+                    <select name="categorie" required class="w-full rounded-lg border-border focus:border-primary focus:ring-primary bg-background">
                         <option value="materiaux">Matériaux</option>
-                        <option value="main_oeuvre">Main d'œuvre</option>
+                        <option value="main_oeuvre">Main d'�"uvre</option>
                         <option value="transport">Transport</option>
                         <option value="autre">Autre</option>
                     </select>
                 </div>
                 <div>
                     <label class="block text-sm font-medium text-foreground mb-2">Montant *</label>
-                    <input type="number" step="0.01" name="montant" required class="w-full rounded-lg border-border focus:border-orange-500 focus:ring-orange-500 bg-background" placeholder="Ex: 15000">
+                    <input type="number" step="0.01" name="montant" required class="w-full rounded-lg border-border focus:border-primary focus:ring-primary bg-background" placeholder="Ex: 15000">
                 </div>
                 <div>
                     <label class="block text-sm font-medium text-foreground mb-2">Date</label>
-                    <input type="date" name="date" value="{{ now()->format('Y-m-d') }}" class="w-full rounded-lg border-border focus:border-orange-500 focus:ring-orange-500 bg-background">
+                    <input type="date" name="date" value="{{ now()->format('Y-m-d') }}" class="w-full rounded-lg border-border focus:border-primary focus:ring-primary bg-background">
                 </div>
                 <div class="md:col-span-5">
-                    <button type="submit" class="inline-flex items-center gap-2 px-4 py-2 bg-orange-500 hover:bg-orange-600 text-white rounded-lg transition-all duration-200 hover:scale-105 active:scale-95">
+                    <button type="submit" class="inline-flex items-center gap-2 px-4 py-2 bg-primary hover:bg-primary/90 text-white rounded-lg transition-all duration-200 hover:scale-105 active:scale-95">
                         <i data-lucide="save" class="w-4 h-4"></i>
                         Enregistrer la dépense
                     </button>
@@ -170,7 +170,7 @@
                         <div class="group transition-all duration-200">
                             <div class="flex items-center justify-between gap-3 text-sm">
                                 <a href="{{ route('artisan.finances.show', $item['chantier']) }}"
-                                   class="font-medium text-foreground hover:text-orange-500 hover:underline decoration-orange-500 underline-offset-2 transition-all truncate">
+                                   class="font-medium text-foreground hover:text-primary hover:underline decoration-primary underline-offset-2 transition-all truncate">
                                     {{ $item['nom'] }}
                                 </a>
                                 <span class="font-semibold text-foreground whitespace-nowrap">
@@ -178,7 +178,7 @@
                                 </span>
                             </div>
                             <div class="mt-2 h-2 w-full bg-muted rounded-full overflow-hidden">
-                                <div class="h-full bg-orange-500 rounded-full transition-all group-hover:brightness-110"
+                                <div class="h-full bg-primary rounded-full transition-all group-hover:brightness-110"
                                      style="width: {{ $maxRevenu > 0 ? (int) round(($item['montant'] / $maxRevenu) * 100) : 0 }}%"></div>
                             </div>
                         </div>
@@ -228,12 +228,12 @@
                             @forelse ($dernieresDepenses as $depense)
                                 <tr class="hover:bg-gray-50 dark:hover:bg-gray-700">
                                     <td class="px-6 py-3 text-sm text-gray-900 dark:text-gray-100">
-                                        <a href="{{ route('artisan.finances.show', $depense->chantier) }}" class="hover:text-orange-500 transition-colors">
-                                            {{ $depense->chantier->nom ?? '—' }}
+                                        <a href="{{ route('artisan.finances.show', $depense->chantier) }}" class="hover:text-primary transition-colors">
+                                            {{ $depense->chantier->nom ?? '�?"' }}
                                         </a>
                                     </td>
                                     <td class="px-6 py-3 text-sm text-gray-900 dark:text-gray-100">
-                                        <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-orange-100 dark:bg-orange-900/40 text-orange-800 dark:text-orange-200">
+                                        <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-primary/10 dark:bg-primary/20 text-primary dark:text-white/80">
                                             {{ $categorieLabels[$depense->categorie] ?? ucfirst($depense->categorie) }}
                                         </span>
                                     </td>

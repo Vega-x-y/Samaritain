@@ -6,7 +6,7 @@
     <nav class="flex items-center gap-2 text-sm text-muted-foreground">
         <a href="{{ route('artisan.equipe.index') }}" class="hover:text-foreground transition-colors flex items-center gap-1">
             <i data-lucide="user-check" class="w-4 h-4"></i>
-            <span>Équipe</span>
+            <span>�?quipe</span>
         </a>
         <span class="text-muted-foreground">/</span>
         <span class="text-foreground font-medium truncate max-w-48">{{ $membre->nom }}</span>
@@ -18,7 +18,7 @@
     <!-- En-tête -->
     <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 mb-8">
         <div class="flex items-center gap-4">
-            <div class="w-16 h-16 rounded-full bg-orange-100 dark:bg-orange-900/30 flex items-center justify-center text-2xl font-bold text-orange-600 dark:text-orange-400">
+            <div class="w-16 h-16 rounded-full bg-primary/10 dark:bg-primary/20 flex items-center justify-center text-2xl font-bold text-primary dark:text-primary">
                 {{ $membre->initial }}
             </div>
             <div>
@@ -37,7 +37,7 @@
                 </button>
             </form>
             <a href="{{ route('artisan.equipe.index') }}" class="px-4 py-2 rounded-full text-sm font-medium border border-gray-300 text-gray-600 hover:bg-gray-50 dark:border-gray-600 dark:text-gray-400 dark:hover:bg-gray-800 transition">
-                ← Retour
+                �?� Retour
             </a>
         </div>
     </div>
@@ -45,7 +45,7 @@
     <!-- Grille d'information -->
     <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
         <!-- Informations générales -->
-        <div class="bg-sidebar dark:bg-gray-800 rounded-xl p-5 border border-accent dark:border-gray-700">
+        <div class="bg-white dark:bg-gray-800 rounded-xl p-5 border border-gray-100 dark:border-gray-700">
             <h3 class="text-xs uppercase font-semibold text-gray-400 dark:text-gray-500 mb-3 border-b border-gray-100 dark:border-gray-700 pb-2">Informations</h3>
             <div class="space-y-2 text-sm">
                 <div class="flex justify-between">
@@ -54,12 +54,12 @@
                 </div>
                 <div class="flex justify-between">
                     <span class="text-gray-500 dark:text-gray-400">Téléphone</span>
-                    <a href="tel:{{ $membre->telephone }}" class="font-medium text-orange-500 hover:text-orange-600 transition-colors">{{ $membre->telephone }}</a>
+                    <a href="tel:{{ $membre->telephone }}" class="font-medium text-primary hover:text-primary transition-colors">{{ $membre->telephone }}</a>
                 </div>
                 @if ($membre->email)
                     <div class="flex justify-between">
                         <span class="text-gray-500 dark:text-gray-400">Email</span>
-                        <a href="mailto:{{ $membre->email }}" class="font-medium text-orange-500 hover:text-orange-600 transition-colors truncate max-w-48">{{ $membre->email }}</a>
+                        <a href="mailto:{{ $membre->email }}" class="font-medium text-primary hover:text-primary transition-colors truncate max-w-48">{{ $membre->email }}</a>
                     </div>
                 @endif
                 <div class="flex justify-between">
@@ -76,8 +76,8 @@
         </div>
 
         <!-- Chantiers du membre -->
-        <div class="bg-sidebar dark:bg-gray-800 rounded-xl p-5 border border-accent dark:border-gray-700 md:col-span-2">
-            <h3 class="text-xs uppercase font-semibold text-gray-400 dark:text-gray-500 mb-3 border-b border-gray-100 dark:border-gray-700 pb-2">📋 Chantiers assignés</h3>
+        <div class="bg-white dark:bg-gray-800 rounded-xl p-5 border border-gray-100 dark:border-gray-700 md:col-span-2">
+            <h3 class="text-xs uppercase font-semibold text-gray-400 dark:text-gray-500 mb-3 border-b border-gray-100 dark:border-gray-700 pb-2">�Y"< Chantiers assignés</h3>
             @php $membreChantiers = $membre->chantiers()->latest()->get(); @endphp
             @if ($membreChantiers->count() > 0)
                 <div class="space-y-2">
@@ -93,7 +93,7 @@
                                     </span>
                                 </div>
                             </div>
-                            <span class="font-bold text-gray-900 dark:text-white">{{ number_format($chantier->budget ?? 0, 0, ',', ' ') }} €</span>
+                            <span class="font-bold text-gray-900 dark:text-white">{{ number_format($chantier->budget ?? 0, 0, ',', ' ') }} �,�</span>
                         </a>
                     @endforeach
                 </div>
@@ -106,11 +106,11 @@
     <!-- Actions rapides -->
     <div class="mt-8 flex flex-wrap gap-3">
         <a href="tel:{{ $membre->telephone }}" class="bg-green-500 hover:bg-green-600 text-white px-5 py-2.5 rounded-full text-sm font-medium transition shadow-md hover:shadow-lg">
-            📞 Appeler
+            �Y"z Appeler
         </a>
         @if ($membre->email)
             <a href="mailto:{{ $membre->email }}" class="bg-blue-500 hover:bg-blue-600 text-white px-5 py-2.5 rounded-full text-sm font-medium transition shadow-md hover:shadow-lg">
-                📧 Envoyer un email
+                �Y"� Envoyer un email
             </a>
         @endif
     </div>

@@ -4,7 +4,7 @@
 
 @section('breadcrumbs')
     <nav class="flex items-center gap-2 text-sm text-muted-foreground">
-        <a href="{{ route('artisan.documents.index') }}" class="hover:text-orange-500 transition-colors">
+        <a href="{{ route('artisan.documents.index') }}" class="hover:text-primary transition-colors">
             <i data-lucide="folder" class="w-4 h-4"></i>
             <span>Documents</span>
         </a>
@@ -18,8 +18,8 @@
     <div class="bg-card rounded-xl shadow-sm border border-border p-6 transition-all duration-300">
         <!-- En-tête -->
         <div class="flex items-center gap-3 mb-6">
-            <div class="p-2.5 rounded-full bg-orange-50 dark:bg-orange-900/20">
-                <i data-lucide="clipboard-list" class="w-6 h-6 text-orange-600 dark:text-orange-400"></i>
+            <div class="p-2.5 rounded-full bg-primary/10 dark:bg-primary/20">
+                <i data-lucide="clipboard-list" class="w-6 h-6 text-primary dark:text-primary"></i>
             </div>
             <div>
                 <h1 class="text-xl font-bold text-foreground">Nouveau compte rendu</h1>
@@ -36,14 +36,14 @@
                 <div>
                     <label class="block text-sm font-medium text-foreground mb-1">Nom du document *</label>
                     <input type="text" name="nom" value="{{ old('nom') }}" required
-                           class="w-full rounded-lg border-border focus:border-orange-500 focus:ring-orange-500 bg-background text-sm @error('nom') border-red-500 @enderror">
+                           class="w-full rounded-lg border-border focus:border-primary focus:ring-primary bg-background text-sm @error('nom') border-red-500 @enderror">
                     @error('nom') <p class="text-xs text-red-600 mt-1">{{ $message }}</p> @enderror
                 </div>
 
                 <div>
                     <label class="block text-sm font-medium text-foreground mb-1">Client *</label>
                     <select name="client_id" required
-                            class="w-full rounded-lg border-border focus:border-orange-500 focus:ring-orange-500 bg-background text-sm @error('client_id') border-red-500 @enderror">
+                            class="w-full rounded-lg border-border focus:border-primary focus:ring-primary bg-background text-sm @error('client_id') border-red-500 @enderror">
                         <option value="">Sélectionnez un client</option>
                         @foreach($clients as $client)
                             <option value="{{ $client->id }}" {{ old('client_id') == $client->id ? 'selected' : '' }}>{{ $client->nom }}</option>
@@ -55,7 +55,7 @@
                 <div>
                     <label class="block text-sm font-medium text-foreground mb-1">Projet (optionnel)</label>
                     <select name="chantier_id"
-                            class="w-full rounded-lg border-border focus:border-orange-500 focus:ring-orange-500 bg-background text-sm">
+                            class="w-full rounded-lg border-border focus:border-primary focus:ring-primary bg-background text-sm">
                         <option value="">Aucun projet</option>
                         @foreach($chantiers as $chantier)
                             <option value="{{ $chantier->id }}" {{ old('chantier_id') == $chantier->id ? 'selected' : '' }}>{{ $chantier->nom }}</option>
@@ -67,8 +67,8 @@
                     <label class="block text-sm font-medium text-foreground mb-1">Fichier (optionnel)</label>
                     <input type="file" name="fichier"
                            accept=".pdf,.jpg,.jpeg,.png,.doc,.docx"
-                           class="w-full rounded-lg border-border focus:border-orange-500 focus:ring-orange-500 bg-background text-sm @error('fichier') border-red-500 @enderror">
-                    <p class="text-xs text-muted-foreground mt-1">PDF, JPG, PNG, DOC, DOCX (max 10MB) — Un PDF sera généré automatiquement</p>
+                           class="w-full rounded-lg border-border focus:border-primary focus:ring-primary bg-background text-sm @error('fichier') border-red-500 @enderror">
+                    <p class="text-xs text-muted-foreground mt-1">PDF, JPG, PNG, DOC, DOCX (max 10MB) �?" Un PDF sera généré automatiquement</p>
                     @error('fichier') <p class="text-xs text-red-600 mt-1">{{ $message }}</p> @enderror
                 </div>
             </div>
@@ -81,14 +81,14 @@
                     <div class="md:col-span-2">
                         <label class="block text-sm font-medium text-foreground mb-1">Titre du compte rendu *</label>
                         <input type="text" name="titre_compte_rendu" value="{{ old('titre_compte_rendu') }}" required
-                               class="w-full rounded-lg border-border focus:border-orange-500 focus:ring-orange-500 bg-background text-sm @error('titre_compte_rendu') border-red-500 @enderror">
+                               class="w-full rounded-lg border-border focus:border-primary focus:ring-primary bg-background text-sm @error('titre_compte_rendu') border-red-500 @enderror">
                         @error('titre_compte_rendu') <p class="text-xs text-red-600 mt-1">{{ $message }}</p> @enderror
                     </div>
 
                     <div class="md:col-span-2">
                         <label class="block text-sm font-medium text-foreground mb-1">Description *</label>
                         <textarea name="description_compte_rendu" rows="3" required
-                                  class="w-full rounded-lg border-border focus:border-orange-500 focus:ring-orange-500 bg-background text-sm @error('description_compte_rendu') border-red-500 @enderror"
+                                  class="w-full rounded-lg border-border focus:border-primary focus:ring-primary bg-background text-sm @error('description_compte_rendu') border-red-500 @enderror"
                                   placeholder="Décrivez les travaux effectués...">{{ old('description_compte_rendu') }}</textarea>
                         @error('description_compte_rendu') <p class="text-xs text-red-600 mt-1">{{ $message }}</p> @enderror
                     </div>
@@ -96,7 +96,7 @@
                     <div>
                         <label class="block text-sm font-medium text-foreground mb-1">Date d'intervention *</label>
                         <input type="date" name="date_intervention" value="{{ old('date_intervention') }}" required
-                               class="w-full rounded-lg border-border focus:border-orange-500 focus:ring-orange-500 bg-background text-sm @error('date_intervention') border-red-500 @enderror">
+                               class="w-full rounded-lg border-border focus:border-primary focus:ring-primary bg-background text-sm @error('date_intervention') border-red-500 @enderror">
                         @error('date_intervention') <p class="text-xs text-red-600 mt-1">{{ $message }}</p> @enderror
                     </div>
 
@@ -104,7 +104,7 @@
                         <label class="block text-sm font-medium text-foreground mb-1">Durée (heures) *</label>
                         <input type="number" name="duree" value="{{ old('duree') }}"
                                step="0.5" min="0.5" required
-                               class="w-full rounded-lg border-border focus:border-orange-500 focus:ring-orange-500 bg-background text-sm @error('duree') border-red-500 @enderror">
+                               class="w-full rounded-lg border-border focus:border-primary focus:ring-primary bg-background text-sm @error('duree') border-red-500 @enderror">
                         @error('duree') <p class="text-xs text-red-600 mt-1">{{ $message }}</p> @enderror
                     </div>
 
@@ -112,7 +112,7 @@
                         <label class="block text-sm font-medium text-foreground mb-1">Photos avant (optionnel)</label>
                         <input type="file" name="photos_avant"
                                accept="image/*"
-                               class="w-full rounded-lg border-border focus:border-orange-500 focus:ring-orange-500 bg-background text-sm">
+                               class="w-full rounded-lg border-border focus:border-primary focus:ring-primary bg-background text-sm">
                         @error('photos_avant') <p class="text-xs text-red-600 mt-1">{{ $message }}</p> @enderror
                     </div>
 
@@ -120,7 +120,7 @@
                         <label class="block text-sm font-medium text-foreground mb-1">Photos après (optionnel)</label>
                         <input type="file" name="photos_apres"
                                accept="image/*"
-                               class="w-full rounded-lg border-border focus:border-orange-500 focus:ring-orange-500 bg-background text-sm">
+                               class="w-full rounded-lg border-border focus:border-primary focus:ring-primary bg-background text-sm">
                         @error('photos_apres') <p class="text-xs text-red-600 mt-1">{{ $message }}</p> @enderror
                     </div>
                 </div>
@@ -130,7 +130,7 @@
             <div class="border-t border-border pt-4">
                 <div class="flex gap-3">
                     <button type="submit"
-                            class="px-6 py-2 bg-orange-500 hover:bg-orange-600 text-white rounded-lg text-sm font-medium transition flex items-center gap-2">
+                            class="px-6 py-2 bg-primary hover:bg-primary/90 text-white rounded-lg text-sm font-medium transition flex items-center gap-2">
                         <i data-lucide="save" class="w-4 h-4"></i>
                         Enregistrer le compte rendu
                     </button>
