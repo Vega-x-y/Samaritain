@@ -114,6 +114,7 @@ Route::middleware(['auth', 'verified'])->group(function () {
     // Messagerie client
     Route::get('/client/messagerie', [ClientMessagerieController::class, 'index'])->name('client.messagerie.index');
     Route::get('/client/messagerie/create', [ClientMessagerieController::class, 'create'])->name('client.messagerie.create');
+    Route::get('/client/messagerie/artisan/{artisan:slug}', [ClientMessagerieController::class, 'openForArtisan'])->name('client.messagerie.artisan');
     Route::post('/client/messagerie', [ClientMessagerieController::class, 'storeConversation'])->name('client.messagerie.store');
     Route::delete('/client/messagerie/all', [ClientMessagerieController::class, 'destroyAllConversations'])->name('client.messagerie.destroy-all');
     Route::get('/client/messagerie/{conversation}', [ClientMessagerieController::class, 'show'])->name('client.messagerie.show');

@@ -44,6 +44,37 @@ test('client can create a new conversation', function () {
         ->assertSee('Sélectionner un artisan');
 });
 
+test('client can open the conversation for an artisan directly', function () {
+    $this->actingAs($this->user)
+        ->get(route('client.messagerie.artisan', $this->artisan))
+        ->assertRedirect();
+
+    $conversation = Conversation::where('artisan_id', $this->artisan->id)
+        ->where('client_id', $this->client->id)
+        ->firstOrFail();
+
+    $this->assertDatabaseHas('conversations', [
+        'id' => $conversation->id,
+        'artisan_id' => $this->artisan->id,
+        'client_id' => $this->client->id,
+    ]);
+});
+
+test('client direct artisan messaging reuses the existing conversation', function () {
+    $conversation = Conversation::create([
+        'artisan_id' => $this->artisan->id,
+        'client_id' => $this->client->id,
+    ]);
+
+    $this->actingAs($this->user)
+        ->get(route('client.messagerie.artisan', $this->artisan))
+        ->assertRedirect(route('client.messagerie.show', $conversation));
+
+    expect(Conversation::where('artisan_id', $this->artisan->id)
+        ->where('client_id', $this->client->id)
+        ->count())->toBe(1);
+});
+
 test('client can store a conversation', function () {
     $this->actingAs($this->user)
         ->post(route('client.messagerie.store'), [

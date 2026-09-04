@@ -130,7 +130,7 @@ test('a guest is redirected to login when trying to message an artisan', functio
     ])->assertRedirect(route('login'));
 });
 
-test('the artisan show page renders the messaging widget for a connected visitor', function () {
+test('the artisan show page links connected visitors to their conversation', function () {
     $client = Client::create([
         'artisan_id' => $this->artisan->id,
         'user_id' => $this->viewer->id,
@@ -152,19 +152,14 @@ test('the artisan show page renders the messaging widget for a connected visitor
     $this->actingAs($this->viewer)
         ->get(route('artisans.show', $this->artisan))
         ->assertOk()
-        ->assertSee('Messagerie')
-        ->assertSee('Premier message');
+        ->assertSee('Écrire')
+        ->assertSee(route('client.messagerie.show', $conversation), false);
 });
 
-test('a guest sees the Messagerie tab with a login prompt to start a discussion', function () {
+    test('a guest does not see the messaging button', function () {
     $this->get(route('artisans.show', $this->artisan))
         ->assertOk()
-        // Le bouton d'onglet Messagerie est visible pour tout le monde
-        ->assertSee('Messagerie')
-        // L'alerte demandant de se connecter pour discuter est affichée
-        ->assertSee('Connectez-vous')
-        ->assertSee('pour commencer une discussion avec Test Artisan')
-        // Le formulaire d'envoi n'est pas affiché pour un invité
+        ->assertDontSee('Écrire')
         ->assertDontSee('Écrivez votre message');
 });
 
@@ -175,7 +170,7 @@ test('the artisan show page hides the messaging widget for its owner', function 
         ->assertDontSee('Échangez directement');
 });
 
-test('the Messagerie tab shows an unread badge when a new message is received', function () {
+test('visiting the artisan profile marks received messages as read', function () {
     $client = Client::create([
         'artisan_id' => $this->artisan->id,
         'user_id' => $this->viewer->id,
@@ -196,11 +191,7 @@ test('the Messagerie tab shows an unread badge when a new message is received', 
 
     $response = $this->actingAs($this->viewer)
         ->get(route('artisans.show', $this->artisan))
-        ->assertOk()
-        ->assertSee('Nouveau message non lu');
-
-    // La pastille colorée de notification (messages non lus) est rendue
-    $response->assertSee('rounded-full bg-primary text-primary-foreground', false);
+        ->assertOk();
 
     // La visite de la page marque le message comme lu
     $this->assertDatabaseHas('messages', [

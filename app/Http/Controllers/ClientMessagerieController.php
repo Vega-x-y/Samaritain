@@ -2,7 +2,9 @@
 
 namespace App\Http\Controllers;
 
+use App\Enums\ClientType;
 use App\Models\Artisan;
+use App\Models\Client;
 use App\Models\Conversation;
 use App\Models\Message;
 use App\Models\User;
@@ -45,6 +47,37 @@ class ClientMessagerieController extends Controller
             ->get();
 
         return view('pages.client.messagerie.create', compact('artisans'));
+    }
+
+    public function openForArtisan(Request $request, Artisan $artisan): RedirectResponse
+    {
+        /** @var User $user */
+        $user = $request->user();
+
+        abort_unless($user->id !== $artisan->user_id, 403);
+
+        $client = Client::firstOrCreate(
+            ['user_id' => $user->id, 'artisan_id' => $artisan->id],
+            [
+                'nom' => $user->name,
+                'telephone' => '',
+                'email' => $user->email,
+                'type' => ClientType::PARTICULIER,
+            ]
+        );
+
+        $conversation = Conversation::firstOrCreate(
+            [
+                'artisan_id' => $artisan->id,
+                'client_id' => $client->id,
+            ],
+            [
+                'lu' => false,
+                'dernier_message_at' => now(),
+            ]
+        );
+
+        return to_route('client.messagerie.show', $conversation);
     }
 
     public function storeConversation(Request $request): RedirectResponse
