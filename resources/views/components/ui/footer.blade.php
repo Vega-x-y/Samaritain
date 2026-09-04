@@ -1,4 +1,5 @@
 <footer class="bg-gray-900 dark:bg-gray-950 border-t border-gray-800 dark:border-gray-800">
+    @if (request()->routeIs('index'))
     <div class="container mx-auto px-4 py-10 md:py-12">
 
         {{-- 0ème ligne : Marque + contact --}}
@@ -199,4 +200,20 @@
             </div>
         </div>
     </div>
+    @else
+        <div class="container mx-auto flex flex-col items-center justify-between gap-3 px-4 py-5 text-center sm:flex-row sm:text-left">
+            <a href="{{ url('/') }}" class="text-lg font-bold text-white hover:text-primary transition">
+                Samaritain
+            </a>
+
+            <nav class="flex flex-wrap justify-center gap-x-5 gap-y-2 text-xs text-gray-400" aria-label="Liens du pied de page">
+                <a href="{{ route('apropos_s') }}" class="hover:text-primary transition">À propos</a>
+                <a href="{{ route('politique') }}" class="hover:text-primary transition">Confidentialité</a>
+                <a href="{{ route('conditions') }}" class="hover:text-primary transition">Conditions</a>
+                <a href="{{ route('contact') }}" class="hover:text-primary transition">Contact</a>
+            </nav>
+
+            <span class="text-xs text-gray-500">© {{ date('Y') }} Samaritain</span>
+        </div>
+    @endif
 </footer>
