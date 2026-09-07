@@ -82,35 +82,34 @@
 
     <!-- Filtres -->
     <div class="bg-card rounded-lg shadow-sm border border-border p-6 transition-all duration-300">
-        <form method="GET" action="{{ route('artisan.documents.index') }}" class="grid grid-cols-1 md:grid-cols-3 gap-4 items-end">
-            <div>
-                <x-form.select
-                    name="client_id"
-                    label="Client"
-                    placeholder="Tous les clients"
-                    :options="$clients"
-                    optionValue="id"
-                    optionLabel="nom"
-                    :value="request('client_id')"
-                    class="max-w-xs"
-                />
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-4 items-end">
+            <x-artisan.filter-select
+                name="client_id"
+                label="Client"
+                placeholder="Tous les clients"
+                :options="$clients"
+                optionValue="id"
+                optionLabel="nom"
+            />
+            <x-artisan.filter-select
+                name="type"
+                label="Type"
+                placeholder="Tous les types"
+                :options="$types"
+            />
+            <div class="text-sm text-muted-foreground md:pb-2.5">
+                {{ $documents->total() }} document(s)
             </div>
-            <div>
-                <x-form.select
-                    name="type"
-                    label="Type"
-                    placeholder="Tous les types"
-                    :options="$types"
-                    :value="request('type')"
-                    class="max-w-xs"
-                />
-            </div>
-            <div class="flex items-end">
-                <button type="submit" class="w-full max-w-xs px-4 py-2 bg-primary hover:bg-primary/90 text-white rounded-lg transition">
-                    Filtrer
-                </button>
-            </div>
-        </form>
+        </div>
+
+        <div class="mt-4">
+            <x-artisan.active-filters
+                :filters="[
+                    ['name' => 'client_id', 'label' => 'Client', 'labels' => $clients->pluck('nom', 'id')->all()],
+                    ['name' => 'type', 'label' => 'Type', 'labels' => $types],
+                ]"
+                :total="$documents->total()" totalLabel="document(s)" />
+        </div>
     </div>
 
     <!-- Liste des documents -->

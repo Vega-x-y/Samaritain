@@ -137,17 +137,12 @@
 
                             <!-- Pièces -->
                             <div>
-                                <label class="block text-sm font-medium text-card-foreground dark:text-gray-300 mb-2">Nombre
-                                    de pièces</label>
-                                <select name="rooms" id="rooms"
-                                    class="w-full px-4 py-2.5 border border-border dark:border-gray-700 rounded-lg focus:outline-none focus:ring-2 focus:ring-ring dark:focus:ring-primary/30 bg-background dark:bg-gray-900 text-foreground dark:text-white">
-                                    <option value="">Tous</option>
-                                    @for ($i = 1; $i <= 10; $i++)
-                                        <option value="{{ $i }}"
-                                            {{ request('rooms') == $i ? 'selected' : '' }}>{{ $i }} pièce(s)
-                                        </option>
-                                    @endfor
-                                </select>
+                                <x-artisan.filter-select
+                                    name="rooms"
+                                    label="Pièces"
+                                    placeholder="Tous"
+                                    :options="collect(range(1, 10))->mapWithKeys(fn ($i) => [$i => $i.' pièce(s)'])->all()"
+                                />
                             </div>
 
                             <!-- Chambres -->
@@ -206,65 +201,18 @@
             </div>
 
             <!-- Filtres actifs -->
-            @if (request()->anyFilled([
-                    'keyword',
-                    'city_id',
-                    'category_id',
-                    'min_price',
-                    'max_price',
-                    'surface',
-                    'rooms',
-                    'bedrooms',
-                ]))
-                <div class="flex flex-wrap gap-2">
-                    <span class="text-sm text-muted-foreground dark:text-gray-400">Filtres actifs :</span>
-                    @if (request('keyword'))
-                        <span
-                            class="px-2 py-1 bg-primary/10 dark:bg-primary-400/20 text-primary dark:text-primary-400 rounded-full text-xs">Recherche:
-                            {{ request('keyword') }}</span>
-                    @endif
-                    @if (request('city_id'))
-                        @php $city = \App\Models\City::find(request('city_id')); @endphp
-                        <span
-                            class="px-2 py-1 bg-primary/10 dark:bg-primary-400/20 text-primary dark:text-primary-400 rounded-full text-xs">Ville:
-                            {{ $city->name ?? '' }}</span>              
-                    @endif
-                    @if (request('category_id')) 
-                        @php $category = \App\Models\Category::find(request('category_id')); @endphp
-                        <span
-                            class="px-2 py-1 bg-primary/10 dark:bg-primary-400/20 text-primary dark:text-primary-400 rounded-full text-xs">Type:
-                            {{ $category->name ?? '' }}</span>
-                    @endif
-                    @if (request('min_price'))
-                        <span
-                            class="px-2 py-1 bg-primary/10 dark:bg-primary-400/20 text-primary dark:text-primary-400 rounded-full text-xs">Prix
-                            ≥
-                            {{ number_format(request('min_price'), 0, ',', ' ') }} FCFA</span>
-                    @endif
-                    @if (request('max_price'))
-                        <span
-                            class="px-2 py-1 bg-primary/10 dark:bg-primary-400/20 text-primary dark:text-primary-400 rounded-full text-xs">Prix
-                            ≤
-                            {{ number_format(request('max_price'), 0, ',', ' ') }} FCFA</span>
-                    @endif
-                    @if (request('surface'))
-                        <span
-                            class="px-2 py-1 bg-primary/10 dark:bg-primary-400/20 text-primary dark:text-primary-400 rounded-full text-xs">Surface
-                            ≥
-                            {{ request('surface') }} m²</span>
-                    @endif
-                    @if (request('rooms'))
-                        <span
-                            class="px-2 py-1 bg-primary/10 dark:bg-primary-400/20 text-primary dark:text-primary-400 rounded-full text-xs">{{ request('rooms') }}
-                            pièce(s)</span>
-                    @endif
-                    @if (request('bedrooms'))
-                        <span
-                            class="px-2 py-1 bg-primary/10 dark:bg-primary-400/20 text-primary dark:text-primary-400 rounded-full text-xs">{{ request('bedrooms') }}
-                            chambre(s)</span>
-                    @endif
-                </div>
-            @endif
+            <x-artisan.active-filters
+                :filters="[
+                    ['name' => 'keyword', 'label' => 'Recherche'],
+                    ['name' => 'city_id', 'label' => 'Ville', 'labels' => \App\Models\City::pluck('name', 'id')->all()],
+                    ['name' => 'category_id', 'label' => 'Type', 'labels' => \App\Models\Category::pluck('name', 'id')->all()],
+                    ['name' => 'min_price', 'label' => 'Prix ≥'],
+                    ['name' => 'max_price', 'label' => 'Prix ≤'],
+                    ['name' => 'surface', 'label' => 'Surface ≥', 'value' => request('surface') ? request('surface').' m²' : null],
+                    ['name' => 'rooms', 'label' => 'Pièces', 'value' => request('rooms') ? request('rooms').' pièce(s)' : null],
+                    ['name' => 'bedrooms', 'label' => 'Chambres', 'value' => request('bedrooms') ? request('bedrooms').' chambre(s)' : null],
+                ]"
+                :total="$properties->total()" totalLabel="bien(s)" />
         </div>
 
         <!-- Grille des biens -->

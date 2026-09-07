@@ -8,8 +8,20 @@
 
     {{-- Image --}}
     <div class="relative overflow-hidden rounded-2xl bg-gray-100 aspect-[4/3]">
-        <img src="{{ $property->images->first()->image_url }}" alt="{{ $property->title }}"
-            class="w-full h-full object-cover shadow-sm transition duration-500 group-hover:scale-105">
+        @php($firstImage = $property->images->first()?->image_url)
+        @if ($firstImage)
+            <img src="{{ $firstImage }}" alt="{{ $property->title }}"
+                class="w-full h-full object-cover shadow-sm transition duration-500 group-hover:scale-105">
+        @else
+            <div class="w-full h-full flex flex-col items-center justify-center text-gray-400">
+                <svg xmlns="http://www.w3.org/2000/svg" class="w-12 h-12" fill="none" viewBox="0 0 24 24"
+                    stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5"
+                        d="M3 9.75L12 3l9 6.75V21H3V9.75z" />
+                </svg>
+                <span class="text-sm mt-2">Pas d'image</span>
+            </div>
+        @endif
 
         {{-- Overlay gradient --}}
         <div

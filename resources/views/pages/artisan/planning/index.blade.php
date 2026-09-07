@@ -29,20 +29,19 @@
     </div>
 
     <!-- Filtres -->
-    <div class="flex flex-wrap gap-2 items-center mb-6">
-        <a href="{{ route('artisan.planning.index') }}"
-            class="px-4 py-1.5 rounded-full text-sm font-medium border transition
-                {{ !request('type') && !request('chantier_id') ? 'bg-gray-900 text-white border-gray-900 dark:bg-white dark:text-gray-900' : 'bg-white dark:bg-gray-800 text-gray-500 dark:text-gray-400 border-gray-200 dark:border-gray-700 hover:border-primary' }}">
-            <i data-lucide="chart-no-axes-column" class="w-4 h-4 inline-block align-middle mr-1"></i> Tous
-        </a>
-        @foreach ($types as $type)
-            <a href="{{ route('artisan.planning.index', ['type' => $type->value]) }}"
-                class="px-4 py-1.5 rounded-full text-sm font-medium border transition
-                    {{ request('type') === $type->value ? 'bg-gray-900 text-white border-gray-900 dark:bg-white dark:text-gray-900' : 'bg-white dark:bg-gray-800 text-gray-500 dark:text-gray-400 border-gray-200 dark:border-gray-700 hover:border-primary' }}">
-                <i data-lucide="{{ $type->icon() }}" class="w-4 h-4 inline-block align-middle mr-1"></i> {{ $type->label() }}
-            </a>
-        @endforeach
-        <span class="text-xs text-gray-400 dark:text-gray-500 ml-2">{{ $evenements->count() }} événement(s)</span>
+    <div class="mb-6 space-y-3">
+        <div class="sm:w-64">
+            <x-artisan.filter-select name="chantier_id" label="Chantier" placeholder="Tous les chantiers"
+                :options="$chantiers" optionValue="id" optionLabel="nom" />
+        </div>
+        <x-artisan.filter-pills name="type" :options="$types" allLabel="Tous les types"
+            :icons="collect($types)->mapWithKeys(fn ($t) => [$t->value => $t->icon()])->all()" />
+        <x-artisan.active-filters
+            :filters="[
+                ['name' => 'type', 'label' => 'Type', 'labels' => collect($types)->mapWithKeys(fn ($t) => [$t->value => $t->label()])->all()],
+                ['name' => 'chantier_id', 'label' => 'Chantier', 'labels' => $chantiers->pluck('nom', 'id')->all()],
+            ]"
+            :total="$evenements->count()" totalLabel="événement(s)" />
     </div>
 
     <!-- Calendrier grille CSS -->

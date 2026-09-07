@@ -61,6 +61,21 @@
             @include('components.artisan.search-bar', ['placeholder' => 'Rechercher une demande'])
         </div>
 
+        <!-- Filtres par statut -->
+        <div class="mb-4 space-y-3">
+            <x-artisan.filter-pills
+                name="statut"
+                :options="['en_attente' => 'En attente', 'acceptee' => 'Acceptées', 'refusee' => 'Refusées']"
+                allLabel="Tous les statuts"
+                allIcon="list"
+                :icons="['en_attente' => 'clock', 'acceptee' => 'check-circle', 'refusee' => 'x-circle']" />
+            <x-artisan.active-filters
+                :filters="[
+                    ['name' => 'statut', 'label' => 'Statut', 'labels' => ['en_attente' => 'En attente', 'acceptee' => 'Acceptée', 'refusee' => 'Refusée']],
+                ]"
+                :total="$demandes->total()" totalLabel="demande(s)" />
+        </div>
+
         <!-- Liste des demandes -->
         <!-- Liste des demandes -->
         <div class="bg-card rounded-lg shadow-sm border border-border transition-all duration-300">

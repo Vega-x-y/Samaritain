@@ -54,20 +54,11 @@
     </div>
 
     <!-- Filtres -->
-    <div class="flex flex-wrap gap-2 items-center mb-6">
-        <a href="{{ route('artisan.stock.index') }}"
-            class="px-4 py-1.5 rounded-full text-sm font-medium border transition
-                {{ !request('categorie') && !request('search') ? 'bg-gray-900 text-white border-gray-900 dark:bg-white dark:text-gray-900' : 'bg-white dark:bg-gray-800 text-gray-500 dark:text-gray-400 border-gray-200 dark:border-gray-700 hover:border-primary' }}">
-            <i data-lucide="chart-no-axes-column" class="w-4 h-4 inline-block align-middle mr-1"></i> Tous
-        </a>
-        @foreach ($categories as $categorie)
-            <a href="{{ route('artisan.stock.index', ['categorie' => $categorie]) }}"
-                class="px-4 py-1.5 rounded-full text-sm font-medium border transition
-                    {{ request('categorie') === $categorie ? 'bg-gray-900 text-white border-gray-900 dark:bg-white dark:text-gray-900' : 'bg-white dark:bg-gray-800 text-gray-500 dark:text-gray-400 border-gray-200 dark:border-gray-700 hover:border-primary' }}">
-                {{ $categorie }}
-            </a>
-        @endforeach
-        <span class="text-xs text-gray-400 dark:text-gray-500 ml-2">{{ $articles->total() }} article(s)</span>
+    <div class="mb-6 space-y-3">
+        <x-artisan.filter-pills name="categorie" :options="$categories" allLabel="Toutes les catégories" />
+        <x-artisan.active-filters
+            :filters="[['name' => 'categorie', 'label' => 'Catégorie', 'labels' => array_combine($categories, $categories)]]"
+            :total="$articles->total()" totalLabel="article(s)" />
     </div>
 
     <!-- Grille des articles -->

@@ -121,14 +121,15 @@
                     'Isolation' => 'thermometer',
                 ];
 
-                $pillOptions = collect($categories)->mapWithKeys(function ($category) use ($serviceIcons) {
-                    $icon = $serviceIcons[$category->name] ?? 'briefcase';
-                    return [$category->id => ['label' => $category, 'icon' => $icon]];
-                });
+                $pillOptions = collect($categories)->mapWithKeys(fn ($category) => [$category->id => $category->name])->all();
+                $pillIcons = collect($categories)->mapWithKeys(
+                    fn ($category) => [$category->id => $serviceIcons[$category->name] ?? 'briefcase']
+                )->all();
             @endphp
 
             <h3 class="text-sm font-medium text-gray-500 dark:text-gray-400 mb-3">Métiers populaires</h3>
-            <x-form.pills name="category" :options="$pillOptions" />
+            <x-artisan.filter-pills name="category" :options="$pillOptions" :icons="$pillIcons"
+                allLabel="Tous les métiers" allIcon="list" />
         </div>
 
         <!-- En-tête des résultats -->

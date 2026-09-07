@@ -39,6 +39,7 @@ class FinancesController extends Controller
         // ===== Agrégats du centre financier (tous les chantiers) =====
         $allChantiers = Chantier::where('artisan_id', $artisan->id)
             ->with(['factures', 'depenses', 'transactions'])
+            ->when($request->filled('chantier_id'), fn ($q) => $q->where('id', $request->chantier_id))
             ->when($request->filled('search'), fn ($q) => $q->where('nom', 'like', '%'.$request->search.'%'))
             ->get();
 
@@ -117,6 +118,7 @@ class FinancesController extends Controller
 
         $allChantiers = Chantier::where('artisan_id', $artisan->id)
             ->with(['factures', 'depenses', 'transactions'])
+            ->when($request->filled('chantier_id'), fn ($q) => $q->where('id', $request->chantier_id))
             ->get();
 
         $chantierIds = $allChantiers->pluck('id');

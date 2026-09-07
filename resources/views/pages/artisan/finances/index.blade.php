@@ -93,6 +93,16 @@
             @include('components.artisan.search-bar', ['placeholder' => 'Rechercher une transaction'])
         </div>
 
+        <!-- Filtre par chantier -->
+        <div class="mb-4 space-y-3">
+            <div class="sm:w-64">
+                <x-artisan.filter-select name="chantier_id" label="Chantier" placeholder="Tous les chantiers"
+                    :options="$chantiersList" optionValue="id" optionLabel="nom" />
+            </div>
+            <x-artisan.active-filters
+                :filters="[['name' => 'chantier_id', 'label' => 'Chantier', 'labels' => $chantiersList->pluck('nom', 'id')->all()]]" />
+        </div>
+
         <!-- ===== Enregistrement rapide d'une dépense ===== -->
         <x-card class="rounded-2xl shadow-sm p-6 transition-all duration-300">
             <div class="flex items-center justify-between gap-4 mb-4">

@@ -53,16 +53,8 @@
 
                     <!-- Type de parcelle -->
                     <div>
-                        <label class="block text-sm font-medium text-foreground/80 mb-2">Type de parcelle</label>
-                        <select name="type" id="type"
-                            class="w-full px-4 py-2.5 border border-input rounded-lg focus:outline-none focus:ring-2 focus:ring-ring focus:border-transparent bg-background text-foreground">
-                            <option value="">Tous les types</option>
-                            @foreach (\App\Models\Parcelle::TYPES as $typeKey => $typeLabel)
-                                <option value="{{ $typeKey }}" {{ request('type') === $typeKey ? 'selected' : '' }}>
-                                    {{ $typeLabel }}
-                                </option>
-                            @endforeach
-                        </select>
+                        <x-artisan.filter-select name="type" label="Type de parcelle" placeholder="Tous les types"
+                            :options="\App\Models\Parcelle::TYPES" />
                     </div>
                 </div>
 
@@ -109,6 +101,18 @@
                                     class="w-full px-4 py-2.5 border border-input rounded-lg focus:outline-none focus:ring-2 focus:ring-ring focus:border-transparent bg-background text-foreground">
                             </div>
 
+                            <!-- Statut -->
+                            <div>
+                                <x-artisan.filter-select name="statut" label="Statut" placeholder="Tous"
+                                    :options="['disponible' => 'Disponible', 'réservé' => 'Réservé', 'vendu' => 'Vendu']" />
+                            </div>
+
+                            <!-- Viabilisée -->
+                            <div>
+                                <x-artisan.filter-select name="viabilisee" label="Viabilisée" placeholder="Indifférent"
+                                    :options="['1' => 'Oui', '0' => 'Non']" />
+                            </div>
+
                         </div>
                     </div>
                 </div>
@@ -150,51 +154,19 @@
             </div>
 
             <!-- Active filters -->
-            @if (request()->anyFilled(['titre', 'ville', 'arrondissement_id', 'type', 'statut', 'prix_min', 'prix_max', 'superficie_min', 'viabilisee']))
-                <div class="flex flex-wrap gap-2">
-                    <span class="text-sm text-muted-foreground">Filtres actifs :</span>
-                    @if (request('titre'))
-                        <span class="px-2 py-1 bg-primary/10 text-primary rounded-full text-xs">
-                            {{ request('titre') }}
-                        </span>
-                    @endif
-                    @if (request('ville'))
-                        <span class="px-2 py-1 bg-primary/10 text-primary rounded-full text-xs">
-                            Ville: {{ request('ville') }}
-                        </span>
-                    @endif
-                    @if (request('arrondissement_id'))
-                        <span class="px-2 py-1 bg-primary/10 text-primary rounded-full text-xs">
-                            Arrondissement: {{ $arrondissements->firstWhere('id', request('arrondissement_id'))?->name }}
-                        </span>
-                    @endif
-                    @if (request('type'))
-                        <span class="px-2 py-1 bg-primary/10 text-primary rounded-full text-xs">
-                            Type: {{ \App\Models\Parcelle::TYPES[request('type')] ?? request('type') }}
-                        </span>
-                    @endif
-                    @if (request('prix_min'))
-                        <span class="px-2 py-1 bg-primary/10 text-primary rounded-full text-xs">
-                            Prix ≥ {{ number_format(request('prix_min'), 0, ',', ' ') }} FCFA
-                        </span>
-                    @endif
-                    @if (request('prix_max'))
-                        <span class="px-2 py-1 bg-primary/10 text-primary rounded-full text-xs">
-                            Prix ≤ {{ number_format(request('prix_max'), 0, ',', ' ') }} FCFA
-                        </span>
-                    @endif
-                    @if (request('superficie_min'))
-                        <span class="px-2 py-1 bg-primary/10 text-primary rounded-full text-xs">
-                            Superficie ≥ {{ request('superficie_min') }} m²
-                        </span>
-                    @endif
-                    @if (request('viabilisee'))
-                        <span class="px-2 py-1 bg-primary/10 text-primary rounded-full text-xs">
-                            Viabilisée: {{ request('viabilisee') === '1' ? 'Oui' : 'Non' }}
-                        </span>
-                    @endif
-                </div>
-            @endif
+            <x-artisan.active-filters
+                :filters="[
+                    ['name' => 'titre', 'label' => 'Recherche'],
+                    ['name' => 'ville', 'label' => 'Ville'],
+                    ['name' => 'arrondissement_id', 'label' => 'Arrondissement', 'labels' => $arrondissements->pluck('name', 'id')->all()],
+                    ['name' => 'type', 'label' => 'Type', 'labels' => \App\Models\Parcelle::TYPES],
+                    ['name' => 'statut', 'label' => 'Statut', 'labels' => ['disponible' => 'Disponible', 'réservé' => 'Réservé', 'vendu' => 'Vendu']],
+                    ['name' => 'prix_min', 'label' => 'Prix ≥'],
+                    ['name' => 'prix_max', 'label' => 'Prix ≤'],
+                    ['name' => 'superficie_min', 'label' => 'Superficie ≥'],
+                    ['name' => 'viabilisee', 'label' => 'Viabilisée', 'value' => request()->filled('viabilisee') ? (request('viabilisee') === '1' ? 'Oui' : 'Non') : null],
+                ]"
+                :total="$parcelles->total()" totalLabel="parcelle(s)" />
         </div>
 
         <!-- Parcelles Grid -->

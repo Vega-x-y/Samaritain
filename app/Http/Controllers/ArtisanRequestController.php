@@ -19,6 +19,7 @@ class ArtisanRequestController extends Controller
 
         $demandes = $artisan->demandesRecues()
             ->with('user')
+            ->when($request->filled('statut'), fn ($q) => $q->where('statut', $request->statut))
             ->when($request->filled('search'), fn ($q) => $q->where(function ($sub) use ($request) {
                 $sub->where('message', 'like', '%'.$request->search.'%')
                     ->orWhere('type', 'like', '%'.$request->search.'%')
