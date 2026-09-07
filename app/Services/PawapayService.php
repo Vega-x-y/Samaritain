@@ -85,7 +85,7 @@ class PawapayService
 
         foreach ((array) ($provider['currencies'] ?? []) as $currency) {
             $apiCurrency = strtoupper(trim((string) ($currency['currency'] ?? '')));
-            
+
             if ($apiCurrency !== $targetCurrency) {
                 continue;
             }

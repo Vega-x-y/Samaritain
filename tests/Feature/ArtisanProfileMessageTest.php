@@ -156,7 +156,7 @@ test('the artisan show page links connected visitors to their conversation', fun
         ->assertSee(route('client.messagerie.show', $conversation), false);
 });
 
-    test('a guest does not see the messaging button', function () {
+test('a guest does not see the messaging button', function () {
     $this->get(route('artisans.show', $this->artisan))
         ->assertOk()
         ->assertDontSee('Écrire')

@@ -19,6 +19,8 @@ class DatabaseSeeder extends Seeder
             PropertyCategorySeeder::class,
             PropertySeeder::class,
             OwnerPortalSeeder::class,
+            BoutiqueSeeder::class,
+            BureauSeeder::class,
             // ArtisanDemoSeeder::class,
         ]);
     }

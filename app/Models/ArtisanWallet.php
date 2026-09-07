@@ -3,6 +3,8 @@
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\Relations\HasMany;
 
 class ArtisanWallet extends Model
 {
@@ -13,12 +15,12 @@ class ArtisanWallet extends Model
         'reserved_balance' => 'integer',
     ];
 
-    public function artisan(): \Illuminate\Database\Eloquent\Relations\BelongsTo
+    public function artisan(): BelongsTo
     {
         return $this->belongsTo(Artisan::class);
     }
 
-    public function entries(): \Illuminate\Database\Eloquent\Relations\HasMany
+    public function entries(): HasMany
     {
         return $this->hasMany(ArtisanWalletEntry::class);
     }

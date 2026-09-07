@@ -4,10 +4,13 @@ namespace App\Http\Controllers;
 
 use App\Http\Requests\StoreAgencyContactRequest;
 use App\Models\AgencyContact;
+use App\Models\Boutique;
+use App\Models\Bureau;
 use App\Models\Parcelle;
 use App\Models\Property;
 use App\Models\User;
 use App\Notifications\AgencyContactNotification;
+use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Facades\Notification;
 
 class AgencyContactController extends Controller
@@ -26,20 +29,37 @@ class AgencyContactController extends Controller
     }
 
     public function commercialPropertyCreate(Property $property, string $type)
+    public function boutiqueCreate(Boutique $boutique)
     {
         abort_unless($property->property_type?->value === $type, 404);
 
         return view('pages.agency-contact.create', [
             'contactable' => $property,
             'type' => $type,
+            'contactable' => $boutique,
+            'type' => 'boutique',
         ]);
     }
 
     public function commercialPropertyStore(StoreAgencyContactRequest $request, Property $property, string $type)
+    public function boutiqueStore(StoreAgencyContactRequest $request, Boutique $boutique)
     {
         abort_unless($property->property_type?->value === $type, 404);
+        return $this->processContact($request, $boutique, 'boutique.show');
+    }
 
         return $this->processContact($request, $property, "{$type}.show");
+    public function bureauCreate(Bureau $bureau)
+    {
+        return view('pages.agency-contact.create', [
+            'contactable' => $bureau,
+            'type' => 'bureau',
+        ]);
+    }
+
+    public function bureauStore(StoreAgencyContactRequest $request, Bureau $bureau)
+    {
+        return $this->processContact($request, $bureau, 'bureau.show');
     }
 
     public function parcelleCreate(Parcelle $parcelle)
@@ -56,6 +76,7 @@ class AgencyContactController extends Controller
     }
 
     protected function processContact(StoreAgencyContactRequest $request, Property|Parcelle $contactable, string $routeName)
+    protected function processContact(StoreAgencyContactRequest $request, Model $contactable, string $routeName)
     {
         $contact = AgencyContact::create([
             'contactable_id' => $contactable->id,

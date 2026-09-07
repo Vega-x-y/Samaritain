@@ -3,6 +3,7 @@
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Support\Facades\Cache;
 
 class Setting extends Model
 {
@@ -10,10 +11,10 @@ class Setting extends Model
 
     public static function getValue(string $key, mixed $default = null): mixed
     {
-        return \Illuminate\Support\Facades\Cache::rememberForever("setting.{$key}", function () use ($key, $default) {
+        return Cache::rememberForever("setting.{$key}", function () use ($key, $default) {
             $setting = self::where('key', $key)->first();
-            
-            if (!$setting) {
+
+            if (! $setting) {
                 return $default;
             }
 
@@ -26,7 +27,7 @@ class Setting extends Model
         });
     }
 
-    public static function setValue(string $key, mixed $value, string $type = 'string', string $description = null): void
+    public static function setValue(string $key, mixed $value, string $type = 'string', ?string $description = null): void
     {
         $setting = self::firstOrNew(['key' => $key]);
         $setting->value = is_array($value) ? json_encode($value) : (string) $value;
@@ -36,17 +37,17 @@ class Setting extends Model
         }
         $setting->save();
 
-        \Illuminate\Support\Facades\Cache::forget("setting.{$key}");
+        Cache::forget("setting.{$key}");
     }
 
     protected static function booted()
     {
         static::saved(function ($setting) {
-            \Illuminate\Support\Facades\Cache::forget("setting.{$setting->key}");
+            Cache::forget("setting.{$setting->key}");
         });
-        
+
         static::deleted(function ($setting) {
-            \Illuminate\Support\Facades\Cache::forget("setting.{$setting->key}");
+            Cache::forget("setting.{$setting->key}");
         });
     }
 }

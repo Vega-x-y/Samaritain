@@ -3,14 +3,15 @@
 namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
+use App\Models\Setting;
 use Illuminate\Http\Request;
 
 class SettingController extends Controller
 {
     public function index()
     {
-        $commissionPercent = \App\Models\Setting::getValue('artisan_commission_percent', 5);
-        
+        $commissionPercent = Setting::getValue('artisan_commission_percent', 5);
+
         return view('pages.admin.settings.index', compact('commissionPercent'));
     }
 
@@ -20,10 +21,10 @@ class SettingController extends Controller
             'artisan_commission_percent' => 'required|integer|min:0|max:100',
         ]);
 
-        \App\Models\Setting::setValue(
-            'artisan_commission_percent', 
-            $request->artisan_commission_percent, 
-            'integer', 
+        Setting::setValue(
+            'artisan_commission_percent',
+            $request->artisan_commission_percent,
+            'integer',
             'Pourcentage de commission prélevé sur les acomptes des artisans'
         );
 

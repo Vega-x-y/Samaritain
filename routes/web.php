@@ -5,9 +5,10 @@ use App\Http\Controllers\Admin\ArrondissementController;
 use App\Http\Controllers\Admin\ArtisanCategoryController;
 use App\Http\Controllers\Admin\ArtisanController as AdminArtisanController;
 use App\Http\Controllers\Admin\ArtisanProjectController as AdminArtisanProjectController;
+use App\Http\Controllers\Admin\BoutiqueController as AdminBoutiqueController;
+use App\Http\Controllers\Admin\BureauController as AdminBureauController;
 use App\Http\Controllers\Admin\CategoryController;
 use App\Http\Controllers\Admin\CityController;
-use App\Http\Controllers\Admin\CommercialPropertyController as AdminCommercialPropertyController;
 use App\Http\Controllers\Admin\DashboardController;
 use App\Http\Controllers\Admin\HotelController as AdminHotelController;
 use App\Http\Controllers\Admin\InvitationController;
@@ -34,10 +35,11 @@ use App\Http\Controllers\ArtisanProjectController;
 use App\Http\Controllers\ArtisanRequestController;
 use App\Http\Controllers\ArtisanReviewController;
 use App\Http\Controllers\AvisController;
+use App\Http\Controllers\BoutiqueController;
+use App\Http\Controllers\BureauController;
 use App\Http\Controllers\ClientDashboardController;
 use App\Http\Controllers\ClientDocumentController;
 use App\Http\Controllers\ClientMessagerieController;
-use App\Http\Controllers\CommercialPropertyController;
 use App\Http\Controllers\ContactController;
 use App\Http\Controllers\FavoriteController;
 use App\Http\Controllers\HomeController;
@@ -79,18 +81,25 @@ Route::get('properties/search', [PropertyController::class, 'search'])->name('pr
 Route::get('properties/city/{city}', [PropertyController::class, 'byCity'])->name('property.byCity');
 Route::get('properties/category/{category}', [PropertyController::class, 'byCategory'])->name('property.byCategory');
 
-// Parcours dédiés aux boutiques et bureaux
-foreach (['boutique', 'bureau'] as $commercialType) {
-    Route::get("{$commercialType}s", [CommercialPropertyController::class, 'index'])->defaults('type', $commercialType)->name("{$commercialType}.index");
-    Route::get("{$commercialType}s/search", [CommercialPropertyController::class, 'index'])->defaults('type', $commercialType)->name("{$commercialType}.search");
-    Route::get("{$commercialType}/create", [CommercialPropertyController::class, 'create'])->defaults('type', $commercialType)->middleware(['auth', 'verified'])->name("{$commercialType}.create");
-    Route::post($commercialType, [CommercialPropertyController::class, 'store'])->defaults('type', $commercialType)->middleware(['auth', 'verified'])->name("{$commercialType}.store");
-    Route::get("{$commercialType}/{property}", [CommercialPropertyController::class, 'show'])->defaults('type', $commercialType)->name("{$commercialType}.show");
-    Route::get("{$commercialType}/{property}/edit", [CommercialPropertyController::class, 'edit'])->defaults('type', $commercialType)->middleware(['auth', 'verified'])->name("{$commercialType}.edit");
-    Route::put("{$commercialType}/{property}", [CommercialPropertyController::class, 'update'])->defaults('type', $commercialType)->middleware(['auth', 'verified'])->name("{$commercialType}.update");
-    Route::delete("{$commercialType}/{property}", [CommercialPropertyController::class, 'destroy'])->defaults('type', $commercialType)->middleware(['auth', 'verified'])->name("{$commercialType}.destroy");
-    Route::get("my-{$commercialType}s/dashboard", [CommercialPropertyController::class, 'dashboard'])->defaults('type', $commercialType)->middleware(['auth', 'verified'])->name("{$commercialType}.dashboard");
-}
+// Boutiques
+Route::get('boutiques', [BoutiqueController::class, 'index'])->name('boutique.index');
+Route::get('boutique/create', [BoutiqueController::class, 'create'])->middleware(['auth', 'verified'])->name('boutique.create');
+Route::post('boutique', [BoutiqueController::class, 'store'])->middleware(['auth', 'verified'])->name('boutique.store');
+Route::get('boutique/{boutique}/edit', [BoutiqueController::class, 'edit'])->middleware(['auth', 'verified'])->name('boutique.edit');
+Route::put('boutique/{boutique}', [BoutiqueController::class, 'update'])->middleware(['auth', 'verified'])->name('boutique.update');
+Route::delete('boutique/{boutique}', [BoutiqueController::class, 'destroy'])->middleware(['auth', 'verified'])->name('boutique.destroy');
+Route::get('boutique/{boutique}', [BoutiqueController::class, 'show'])->name('boutique.show');
+Route::get('my-boutiques/dashboard', [BoutiqueController::class, 'dashboard'])->middleware(['auth', 'verified'])->name('boutique.dashboard');
+
+// Bureaux
+Route::get('bureaux', [BureauController::class, 'index'])->name('bureau.index');
+Route::get('bureau/create', [BureauController::class, 'create'])->middleware(['auth', 'verified'])->name('bureau.create');
+Route::post('bureau', [BureauController::class, 'store'])->middleware(['auth', 'verified'])->name('bureau.store');
+Route::get('bureau/{bureau}/edit', [BureauController::class, 'edit'])->middleware(['auth', 'verified'])->name('bureau.edit');
+Route::put('bureau/{bureau}', [BureauController::class, 'update'])->middleware(['auth', 'verified'])->name('bureau.update');
+Route::delete('bureau/{bureau}', [BureauController::class, 'destroy'])->middleware(['auth', 'verified'])->name('bureau.destroy');
+Route::get('bureau/{bureau}', [BureauController::class, 'show'])->name('bureau.show');
+Route::get('my-bureaux/dashboard', [BureauController::class, 'dashboard'])->middleware(['auth', 'verified'])->name('bureau.dashboard');
 
 // Routes publiques pour les hôtels
 Route::get('hotels', [HotelController::class, 'index'])->name('hotel.index');
@@ -156,10 +165,10 @@ Route::get('hotel/{hotel}', [HotelController::class, 'show'])->name('hotel.show'
 // Agency contact
 Route::get('property/{property}/contact', [AgencyContactController::class, 'propertyCreate'])->name('property.contact.create');
 Route::post('property/{property}/contact', [AgencyContactController::class, 'propertyStore'])->middleware('throttle:5,1')->name('property.contact.store');
-foreach (['boutique', 'bureau'] as $commercialType) {
-    Route::get("{$commercialType}/{property}/contact", [AgencyContactController::class, 'commercialPropertyCreate'])->defaults('type', $commercialType)->name("{$commercialType}.contact.create");
-    Route::post("{$commercialType}/{property}/contact", [AgencyContactController::class, 'commercialPropertyStore'])->defaults('type', $commercialType)->middleware('throttle:5,1')->name("{$commercialType}.contact.store");
-}
+Route::get('boutique/{boutique}/contact', [AgencyContactController::class, 'boutiqueCreate'])->name('boutique.contact.create');
+Route::post('boutique/{boutique}/contact', [AgencyContactController::class, 'boutiqueStore'])->middleware('throttle:5,1')->name('boutique.contact.store');
+Route::get('bureau/{bureau}/contact', [AgencyContactController::class, 'bureauCreate'])->name('bureau.contact.create');
+Route::post('bureau/{bureau}/contact', [AgencyContactController::class, 'bureauStore'])->middleware('throttle:5,1')->name('bureau.contact.store');
 Route::get('parcelles/{parcelle}/contact', [AgencyContactController::class, 'parcelleCreate'])->name('parcelles.contact.create');
 Route::post('parcelles/{parcelle}/contact', [AgencyContactController::class, 'parcelleStore'])->middleware('throttle:5,1')->name('parcelles.contact.store');
 
@@ -182,21 +191,19 @@ Route::prefix('/admin/dashboard')->middleware(['auth', 'verified', StaffMiddlewa
     Route::get('/', [DashboardController::class, 'index'])->name('index');
     Route::resource('property', AdminPropertyController::class);
 
+    // Admin Boutiques
+    Route::patch('boutique/{boutique}/toggle-active', [AdminBoutiqueController::class, 'toggleActive'])->name('boutique.toggle-active');
+    Route::patch('boutique/{boutique}/toggle-verify', [AdminBoutiqueController::class, 'toggleVerify'])->name('boutique.toggle-verify');
+    Route::resource('boutique', AdminBoutiqueController::class);
+
+    // Admin Bureaux
+    Route::patch('bureau/{bureau}/toggle-active', [AdminBureauController::class, 'toggleActive'])->name('bureau.toggle-active');
+    Route::patch('bureau/{bureau}/toggle-verify', [AdminBureauController::class, 'toggleVerify'])->name('bureau.toggle-verify');
+    Route::resource('bureau', AdminBureauController::class);
+
     // Settings
     Route::get('/settings', [SettingController::class, 'index'])->name('settings.index');
     Route::put('/settings', [SettingController::class, 'update'])->name('settings.update');
-
-    foreach (['boutique', 'bureau'] as $commercialType) {
-        Route::get("{$commercialType}", [AdminCommercialPropertyController::class, 'index'])->defaults('type', $commercialType)->name("{$commercialType}.index");
-        Route::get("{$commercialType}/create", [AdminCommercialPropertyController::class, 'create'])->defaults('type', $commercialType)->name("{$commercialType}.create");
-        Route::post($commercialType, [AdminCommercialPropertyController::class, 'store'])->defaults('type', $commercialType)->name("{$commercialType}.store");
-        Route::get("{$commercialType}/{property}", [AdminCommercialPropertyController::class, 'show'])->defaults('type', $commercialType)->name("{$commercialType}.show");
-        Route::get("{$commercialType}/{property}/edit", [AdminCommercialPropertyController::class, 'edit'])->defaults('type', $commercialType)->name("{$commercialType}.edit");
-        Route::match(['put', 'patch'], "{$commercialType}/{property}", [AdminCommercialPropertyController::class, 'update'])->defaults('type', $commercialType)->name("{$commercialType}.update");
-        Route::delete("{$commercialType}/{property}", [AdminCommercialPropertyController::class, 'destroy'])->defaults('type', $commercialType)->name("{$commercialType}.destroy");
-        Route::patch("{$commercialType}/{property}/toggle-active", [AdminCommercialPropertyController::class, 'toggleActive'])->defaults('type', $commercialType)->name("{$commercialType}.toggle-active");
-        Route::patch("{$commercialType}/{property}/toggle-verify", [AdminCommercialPropertyController::class, 'toggleVerify'])->defaults('type', $commercialType)->name("{$commercialType}.toggle-verify");
-    }
 
     Route::post('/qr-code/generate', [QrCodeController::class, 'generate'])->name('qrcode.generate');
     Route::get('/qr-code/download', [QrCodeController::class, 'download'])->name('qrcode.download');

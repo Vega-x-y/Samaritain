@@ -19,15 +19,15 @@ class ArtisanPaymentService
     {
         DB::transaction(function () use ($transaction) {
             $request = $transaction->artisanRequest;
-            
-            if (!$request) {
+
+            if (! $request) {
                 return;
             }
 
             // Update the request payment status if not already paid
             if ($request->payment_status !== 'DOWN_PAYMENT_PAID' && $request->payment_status !== 'FULLY_PAID') {
                 $request->update([
-                    'payment_status' => 'DOWN_PAYMENT_PAID'
+                    'payment_status' => 'DOWN_PAYMENT_PAID',
                 ]);
             }
 
