@@ -14,10 +14,13 @@
 @endsection
 
 @section('content')
-<div class="container mx-auto max-w-5xl px-3 py-4 sm:px-4 sm:py-8" x-data="conversationApp({{ $conversation->id }})">
-    <div class="flex h-[calc(100vh-160px)] min-h-[520px] flex-col overflow-hidden rounded-3xl border border-gray-200 bg-white shadow-sm shadow-gray-200/40 ring-1 ring-gray-100 dark:border-gray-700 dark:bg-gray-800 dark:ring-gray-700/70 sm:h-[calc(100vh-200px)]">
-        <div class="flex items-center justify-between gap-3 border-b border-gray-200 bg-gradient-to-r from-orange-50 via-white to-white px-4 py-4 dark:border-gray-700 dark:from-orange-500/10 dark:via-gray-800 dark:to-gray-800 sm:px-6">
+<div class="fixed inset-0 z-[60] flex h-[100dvh] w-full flex-col md:static md:mx-auto md:h-[calc(100dvh-8rem)] md:max-w-5xl" x-data="conversationApp({{ $conversation->id }})">
+    <div class="flex min-h-0 flex-1 flex-col overflow-hidden bg-white dark:bg-gray-800 md:rounded-3xl md:border md:border-gray-200 md:shadow-sm md:shadow-gray-200/40 md:ring-1 md:ring-gray-100 md:dark:border-gray-700 md:dark:ring-gray-700/70">
+        <div class="flex shrink-0 items-center justify-between gap-3 border-b border-gray-200 bg-gradient-to-r from-orange-50 via-white to-white px-3 py-3 dark:border-gray-700 dark:from-orange-500/10 dark:via-gray-800 dark:to-gray-800 sm:px-6 sm:py-4">
             <div class="flex min-w-0 items-center gap-3 sm:gap-4">
+                <a href="{{ route('client.messagerie.index') }}" aria-label="Retour à la messagerie" class="shrink-0 rounded-full p-2 text-gray-600 transition hover:bg-orange-100 hover:text-orange-600 dark:text-gray-300 dark:hover:bg-gray-700 dark:hover:text-orange-300 md:hidden">
+                    <i data-lucide="arrow-left" class="h-6 w-6"></i>
+                </a>
                 <div class="flex h-11 w-11 shrink-0 items-center justify-center rounded-2xl bg-orange-100 text-sm font-bold text-orange-600 shadow-sm ring-1 ring-orange-100 dark:bg-orange-900/30 dark:text-orange-400 dark:ring-orange-900/40 sm:h-12 sm:w-12 sm:text-lg">
                     {{ strtoupper(substr($conversation->artisan->business_name ?? 'A', 0, 2)) }}
                 </div>
@@ -36,7 +39,7 @@
             </form>
         </div>
 
-        <div class="flex-1 space-y-3 overflow-y-auto bg-gradient-to-b from-gray-50/80 to-gray-50 px-3 py-4 sm:px-6" id="messages-container">
+        <div class="min-h-0 flex-1 space-y-3 overflow-y-auto bg-gradient-to-b from-gray-50/80 to-gray-50 px-3 py-4 sm:px-6" id="messages-container">
             @foreach ($conversation->messages as $message)
                 <div class="flex {{ $message->expediteur_type === 'client' ? 'justify-end' : 'justify-start' }} gap-2">
                     @if ($message->type === 'payment_link')
@@ -119,7 +122,7 @@
             @endforeach
         </div>
 
-        <form method="POST" action="{{ route('client.messagerie.message', $conversation) }}" class="flex flex-col gap-2 border-t border-gray-200 bg-white px-3 py-3 dark:border-gray-700 dark:bg-gray-800 sm:px-6" enctype="multipart/form-data" x-data="{ fileName: '' }">
+        <form method="POST" action="{{ route('client.messagerie.message', $conversation) }}" class="flex shrink-0 flex-col gap-2 border-t border-gray-200 bg-white px-3 py-3 pb-[calc(0.75rem+env(safe-area-inset-bottom))] dark:border-gray-700 dark:bg-gray-800 sm:px-6 sm:py-3" enctype="multipart/form-data" x-data="{ fileName: '' }">
             @csrf
             <div class="flex min-w-0 gap-2">
                 <div class="min-w-0 flex-1">

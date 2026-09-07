@@ -22,6 +22,11 @@ class ChatWindow extends Component
         $this->reset('body');
     }
 
+    public function closeConversation(): void
+    {
+        $this->reset(['conversationId', 'body']);
+    }
+
     public function getConversationProperty()
     {
         if (! $this->conversationId) {
