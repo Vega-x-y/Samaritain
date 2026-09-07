@@ -2,7 +2,9 @@
 
 namespace App\Livewire\Messenger;
 
+use App\Models\Contract;
 use App\Models\OwnerConversation;
+use App\Models\User;
 use Illuminate\Contracts\View\View;
 use Livewire\Component;
 
@@ -12,11 +14,15 @@ class ConversationList extends Component
 
     public function getConversationsProperty()
     {
-        return OwnerConversation::forUser(auth()->user())
+        $user = auth()->user();
+
+        $this->ensureConversations($user);
+
+        return OwnerConversation::forUser($user)
             ->with('owner', 'tenant', 'contract.property')
             ->orderBy('last_message_at', 'desc')
             ->get()
-            ->map(function ($conversation) {
+            ->map(function (OwnerConversation $conversation): object {
                 $otherUser = $conversation->theOtherUser(auth()->user());
                 $unread = $conversation->unreadCountFor(auth()->id());
                 $lastMessage = $conversation->messages()->first();
@@ -38,6 +44,40 @@ class ConversationList extends Component
                 return str_contains(strtolower($item->other_user->name), strtolower($this->search))
                     || str_contains(strtolower($item->property->title ?? ''), strtolower($this->search));
             });
+    }
+
+    private function ensureConversations(User $user): void
+    {
+        $contracts = Contract::query()
+            ->where('status', 'active')
+            ->where(function ($query) use ($user) {
+                $query->where('created_by', $user->id)
+                    ->orWhere('tenant_email', $user->email);
+            })
+            ->with('creator')
+            ->get();
+
+        foreach ($contracts as $contract) {
+            $owner = $contract->created_by === $user->id
+                ? $user
+                : $contract->creator;
+            $tenant = $contract->tenant_email === $user->email
+                ? $user
+                : User::where('email', $contract->tenant_email)->first();
+
+            if (! $owner || ! $tenant || $owner->is($tenant)) {
+                continue;
+            }
+
+            OwnerConversation::firstOrCreate(
+                ['contract_id' => $contract->id],
+                [
+                    'owner_id' => $owner->id,
+                    'tenant_id' => $tenant->id,
+                    'last_message_at' => now(),
+                ],
+            );
+        }
     }
 
     public function selectConversation(int $conversationId): void

@@ -137,7 +137,14 @@
             <form method="POST" action="{{ route('artisan.messagerie.message', $conversation) }}" class="flex flex-col gap-2 border-t border-gray-200 bg-white px-3 py-3 dark:border-gray-700 dark:bg-gray-800 sm:px-6" enctype="multipart/form-data" x-data="{ fileName: '' }">
                 @csrf
                 <div class="flex gap-2">
-                    <input type="text" name="contenu" placeholder="Écrivez votre message..." class="flex-1 rounded-xl border border-gray-200 bg-white px-4 py-2.5 text-gray-900 shadow-sm transition focus:border-primary focus:ring-2 focus:ring-primary/10 dark:border-gray-600 dark:bg-gray-700 dark:text-white">
+                        <div class="min-w-0 flex-1">
+                            <x-form.textarea
+                                name="contenu"
+                                rows="1"
+                                placeholder="Écrivez votre message..."
+                                class="min-h-11 rounded-xl border-gray-200 px-4 py-2.5 focus:border-primary focus:ring-primary/10 dark:border-gray-600 dark:bg-gray-700"
+                            />
+                        </div>
                     <input type="file" name="fichier" class="hidden" id="file-input" accept=".pdf,.doc,.docx,.jpg,.jpeg,.png" @change="fileName = $event.target.files[0]?.name || ''">
                     <button type="button" onclick="document.getElementById('file-input').click()" class="rounded-xl bg-gray-200 px-4 py-2.5 text-gray-700 transition hover:bg-gray-300 dark:bg-gray-700 dark:text-gray-300 dark:hover:bg-gray-600" title="Joindre un fichier">
                         <i data-lucide="paperclip" class="h-5 w-5"></i>
@@ -145,7 +152,9 @@
                     <button type="button" @click="showPaymentModal = true" class="rounded-xl bg-primary/10 px-4 py-2.5 text-primary transition hover:bg-primary/20 dark:bg-primary/20 dark:text-primary" title="Demander un acompte">
                         <i data-lucide="link" class="h-5 w-5"></i>
                     </button>
-                    <button type="submit" class="rounded-xl bg-primary px-6 py-2.5 font-medium text-white transition hover:bg-primary/90">Envoyer</button>
+                    <button type="submit" aria-label="Envoyer le message" title="Envoyer le message" class="rounded-xl bg-primary px-4 py-2.5 font-medium text-white transition hover:bg-primary/90 sm:px-5">
+                        <i data-lucide="send" class="h-5 w-5"></i>
+                    </button>
                 </div>
                 <div x-show="fileName" x-cloak class="flex items-center gap-2 rounded-xl bg-gray-100 px-3 py-2 text-sm text-gray-600 dark:bg-gray-700 dark:text-gray-300">
                     <i data-lucide="file-text" class="h-4 w-4 text-primary"></i>

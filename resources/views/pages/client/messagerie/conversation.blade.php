@@ -122,12 +122,21 @@
         <form method="POST" action="{{ route('client.messagerie.message', $conversation) }}" class="flex flex-col gap-2 border-t border-gray-200 bg-white px-3 py-3 dark:border-gray-700 dark:bg-gray-800 sm:px-6" enctype="multipart/form-data" x-data="{ fileName: '' }">
             @csrf
             <div class="flex min-w-0 gap-2">
-                <input type="text" name="contenu" placeholder="Écrivez votre message..." class="flex-1 min-w-0 rounded-xl border border-gray-200 bg-white px-3 py-2.5 text-gray-900 shadow-sm transition focus:border-orange-500 focus:ring-2 focus:ring-orange-100 dark:border-gray-600 dark:bg-gray-700 dark:text-white sm:px-4">
+                <div class="min-w-0 flex-1">
+                    <x-form.textarea
+                        name="contenu"
+                        rows="1"
+                        placeholder="Écrivez votre message..."
+                        class="min-h-11 rounded-xl border-gray-200 px-3 py-2.5 focus:border-orange-500 focus:ring-orange-100 dark:border-gray-600 dark:bg-gray-700 sm:px-4"
+                    />
+                </div>
                 <input type="file" name="fichier" class="hidden" id="file-input" accept=".pdf,.doc,.docx,.jpg,.jpeg,.png" @change="fileName = $event.target.files[0]?.name || ''">
                 <button type="button" aria-label="Joindre un fichier" onclick="document.getElementById('file-input').click()" class="shrink-0 rounded-xl bg-gray-200 px-3 py-2.5 text-gray-700 transition hover:bg-gray-300 dark:bg-gray-700 dark:text-gray-300 dark:hover:bg-gray-600 sm:px-4">
                     <i data-lucide="paperclip" class="h-5 w-5"></i>
                 </button>
-                <button type="submit" class="shrink-0 rounded-xl bg-orange-500 px-4 py-2.5 font-medium text-white transition hover:bg-orange-600 sm:px-6">Envoyer</button>
+                <button type="submit" aria-label="Envoyer le message" title="Envoyer le message" class="shrink-0 rounded-xl bg-orange-500 px-3 py-2.5 font-medium text-white transition hover:bg-orange-600 sm:px-4">
+                    <i data-lucide="send" class="h-5 w-5"></i>
+                </button>
             </div>
             <div x-show="fileName" x-cloak class="flex items-center gap-2 rounded-xl bg-gray-100 px-3 py-2 text-sm text-gray-600 dark:bg-gray-700 dark:text-gray-300">
                 <i data-lucide="file-text" class="h-4 w-4 text-orange-500"></i>

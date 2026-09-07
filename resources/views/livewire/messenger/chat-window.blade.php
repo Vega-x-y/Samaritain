@@ -31,18 +31,25 @@
 
         <footer class="p-3 border-t dark:border-gray-800 bg-white dark:bg-gray-900">
             <div class="flex gap-2">
-                <flux:textarea
-                    placeholder="Écrire un message..."
-                    rows="1"
-                    class="!py-2"
-                    wire:model="body"
-                    wire:keydown.enter="sendMessage"
-                />
-                <flux:button
-                    variant="primary"
-                    icon="send"
-                    onclick="$wire.call('sendMessage')"
-                />
+                <div class="min-w-0 flex-1">
+                    <x-form.textarea
+                        name="body"
+                        rows="1"
+                        placeholder="Écrire un message..."
+                        class="!py-2"
+                        wire:model="body"
+                        wire:keydown.enter="sendMessage"
+                    />
+                </div>
+                <button
+                    type="button"
+                    aria-label="Envoyer le message"
+                    title="Envoyer le message"
+                    wire:click="sendMessage"
+                    class="self-start rounded-lg bg-primary px-3 py-2 text-white transition hover:bg-primary/90"
+                >
+                    <i data-lucide="send" class="h-5 w-5"></i>
+                </button>
             </div>
         </footer>
     @endif

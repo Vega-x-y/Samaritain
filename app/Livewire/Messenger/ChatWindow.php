@@ -35,11 +35,11 @@ class ChatWindow extends Component
 
     public function getMessagesProperty()
     {
-        if (! $this->conversationId) {
+        if (! $this->conversation) {
             return collect();
         }
 
-        return OwnerMessage::where('conversation_id', $this->conversationId)
+        return $this->conversation->messages()
             ->with('sender')
             ->orderByDesc('created_at')
             ->take(50)
